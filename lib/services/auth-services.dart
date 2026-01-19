@@ -35,7 +35,7 @@ class AuthServices{
       },
       body: json.encode({
         'name' : name,
-        'email': email,
+        'email': email.trim(),
         'password' : password,
         'password_confirmation' : password_confirmation,
       }),
@@ -51,7 +51,39 @@ class AuthServices{
         'Content-Type': 'application/json',
     },
     body: json.encode({
-      'email' : email,
+      'email' : email.trim(),
+    })
+  );
+}
+
+// otp تابع للتحقق من صحة 
+Future<http.Response> verify_otp({required String email, required String otp_code})async{
+  final url =Uri.parse("${Constants.baseUrl}/verify-otp");
+  return await http.post(
+    url,
+    headers: {
+      'Accept': 'application/json',
+      'Content-Type' :'application/json'
+    },
+    body: json.encode({
+      'email':email.trim(),
+      'otp_code':otp_code.trim()
+    })
+  );
+}
+
+Future<http.Response> reset_password({required String email, required String new_password, required String confirm})async{
+  final url = Uri.parse("${Constants.baseUrl}/reset-password");
+  return await http.post(
+    url,
+    headers: {
+      'Accept': 'application/json',
+      'Content-Type' :'application/json'
+    },
+    body: json.encode({
+      'email':email.trim(),
+      'new_password':new_password,
+      'new_password_confirmation':confirm,
     })
   );
 }

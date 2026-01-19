@@ -17,6 +17,18 @@ final isRegisterdInProvider = Provider<bool>((ref) {
   return ref.watch(authProvider).isRegistered;
 });
 
+final isCodeSentProvider = Provider<bool>((ref) {
+  return ref.watch(authProvider).isCodeSent;
+});
+
+final isVerifyProvider = Provider<bool>((ref) {
+  return ref.watch(authProvider).isVerify;
+});
+
+final isPasswordSetProvider = Provider<bool>((ref) {
+  return ref.watch(authProvider).isPasswordSet;
+});
+
 final userDataProvider = Provider<Map<String, dynamic>?>((ref) {
   return ref.watch(authProvider).userData;
 });

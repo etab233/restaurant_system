@@ -1,21 +1,25 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'dart:ui';
 import 'logIn.dart';
 import 'verification.dart';
+import 'package:restaurants_system/providers/auth-provider.dart';
 
-class ForgotPassword extends StatefulWidget {
+class ForgotPassword extends ConsumerStatefulWidget {
   const ForgotPassword({super.key});
 
   @override
-  State<ForgotPassword> createState() => _ForgotPasswordState();
+  ConsumerState<ForgotPassword> createState() => _ForgotPasswordState();
 }
 
-class _ForgotPasswordState extends State<ForgotPassword> {
+class _ForgotPasswordState extends ConsumerState<ForgotPassword> {
   final _blurIntensity = 5.0;
   final _emailController   = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
 
   @override
   Widget build(BuildContext context) {
+    final authState = ref.watch(authProvider);
     return Scaffold(
       body: Stack(
         children: [
@@ -103,7 +107,9 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                         const SizedBox(height: 20,),
                         
                         //Email Field
-                        TextFormField(
+                      Form(
+                        key: _formKey,
+                        child:TextFormField(
                           controller: _emailController,
                           decoration: InputDecoration(
                             labelText: "Email",
@@ -137,17 +143,43 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                               return "Enter a valid Email";}
                             return null;
                           },
-                      ),
-
+                      ),),
                       const SizedBox(height: 20,),
 
                         ElevatedButton(
-                          onPressed: (){
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(builder: (_) => Verification()),
-                            );
-                          },
+                          onPressed: authState.isLoading
+                            ? null
+                            : () async{
+                              if(_formKey.currentState != null &&_formKey.currentState!.validate()){
+                                await ref.read(authProvider.notifier).forgot_password(_emailController.text);
+                                await Future.delayed(Duration(milliseconds: 500),);
+                                final newState = ref.read(authProvider);
+                                if(newState.message != null){
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(
+                                            newState.message!,
+                                            style: TextStyle(
+                                              fontSize: 20,
+                                            ),
+                                          ),
+                                      backgroundColor: newState.isCodeSent
+                                              ? Colors.green
+                                              : Colors.red,
+                                          duration: Duration(seconds: 4),
+                                    )
+                                  );
+                                }
+                                Future.delayed(Duration(seconds: 2));
+                                if(newState.isCodeSent){
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(builder: (_)=> Verification())
+                                  );
+                                }
+                              }
+                            },
+
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.orange,
                             foregroundColor: Colors.black,
@@ -192,7 +224,6 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                                 );
                               },
                             ),
-                        
                       ],
                     ),
                   ),

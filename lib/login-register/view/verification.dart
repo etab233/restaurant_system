@@ -1,20 +1,23 @@
 import 'package:flutter/material.dart';
 import 'dart:ui';
-
 import 'package:pin_code_fields/pin_code_fields.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:restaurants_system/providers/auth-provider.dart';
+import './resetPassword.dart';
 
-class Verification extends StatefulWidget {
+class Verification extends ConsumerStatefulWidget {
   const Verification({super.key});
 
   @override
-  State<Verification> createState() => _VerificationState();
+  ConsumerState<Verification> createState() => _VerificationState();
 }
 
-class _VerificationState extends State<Verification> {
+class _VerificationState extends ConsumerState<Verification> {
   final _textController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
+    final authState = ref.watch(authProvider);
     return Scaffold(
       body: Stack(
         children: [
@@ -124,7 +127,43 @@ class _VerificationState extends State<Verification> {
                             borderWidth: 1,
                             borderRadius: BorderRadius.circular(8),
                           ),
-                          onChanged: (value) {},
+                          onCompleted:(value) async{
+                              try{
+                                final userData = authState.userData ?? {};
+                                final email = userData['email'];
+                                await ref.read(authProvider.notifier).verify_otp(email, _textController.text);
+                                final newState = ref.read(authProvider);
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(
+                                        newState.message!,
+                                        style: TextStyle(
+                                          fontSize: 20,
+                                        ),
+                                      ),
+                                      backgroundColor: newState.isVerify
+                                        ? Colors.green
+                                        : Colors.red,
+                                      duration: Duration(seconds: 3),
+                                        ),
+                                      );
+                                if(newState.isVerify){
+                                  Navigator.pushReplacement(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => ResetPassword(),
+                                  ),
+                                );
+                                }
+                              }catch (e) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text('An error occured, please try again!'),
+                                  backgroundColor: Colors.red,
+                                ),
+                              );
+                            }
+                          },
                         ),
 
                         const SizedBox(height: 25),
@@ -146,7 +185,27 @@ class _VerificationState extends State<Verification> {
                         ),
 
                         TextButton(
-                          onPressed: () {},
+                          onPressed: () async{
+                            final newState = ref.read(authProvider);
+                            await ref.read(authProvider.notifier).forgot_password(newState.userData!['email']);
+                            await Future.delayed(Duration(milliseconds: 500),);
+                                if(newState.message != null){
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(
+                                        newState.message!,
+                                        style: TextStyle(
+                                          fontSize: 20,
+                                        ),
+                                      ),
+                                      backgroundColor: newState.isCodeSent
+                                              ? Colors.green
+                                              : Colors.red,
+                                          duration: Duration(seconds: 4),
+                                    )
+                                  );
+                                }
+                          },
                           child: Text(
                             "Resend Code",
                             style: TextStyle(
