@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'logIn.dart';
+import 'login.dart';
 
 class Welcome extends StatefulWidget{
   const Welcome({super.key});
@@ -17,7 +17,7 @@ class WelcomeState extends State<Welcome>{
     Future.delayed(Duration(seconds: 2), (){
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (_)=>LogIn())
+        MaterialPageRoute(builder: (_)=>Login())
       );
     });
   }

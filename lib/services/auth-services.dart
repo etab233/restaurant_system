@@ -24,7 +24,7 @@ class AuthServices{
     required String name,
     required String email,
     required String password,
-    required String password_confirmation,
+    required String passwordConfirmation,
   })async{
     final url = Uri.parse("${Constants.baseUrl}/register");
     return await http.post(
@@ -37,7 +37,7 @@ class AuthServices{
         'name' : name,
         'email': email.trim(),
         'password' : password,
-        'password_confirmation' : password_confirmation,
+        'password_confirmation' : passwordConfirmation,
       }),
     );
   }
@@ -57,8 +57,8 @@ class AuthServices{
 }
 
 // otp تابع للتحقق من صحة 
-Future<http.Response> verify_otp({required String email, required String otp_code})async{
-  final url =Uri.parse("${Constants.baseUrl}/verify-otp");
+Future<http.Response> verifyOtp({required String email, required String otpCode, required String purpose})async{
+  final url =Uri.parse("${Constants.baseUrl}/verify-otp-email");
   return await http.post(
     url,
     headers: {
@@ -67,13 +67,14 @@ Future<http.Response> verify_otp({required String email, required String otp_cod
     },
     body: json.encode({
       'email':email.trim(),
-      'otp_code':otp_code.trim()
+      'otp_code':otpCode.trim(),
+      'purpose': purpose,
     })
   );
 }
 
-Future<http.Response> reset_password({required String email, required String new_password, required String confirm})async{
-  final url = Uri.parse("${Constants.baseUrl}/reset-password");
+Future<http.Response> resetPassword({required String password, required String confirmPassword, required String email})async{
+  final url = Uri.parse("${Constants.baseUrl}/set-password");
   return await http.post(
     url,
     headers: {
@@ -81,9 +82,9 @@ Future<http.Response> reset_password({required String email, required String new
       'Content-Type' :'application/json'
     },
     body: json.encode({
-      'email':email.trim(),
-      'new_password':new_password,
-      'new_password_confirmation':confirm,
+      'new_password':password.trim(),
+      'new_password_confirmation':confirmPassword.trim(),
+      'email': email.trim()
     })
   );
 }

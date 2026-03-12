@@ -1,109 +1,129 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:restaurants_system/providers/auth-provider.dart';
-import 'dart:ui';
-import 'forgotPassword.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:restaurants_system/providers/auth_provider.dart';
+import 'forgot_password.dart';
+import 'register.dart';
+import '../home.dart';
 
-class LogIn extends ConsumerStatefulWidget {
-  const LogIn({super.key});
+class Login extends ConsumerStatefulWidget {
+  const Login({super.key});
 
   @override
-  ConsumerState<LogIn> createState() => _LogInState();
+  ConsumerState<Login> createState() => _LoginState();
 }
 
-class _LogInState extends ConsumerState<LogIn> {
+class _LoginState extends ConsumerState<Login> {
   final _passwordController = TextEditingController();
   final _emailController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
   bool _passwordVisible = false;
 
   @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final authState = ref.watch(authProvider);
-
-    // إذا تم تسجيل الدخول بنجاح
-    if (authState.isLoggedIn) {}
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
         child: SingleChildScrollView(
           padding: EdgeInsets.symmetric(horizontal: 25),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              SizedBox(height: MediaQuery.of(context).size.height * 0.03),
-              // النص
-              Text(
-                "Welcome Back!",
-                style: TextStyle(
-                  color: Colors.black,
-                  fontSize: 32,
-                  fontFamily: "PlaypenSans",
-                  shadows: [
-                    Shadow(
-                      blurRadius: 5.0,
-                      color: const Color.fromARGB(79, 255, 255, 255),
-                      offset: Offset(2.0, 2.0),
-                    ),
-                  ],
+              SizedBox(height: MediaQuery.of(context).size.height * 0.09),
+              Align(
+                alignment: Alignment.topLeft,
+                child: Text(
+                  "Welcome Back !",
+                  textAlign: TextAlign.right,
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 34,
+                    fontFamily: "Tajawal",
+                    fontWeight: FontWeight.bold,
+                    shadows: [
+                      Shadow(
+                        blurRadius: 5.0,
+                        color: const Color.fromARGB(79, 255, 255, 255),
+                        offset: Offset(2.0, 2.0),
+                      ),
+                    ],
+                  ),
                 ),
               ),
-              const SizedBox(height: 8),
-              Text(
-                "Explore Delicious Food",
-                style: TextStyle(
-                  color: Colors.black,
-                  fontSize: 24,
-                  fontFamily: "PlaypenSans",
-                  shadows: [
-                    Shadow(
-                      blurRadius: 5.0,
-                      color: const Color.fromARGB(79, 255, 255, 255),
-                      offset: Offset(5.0, 2.0),
-                    ),
-                  ],
+              Align(
+                alignment: Alignment.topLeft,
+                child: Text(
+                  "Fresh • Tasty • Fast",
+                  style: TextStyle(
+                    color: const Color(0xFFFF6347),
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                    fontFamily: "Tajawal",
+                    shadows: [
+                      Shadow(
+                        blurRadius: 5.0,
+                        color: const Color.fromARGB(79, 255, 255, 255),
+                        offset: Offset(5.0, 2.0),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 20),
+              Align(
+                alignment: Alignment.bottomRight,
+                child: Image.asset(
+                  'assets/images/burger.png',
+                  width: 130,
+                  height: 130,
                 ),
               ),
               Form(
                 key: _formKey,
                 child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    //burger photo
-                    Align(
-                      alignment: Alignment.centerRight,
-                      child: Transform.translate(
-                        offset: Offset(30, 40),
-                        child: Image.asset(
-                          'assets/images/burger.png',
-                          width: 250,
-                          height: 250,
-                        ),
-                      ),
-                    ),
                     //Email Field
                     TextFormField(
                       controller: _emailController,
+                      style: TextStyle(color: Colors.black, fontSize: 16),
                       autovalidateMode: AutovalidateMode.onUserInteraction,
                       decoration: InputDecoration(
                         labelText: "Email",
+                        filled: true,
+                        fillColor: Colors.white,
                         labelStyle: TextStyle(color: Colors.black),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10),
-                          borderSide: BorderSide(color: Colors.black, width: 2),
-                        ),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(15),
-                          borderSide: BorderSide(color: Colors.grey, width: 2),
+                          borderSide: BorderSide(
+                            color: const Color(0xFFFF6347),
+                            width: 2,
+                          ),
                         ),
                         errorBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10),
-                          borderSide: BorderSide(color: Colors.red, width: 3),
+                          borderSide: BorderSide(color: Colors.red, width: 2),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(15),
+                          borderSide: BorderSide(
+                            color: Colors.grey,
+                            width: 1.5,
+                          ),
                         ),
                         focusedErrorBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10),
-                          borderSide: BorderSide(color: Colors.red, width: 3),
+                          borderSide: BorderSide(color: Colors.red, width: 2),
                         ),
                         errorStyle: TextStyle(
                           fontSize: 14,
@@ -137,24 +157,33 @@ class _LogInState extends ConsumerState<LogIn> {
                       controller: _passwordController,
                       obscureText: !_passwordVisible,
                       autovalidateMode: AutovalidateMode.onUserInteraction,
+                      style: TextStyle(color: Colors.black, fontSize: 16),
                       decoration: InputDecoration(
                         labelText: 'Password',
+                        filled: true,
+                        fillColor: Colors.white,
                         labelStyle: TextStyle(color: Colors.black),
-                        border: OutlineInputBorder(
+                        enabledBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(15),
-                          borderSide: BorderSide(color: Colors.grey, width: 2),
+                          borderSide: BorderSide(
+                            color: Colors.grey,
+                            width: 1.5,
+                          ),
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10),
-                          borderSide: BorderSide(color: Colors.black, width: 2),
+                          borderSide: BorderSide(
+                            color: const Color(0xFFFF6347),
+                            width: 2,
+                          ),
                         ),
                         errorBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10),
-                          borderSide: BorderSide(color: Colors.red, width: 3),
+                          borderSide: BorderSide(color: Colors.red, width: 2),
                         ),
                         focusedErrorBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10),
-                          borderSide: BorderSide(color: Colors.red, width: 3),
+                          borderSide: BorderSide(color: Colors.red, width: 2),
                         ),
                         errorStyle: TextStyle(
                           fontSize: 14,
@@ -207,62 +236,34 @@ class _LogInState extends ConsumerState<LogIn> {
                   ],
                 ),
               ),
-              const SizedBox(height: 25),
-              Wrap(
-                alignment: WrapAlignment.spaceBetween,
-                runSpacing: 1,
-                children: [
-                  TextButton(
-                    child: Text(
-                      "forgot your password?",
-                      style: TextStyle(
-                        fontSize: 16,
-                        decoration: TextDecoration.underline,
-                        decorationColor: Colors.black,
-                        color: Colors.black,
-                        shadows: [
-                          Shadow(
-                            blurRadius: 5.0,
-                            color: Color.fromARGB(79, 255, 255, 255),
-                            offset: Offset(2.0, 2.0),
-                          ),
-                        ],
-                      ),
+              const SizedBox(height: 8),
+
+              Align(
+                alignment: Alignment.topRight,
+                child: TextButton(
+                  child: Text(
+                    "forgot your password?",
+                    style: TextStyle(
+                      fontSize: 18,
+                      color: Colors.black,
+                      shadows: [
+                        Shadow(
+                          blurRadius: 5.0,
+                          color: Color.fromARGB(79, 255, 255, 255),
+                          offset: Offset(2.0, 2.0),
+                        ),
+                      ],
                     ),
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (_) => ForgotPassword()),
-                      );
-                    },
                   ),
-                  TextButton(
-                    child: Text(
-                      "Create Account",
-                      style: TextStyle(
-                        fontSize: 16,
-                        decoration: TextDecoration.underline,
-                        decorationColor: Colors.black,
-                        color: Colors.black,
-                        shadows: [
-                          Shadow(
-                            blurRadius: 5.0,
-                            color: Color.fromARGB(79, 255, 255, 255),
-                            offset: Offset(2.0, 2.0),
-                          ),
-                        ],
-                      ),
-                    ),
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (_) => ForgotPassword()),
-                      );
-                    },
-                  ),
-                ],
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => ForgotPassword()),
+                    );
+                  },
+                ),
               ),
-              const SizedBox(height: 10),
+              const SizedBox(height: 35),
 
               SizedBox(
                 width: double.infinity,
@@ -294,15 +295,22 @@ class _LogInState extends ConsumerState<LogIn> {
                                 ),
                               );
                             }
+                            // إذا تم تسجيل الدخول بنجاح
+                            if (authState.isLoggedIn) {
+                              Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(builder: (context) => Home()),
+                              );
+                            }
                           }
                         },
-
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.red,
+                    backgroundColor: const Color(0xFFFF6347),
                     foregroundColor: Colors.white,
-                    elevation: 10,
+                    elevation: 5,
+                    shadowColor: Colors.grey,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(15),
+                      borderRadius: BorderRadius.circular(25),
                     ),
                   ),
                   child: authState.isLoading
@@ -315,6 +323,51 @@ class _LogInState extends ConsumerState<LogIn> {
                           ),
                         ),
                 ),
+              ),
+              const SizedBox(height: 25),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    "New user?",
+                    style: TextStyle(
+                      fontSize: 18,
+                      color: Colors.black,
+                      shadows: [
+                        Shadow(
+                          blurRadius: 5.0,
+                          color: Color.fromARGB(79, 255, 255, 255),
+                          offset: Offset(2.0, 2.0),
+                        ),
+                      ],
+                    ),
+                  ),
+                  TextButton(
+                    child: Text(
+                      "Sign Up",
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        decoration: TextDecoration.underline,
+                        decorationColor: const Color(0xFFFF6347),
+                        color: const Color(0xFFFF6347),
+                        shadows: [
+                          Shadow(
+                            blurRadius: 5.0,
+                            color: Color.fromARGB(79, 255, 255, 255),
+                            offset: Offset(2.0, 2.0),
+                          ),
+                        ],
+                      ),
+                    ),
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => Register()),
+                      );
+                    },
+                  ),
+                ],
               ),
             ],
           ),

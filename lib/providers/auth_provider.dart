@@ -1,5 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../notifier/auth-notifier.dart';
+import '../notifier/auth_notifier.dart';
 
 final authProvider = NotifierProvider<AuthNotifier, AuthState>((){
   return AuthNotifier();
@@ -44,3 +44,9 @@ final tokenProvider = Provider<String?>((ref) {
 final rolesProvider = Provider<List<String>?>((ref) {
   return ref.watch(authProvider).roles;
 });
+
+// to determine if the user :(Customer | Restaurant owner) in Register Screen
+enum UserType{
+  customer,
+  restaurantOwner
+}
