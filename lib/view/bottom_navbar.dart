@@ -2,34 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
 
-class Home extends ConsumerStatefulWidget {
-  const Home({super.key});
+class BottomNavBar extends ConsumerStatefulWidget{
+  const BottomNavBar({super.key});
   @override
-  ConsumerState<Home> createState() => _HomeState();
-}
+  ConsumerState<BottomNavBar> createState() =>_BottomNavBarState();
+} 
 
-class _HomeState extends ConsumerState<Home> {
+class _BottomNavBarState extends ConsumerState<BottomNavBar>{
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        title: const Text("App Bar"),
-        centerTitle: true,
-        actions: [
-          IconButton(
-            icon: Icon(Icons.notifications,  size: 35, color: Colors.black,),
-            onPressed: (){},
-          ),
-          IconButton(
-            icon: Icon(Icons.restaurant_menu, size: 35, color: Colors.black,),
-            onPressed: (){},
-          ),
-        ],
-      ),
-      body: Center(child: Text("Home", style: TextStyle(fontSize: 30),)),
-      bottomNavigationBar: Container(
+  Widget build(BuildContext context){
+    return Container(
         decoration: BoxDecoration(
           color: Colors.black,
           borderRadius: BorderRadius.all(Radius.circular(150)),
@@ -53,7 +35,6 @@ class _HomeState extends ConsumerState<Home> {
             ],
           ),
         ),
-      ),
-    );
+      );
   }
 }

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'login.dart';
 import 'verification.dart';
 import 'package:restaurants_system/providers/auth_provider.dart';
 
