@@ -1,6 +1,7 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:restaurants_system/constants.dart';
 import 'package:restaurants_system/providers/auth_provider.dart';
 import 'forgot_password.dart';
 import 'register.dart';
@@ -64,7 +65,7 @@ class _LoginState extends ConsumerState<Login> {
                 child: Text(
                   "Fresh • Tasty • Fast",
                   style: TextStyle(
-                    color: const Color(0xFFFF6347),
+                    color: Color(Constants.orangeColor),
                     fontSize: 22,
                     fontWeight: FontWeight.bold,
                     fontFamily: "Tajawal",
@@ -106,7 +107,7 @@ class _LoginState extends ConsumerState<Login> {
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10),
                           borderSide: BorderSide(
-                            color: const Color(0xFFFF6347),
+                            color: Color(Constants.orangeColor),
                             width: 2,
                           ),
                         ),
@@ -173,7 +174,7 @@ class _LoginState extends ConsumerState<Login> {
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10),
                           borderSide: BorderSide(
-                            color: const Color(0xFFFF6347),
+                            color: Color(Constants.orangeColor),
                             width: 2,
                           ),
                         ),
@@ -284,6 +285,7 @@ class _LoginState extends ConsumerState<Login> {
                             if (newState.message != null) {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
+                                  padding: EdgeInsets.all(5),
                                   content: Text(
                                     newState.message!,
                                     style: TextStyle(fontSize: 20),
@@ -296,7 +298,8 @@ class _LoginState extends ConsumerState<Login> {
                               );
                             }
                             // إذا تم تسجيل الدخول بنجاح
-                            if (authState.isLoggedIn) {
+                            final myState = ref.read(authProvider);
+                            if (myState.isLoggedIn) {
                               Navigator.pushReplacement(
                                 context,
                                 MaterialPageRoute(builder: (context) => Home()),
@@ -305,7 +308,7 @@ class _LoginState extends ConsumerState<Login> {
                           }
                         },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFFFF6347),
+                    backgroundColor: Color(Constants.orangeColor),
                     foregroundColor: Colors.white,
                     elevation: 5,
                     shadowColor: Colors.grey,
@@ -349,8 +352,8 @@ class _LoginState extends ConsumerState<Login> {
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
                         decoration: TextDecoration.underline,
-                        decorationColor: const Color(0xFFFF6347),
-                        color: const Color(0xFFFF6347),
+                        decorationColor: Color(Constants.orangeColor),
+                        color: Color(Constants.orangeColor),
                         shadows: [
                           Shadow(
                             blurRadius: 5.0,

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'view/login-register/login.dart';
+import 'package:restaurants_system/view/home.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 void main() {
@@ -13,7 +13,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Restaurants System',
-      home: Login(),
+      home: Home(),
       debugShowCheckedModeBanner: false,
     );
   }

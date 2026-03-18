@@ -1,7 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:restaurants_system/providers/auth_provider.dart';
-import '../services/auth-services.dart';
+import '../services/auth_services.dart';
 import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthState {
   final bool isLoading;
@@ -78,13 +79,14 @@ class AuthNotifier extends Notifier<AuthState> {
       );
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString("token", data['data']['access_token']);
         state = state.copyWith(
           isLoading: false,
           isLoggedIn: true,
-          userData: data['user'] ?? data,
-          token: data['access_token'],
-          roles: data['roles'] != null
-              ? List<String>.from(data['roles'])
+          userData: data['data']['user'] ?? data,
+          roles: data['data']['roles'] != null
+              ? List<String>.from(data['data']['roles'])
               : null,
           message: data['message'] ?? "login Successfully",
         );
@@ -96,7 +98,8 @@ class AuthNotifier extends Notifier<AuthState> {
         );
       }
     } catch (e) {
-      state = state.copyWith(isLoading: false, message: "try again please..");
+      print(e);
+      state = state.copyWith(isLoading: false, message: "$e");
     }
   }
 
@@ -215,6 +218,8 @@ class AuthNotifier extends Notifier<AuthState> {
         if (purpose == "register") {
           isRegister = true;
           isPasswordSet = false;
+          final prefs = await SharedPreferences.getInstance();
+          await prefs.setString("token", data['data']['access_token']);
         } else if (purpose == "reset_password") {
           isPasswordSet = true;
           isRegister = false;
@@ -225,7 +230,7 @@ class AuthNotifier extends Notifier<AuthState> {
           isRegistered: isRegister,
           isPasswordSet: isPasswordSet,
           message: data['message'],
-          userData: data['data']['user']
+          userData: data['data']['user'],
         );
       } else {
         final data = json.decode(response.body);
@@ -242,26 +247,27 @@ class AuthNotifier extends Notifier<AuthState> {
         isLoading: false,
         isVerify: false,
         isRegistered: false,
-          isCodeSent: false,
+        isCodeSent: false,
         message: 'failed to verify your code! try again please.',
       );
     }
   }
 
-  Future<String> setPassword(String password, String confirmPassword, String email) async {
+  Future<String> setPassword(
+    String password,
+    String confirmPassword,
+    String email,
+  ) async {
     state = state.copyWith(isLoading: true, message: null);
     try {
       final response = await _authService.resetPassword(
         password: password,
         confirmPassword: confirmPassword,
-        email: email
+        email: email,
       );
       if (response.statusCode == 200 || response.statusCode == 201) {
         final data = json.decode(response.body);
-        state = state.copyWith(
-          isLoading: false,
-          isPasswordSet: true,
-        );
+        state = state.copyWith(isLoading: false, isPasswordSet: true);
         return data['message'];
       } else {
         final data = json.decode(response.body);
@@ -273,18 +279,12 @@ class AuthNotifier extends Notifier<AuthState> {
           } else if (firstError is String) {
             return firstError;
           }
-          state = state.copyWith(
-            isLoading: false,
-            isPasswordSet: false,
-          );
+          state = state.copyWith(isLoading: false, isPasswordSet: false);
         }
-        return  "Failed to reset password";
+        return "Failed to reset password";
       }
     } catch (e) {
-      state = state.copyWith(
-        isLoading: false,
-        isPasswordSet: false,
-      );
+      state = state.copyWith(isLoading: false, isPasswordSet: false);
       return "Failed to reset your password, please try again !";
     }
   }

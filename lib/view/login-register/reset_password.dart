@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:restaurants_system/providers/auth_provider.dart';
 import 'package:restaurants_system/view/home.dart';
+import 'package:restaurants_system/constants.dart';
 
 class ResetPassword extends ConsumerStatefulWidget {
   const ResetPassword({super.key});
@@ -89,7 +90,7 @@ class _ResetPasswordState extends ConsumerState<ResetPassword> {
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10),
                           borderSide: BorderSide(
-                            color: const Color(0xFFFF6347),
+                            color: Color(Constants.orangeColor),
                             width: 2,
                           ),
                         ),
@@ -165,7 +166,7 @@ class _ResetPasswordState extends ConsumerState<ResetPassword> {
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10),
                           borderSide: BorderSide(
-                            color: const Color(0xFFFF6347),
+                            color: Color(Constants.orangeColor),
                             width: 2,
                           ),
                         ),
@@ -271,7 +272,7 @@ class _ResetPasswordState extends ConsumerState<ResetPassword> {
                         },
 
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFFFF6347),
+                    backgroundColor: Color(Constants.orangeColor),
                     foregroundColor: Colors.white,
                     elevation: 10,
                     shape: RoundedRectangleBorder(

@@ -4,6 +4,7 @@ import 'package:restaurants_system/providers/auth_provider.dart';
 import 'login.dart';
 import 'verification.dart';
 import 'dart:ui';
+import 'package:restaurants_system/constants.dart';
 
 class Register extends ConsumerStatefulWidget {
   const Register({super.key});
@@ -93,7 +94,7 @@ class _RegisterState extends ConsumerState<Register> {
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10),
                           borderSide: BorderSide(
-                            color: const Color(0xFFFF6347),
+                            color: Color(Constants.orangeColor),
                             width: 2.5,
                           ),
                         ),
@@ -147,7 +148,7 @@ class _RegisterState extends ConsumerState<Register> {
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(10),
                               borderSide: BorderSide(
-                                color: const Color(0xFFFF6347),
+                                color: Color(Constants.orangeColor),
                                 width: 2.5,
                               ),
                             ),
@@ -221,7 +222,7 @@ class _RegisterState extends ConsumerState<Register> {
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(10),
                               borderSide: BorderSide(
-                                color: const Color(0xFFFF6347),
+                                color: Color(Constants.orangeColor),
                                 width: 2.5,
                               ),
                             ),
@@ -309,7 +310,7 @@ class _RegisterState extends ConsumerState<Register> {
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(10),
                               borderSide: BorderSide(
-                                color: const Color(0xFFFF6347),
+                                color: Color(Constants.orangeColor),
                                 width: 2.5,
                               ),
                             ),
@@ -427,7 +428,7 @@ class _RegisterState extends ConsumerState<Register> {
                         },
 
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFFFF6347),
+                    backgroundColor: Color(Constants.orangeColor),
                     foregroundColor: Colors.white,
                     elevation: 5,
                     shadowColor: Colors.grey,
@@ -465,8 +466,8 @@ class _RegisterState extends ConsumerState<Register> {
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
                         decoration: TextDecoration.underline,
-                        decorationColor: const Color(0xFFFF6347),
-                        color: const Color(0xFFFF6347),
+                        decorationColor: Color(Constants.orangeColor),
+                        color: Color(Constants.orangeColor),
                         shadows: [
                           Shadow(
                             blurRadius: 5.0,
