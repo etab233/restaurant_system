@@ -280,12 +280,12 @@ class _LoginState extends ConsumerState<Login> {
                                   _emailController.text,
                                   _passwordController.text,
                                 );
-                            await Future.delayed(Duration(milliseconds: 500));
+                            if (!mounted) return;
                             final newState = ref.read(authProvider);
                             if (newState.message != null) {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
-                                  padding: EdgeInsets.all(5),
+                                  padding: EdgeInsets.all(15),
                                   content: Text(
                                     newState.message!,
                                     style: TextStyle(fontSize: 20),
@@ -297,6 +297,7 @@ class _LoginState extends ConsumerState<Login> {
                                 ),
                               );
                             }
+                            if (!mounted) return;
                             // إذا تم تسجيل الدخول بنجاح
                             final myState = ref.read(authProvider);
                             if (myState.isLoggedIn) {

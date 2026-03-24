@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:restaurants_system/providers/auth_provider.dart';
-import '../services/auth_services.dart';
+import '../services/api/auth_services.dart';
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -98,8 +98,7 @@ class AuthNotifier extends Notifier<AuthState> {
         );
       }
     } catch (e) {
-      print(e);
-      state = state.copyWith(isLoading: false, message: "$e");
+      state = state.copyWith(isLoading: false, message: "failed to login");
     }
   }
 
@@ -160,7 +159,7 @@ class AuthNotifier extends Notifier<AuthState> {
       state = state.copyWith(
         isLoading: false,
         isRegistered: false,
-        message: "Error: $e",
+        message: "failed to register",
       );
     }
   }
@@ -199,7 +198,7 @@ class AuthNotifier extends Notifier<AuthState> {
       state = state.copyWith(
         isLoading: false,
         isCodeSent: false,
-        message: "Error: $e",
+        message: "failed to optain code",
       );
     }
   }

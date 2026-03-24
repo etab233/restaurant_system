@@ -25,3 +25,11 @@ final pickedLocationProvider = Provider<LatLng?>((ref) {
 final finalAddressProvider = Provider<bool?>((ref){
   return ref.watch(restaurantRequestProvider).findAddress;
 });
+
+final categories = Provider<Map<String,int>?>((ref){
+  return ref.watch(restaurantRequestProvider).categories;
+});
+
+final isLoadCategories = Provider<bool?>((ref) {
+  return ref.watch(restaurantRequestProvider).isLoadCategories;
+});
