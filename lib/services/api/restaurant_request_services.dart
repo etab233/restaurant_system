@@ -1,8 +1,6 @@
 import 'package:http/http.dart' as http;
-import 'package:restaurants_system/providers/auth_provider.dart';
-import 'package:restaurants_system/providers/restaurant_request_provider.dart';
 import 'dart:convert';
-import '../constants.dart';
+import '../../constants.dart';
 import 'package:latlong2/latlong.dart';
 
 class RestaurantRequestServices {
@@ -13,6 +11,7 @@ class RestaurantRequestServices {
     required String address,
     double? latitude,
     double? longitude,
+    required List<int> categories,
     required String token,
   }) async {
     final url = Uri.parse("${Constants.baseUrl}/restaurant-request");
@@ -28,6 +27,7 @@ class RestaurantRequestServices {
         'description': description,
         'restaurant_phone': number,
         'address': address,
+        'categories' : categories,
         'latitude': latitude,
         'longitude': longitude
       }),
@@ -57,6 +57,16 @@ class RestaurantRequestServices {
     return await http.get(
       url,
       headers: {"User-Agent": "restaurant_app", "Accept-Language": "ar"},
+    );
+  }
+
+  Future<http.Response> fetchCategories({required String token}) async{
+    final url = Uri.parse("${Constants.baseUrl}/restaurant-categories");
+    return await http.get(
+      url,
+      headers: {
+        "Authorization": "Bearer $token",
+      }
     );
   }
 }
