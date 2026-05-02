@@ -1,7 +1,9 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:restaurants_system/providers/auth_provider.dart';
-import 'package:restaurants_system/view/home.dart';
+import 'package:restaurants_system/view/home/home.dart';
 import 'package:restaurants_system/constants.dart';
 
 class ResetPassword extends ConsumerStatefulWidget {
@@ -100,7 +102,7 @@ class _ResetPasswordState extends ConsumerState<ResetPassword> {
                         ),
                         focusedErrorBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10),
-                          borderSide: BorderSide(color: Colors.red, width: 3),
+                          borderSide: BorderSide(color: const Color(0xFFFF7A3D), width: 3),
                         ),
                         errorStyle: TextStyle(
                           fontSize: 14,
@@ -176,7 +178,7 @@ class _ResetPasswordState extends ConsumerState<ResetPassword> {
                         ),
                         focusedErrorBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10),
-                          borderSide: BorderSide(color: Colors.red, width: 3),
+                          borderSide: BorderSide(color: const Color(0xFFFF7A3D), width: 3),
                         ),
                         errorStyle: TextStyle(
                           fontSize: 14,

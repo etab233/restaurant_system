@@ -18,6 +18,7 @@ class LocationState {
 }
 
 class LocationNotifier extends Notifier<LocationState> {
+  // ignore: unused_field
   late LocationServices _locationServices;
   @override
   LocationState build(){

@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:restaurants_system/providers/auth_provider.dart';
@@ -111,7 +113,7 @@ class _RegisterState extends ConsumerState<Register> {
                         ),
                         focusedErrorBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10),
-                          borderSide: BorderSide(color: Colors.red, width: 3),
+                          borderSide: BorderSide(color: const Color(0xFFFF7A3D), width: 3),
                         ),
                         errorStyle: TextStyle(
                           fontSize: 14,
@@ -169,7 +171,7 @@ class _RegisterState extends ConsumerState<Register> {
                             focusedErrorBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(10),
                               borderSide: BorderSide(
-                                color: Colors.red,
+                                color: const Color(0xFFFF7A3D),
                                 width: 3,
                               ),
                             ),
@@ -236,7 +238,7 @@ class _RegisterState extends ConsumerState<Register> {
                             focusedErrorBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(10),
                               borderSide: BorderSide(
-                                color: Colors.red,
+                                color: const Color(0xFFFF7A3D),
                                 width: 3,
                               ),
                             ),
@@ -324,7 +326,7 @@ class _RegisterState extends ConsumerState<Register> {
                             focusedErrorBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(10),
                               borderSide: BorderSide(
-                                color: Colors.red,
+                                color: const Color(0xFFFF7A3D),
                                 width: 3,
                               ),
                             ),
@@ -428,7 +430,7 @@ class _RegisterState extends ConsumerState<Register> {
                         },
 
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Color(Constants.orangeColor),
+                    backgroundColor: const Color(0xFFFF7A3D),
                     foregroundColor: Colors.white,
                     elevation: 5,
                     shadowColor: Colors.grey,
@@ -467,7 +469,7 @@ class _RegisterState extends ConsumerState<Register> {
                         fontWeight: FontWeight.bold,
                         decoration: TextDecoration.underline,
                         decorationColor: Color(Constants.orangeColor),
-                        color: Color(Constants.orangeColor),
+                        color: const Color(0xFFFF7A3D),
                         shadows: [
                           Shadow(
                             blurRadius: 5.0,

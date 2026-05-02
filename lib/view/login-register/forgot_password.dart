@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'verification.dart';
@@ -56,7 +58,7 @@ class _ForgotPasswordState extends ConsumerState<ForgotPassword> {
                 ),
               ),
               const SizedBox(height: 10),
-              Icon(Icons.key, size: 55, color: const Color(0xFFFF6347)),
+              Icon(Icons.key, size: 55, color: const Color(0xFFFF7A3D)),
 
               const SizedBox(height: 20),
 
@@ -159,7 +161,7 @@ class _ForgotPasswordState extends ConsumerState<ForgotPassword> {
                         },
 
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFFFF6347),
+                    backgroundColor: const Color(0xFFFF7A3D),
                     foregroundColor: Colors.white,
                     elevation: 10,
                     shape: RoundedRectangleBorder(

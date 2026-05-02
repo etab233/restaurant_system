@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:restaurants_system/constants.dart';
 
 class MapScreen extends StatefulWidget {
   final LatLng initialLocation;
@@ -10,12 +11,13 @@ class MapScreen extends StatefulWidget {
 }
 
 class _MapScreenState extends State<MapScreen> {
-  final _mapController = MapController();
+  final _mapController = MapController(); // dispose لا يحتاج
   late LatLng pickedLocation;
   @override
   void initState() {
     super.initState();
-    pickedLocation = widget.initialLocation;
+    pickedLocation =
+        widget.initialLocation; // القيمة التي مررناها للصفحة عند الإنشاء
   }
 
   @override
@@ -39,7 +41,7 @@ class _MapScreenState extends State<MapScreen> {
             children: [
               TileLayer(
                 urlTemplate: "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
-                userAgentPackageName: "com.example.notes_app",
+                userAgentPackageName: 'com.example.restaurants_system',
               ),
               MarkerLayer(
                 markers: [
@@ -51,6 +53,37 @@ class _MapScreenState extends State<MapScreen> {
               ),
             ],
           ),
+          //  أزرار الزوم
+          Positioned(
+            right: 15,
+            bottom: 100,
+            child: Column(
+              children: [
+                FloatingActionButton.small(
+                  backgroundColor: Colors.white,
+                  onPressed: () {
+                    final currentZoom =
+                        _mapController.camera.zoom; // مركز الخريطة
+                    final center = _mapController.camera.center; // مركز الخريطة
+
+                    _mapController.move(center, currentZoom + 1);
+                  },
+                  child: Icon(Icons.add),
+                ),
+                SizedBox(height: 10),
+                FloatingActionButton.small(
+                  backgroundColor: Colors.white,
+                  onPressed: () {
+                    final currentZoom = _mapController.camera.zoom;
+                    final center = _mapController.camera.center;
+
+                    _mapController.move(center, currentZoom - 1);
+                  },
+                  child: Icon(Icons.remove),
+                ),
+              ],
+            ),
+          ),
           Positioned(
             bottom: 20,
             left: 20,
@@ -60,7 +93,7 @@ class _MapScreenState extends State<MapScreen> {
               child: ElevatedButton(
                 onPressed: () => Navigator.pop(context, pickedLocation),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFFFF6347),
+                  backgroundColor: const Color(Constants.orangeColor),
                   foregroundColor: Colors.black,
                   elevation: 10,
                   padding: EdgeInsets.all(15),
