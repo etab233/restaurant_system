@@ -34,7 +34,7 @@ class _BodyInfoScreenState extends State<BodyInfoScreen> {
             height: 55,
             child: ElevatedButton(
               onPressed: ()async {
-                final h = int.tryParse(heightController.text);
+                final h = double.tryParse(heightController.text);
                 final w = double.tryParse(weightController.text);
 
                 if (h == null || w == null) {
@@ -65,7 +65,7 @@ class _BodyInfoScreenState extends State<BodyInfoScreen> {
                 }
 
                 final prefs = await SharedPreferences.getInstance();
-                await prefs.setInt('height', h);
+                await prefs.setDouble('height', h);
                 await prefs.setDouble('weight', w);
 
                 Navigator.push(context, MaterialPageRoute(builder: (_)=> ActivityGoalScreen()));

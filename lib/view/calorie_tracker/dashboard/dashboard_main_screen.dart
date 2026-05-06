@@ -8,6 +8,7 @@ import 'package:restaurants_system/models/dashboard_model.dart';
 import 'package:restaurants_system/providers/auth_provider.dart';
 import 'package:restaurants_system/providers/dashboard_provider.dart';
 import 'package:restaurants_system/utils/calorie_logic.dart';
+import 'package:restaurants_system/view/calorie_tracker/scan_meal/add_meal_pic.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class Dashboard extends ConsumerStatefulWidget {
@@ -714,20 +715,6 @@ class DashboardState extends ConsumerState<Dashboard> {
             ],
           ),
 
-          /*Container(
-            width: 90,
-            height: 90,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              gradient: LinearGradient(
-                colors: [_green.withOpacity(0.5), _orange.withOpacity(0.3)],
-              ),
-              border: Border.all(color: Colors.white24, width: 2),
-            ),
-            child: const Center(
-              child: Text("🍽️", style: TextStyle(fontSize: 40)),
-            ),
-          ),*/
           const SizedBox(width: 16),
 
           Column(
@@ -753,7 +740,7 @@ class DashboardState extends ConsumerState<Dashboard> {
               const SizedBox(height: 12),
               ElevatedButton.icon(
                 onPressed: () {
-                  // TODO: launch camera
+                  Navigator.push(context, MaterialPageRoute(builder: (_)=> AddMealPic()));
                 },
                 icon: const Icon(Icons.camera_alt_rounded, size: 18),
                 label: const Text(

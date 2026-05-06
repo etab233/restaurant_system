@@ -9,12 +9,14 @@ import 'package:restaurants_system/providers/home_provider.dart';
 import 'package:restaurants_system/providers/restaurant_request_provider.dart';
 import 'package:restaurants_system/providers/search_provider.dart';
 import 'package:restaurants_system/view/bottom_navbar.dart';
-import 'package:restaurants_system/view/calorie_tracker/error_screen.dart' show ErrorScreen;
+import 'package:restaurants_system/view/calorie_tracker/error_screen.dart'
+    show ErrorScreen;
 import 'package:restaurants_system/view/calorie_tracker/welcome.dart';
-import 'package:restaurants_system/view/categories/categories_list.dart';
+import 'package:restaurants_system/view/categories/categories_grid.dart';
 import 'package:restaurants_system/view/home/bubble_widget.dart';
 import 'package:restaurants_system/view/login-register/login.dart';
 import 'package:restaurants_system/view/login-register/register.dart';
+import 'package:restaurants_system/view/restaurant-request/lock_screen.dart';
 import 'package:restaurants_system/view/restaurant-request/restaurant_request.dart';
 import 'package:restaurants_system/view/categories/category_card.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -35,7 +37,6 @@ class Home extends ConsumerStatefulWidget {
 class _HomeState extends ConsumerState<Home> with TickerProviderStateMixin {
   final _searchController = TextEditingController();
   Timer? _debounce;
-  String? _token;
   String userLocation = "Home";
 
   // bubble controller
@@ -50,9 +51,11 @@ class _HomeState extends ConsumerState<Home> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
-    _loadToken();
-    Future.microtask(() => ref.read(homeProvider.notifier).getHomeData());
     _initBubbles();
+    Future.microtask(() async {
+      await initAuth(ref);
+      ref.read(homeProvider.notifier).getHomeData();
+    });
   }
 
   void _initBubbles() {
@@ -71,25 +74,26 @@ class _HomeState extends ConsumerState<Home> with TickerProviderStateMixin {
       duration: const Duration(milliseconds: 2000),
     )..repeat(reverse: true);
 
-    _bubble1Anim = Tween(
-      begin: 0.0,
-      end: -20.0,
-    ).animate(CurvedAnimation(parent: _bubble1Ctrl, curve: Curves.easeInOutCubic));
+    _bubble1Anim = Tween(begin: 0.0, end: -20.0).animate(
+      CurvedAnimation(parent: _bubble1Ctrl, curve: Curves.easeInOutCubic),
+    );
 
-    _bubble2Anim = Tween(
-      begin: 0.0,
-      end: -10.0,
-    ).animate(CurvedAnimation(parent: _bubble2Ctrl, curve: Curves.easeInOutCubic));
+    _bubble2Anim = Tween(begin: 0.0, end: -10.0).animate(
+      CurvedAnimation(parent: _bubble2Ctrl, curve: Curves.easeInOutCubic),
+    );
 
-    _bubble3Anim = Tween(
-      begin: 0.0,
-      end: -15.0,
-    ).animate(CurvedAnimation(parent: _bubble3Ctrl, curve: Curves.easeInOutCubic));
+    _bubble3Anim = Tween(begin: 0.0, end: -15.0).animate(
+      CurvedAnimation(parent: _bubble3Ctrl, curve: Curves.easeInOutCubic),
+    );
   }
 
-  Future<void> _loadToken() async {
+  Future<void> initAuth(WidgetRef ref) async {
     final prefs = await SharedPreferences.getInstance();
-    setState(() => _token = prefs.getString('token'));
+    final token = prefs.getString('token');
+
+    if (token != null) {
+      ref.read(authProvider.notifier).restoreSession(token);
+    }
   }
 
   @override
@@ -125,7 +129,7 @@ class _HomeState extends ConsumerState<Home> with TickerProviderStateMixin {
         children: [
           _buildAppBar(resState),
 
-          const SizedBox(height: 30), // مهم لأنه search طالع لفوق
+          const SizedBox(height: 30),
           Expanded(
             child: switch (homeState.status) {
               'loading' => Skeletonizer(
@@ -200,56 +204,56 @@ class _HomeState extends ConsumerState<Home> with TickerProviderStateMixin {
                     ),
                   ),
                   const SizedBox(height: 4),
-                  Row(
-                    children: [
-                      Icon(Icons.location_on, color: Colors.white, size: 18),
-                      SizedBox(width: 4),
-                      Text(
-                        userLocation == "Home" ? "Home" : userLocation,
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
+                  InkWell(
+                    onTap: () async {
+                      final location = await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => CustomerLocation(),
                         ),
-                      ),
-                      InkWell(
-                        child: Icon(
+                      );
+
+                      if (location != null) {
+                        final lat = location["lat"];
+                        final lng = location["lng"];
+                        final address = location["address"];
+
+                        setState(() {
+                          String locationString = address.toString();
+                          List<String> parts = locationString
+                              .split(',')
+                              .map((e) => e.trim())
+                              .toList();
+
+                          userLocation = parts.first;
+                        });
+
+                        ref
+                            .read(homeProvider.notifier)
+                            .getHomeData(
+                              lat: lat.toString(),
+                              lng: lng.toString(),
+                            );
+                      }
+                    },
+                    child: Row(
+                      children: [
+                        Icon(Icons.location_on, color: Colors.white, size: 18),
+                        SizedBox(width: 4),
+                        Text(
+                          userLocation == "Home" ? "Home" : userLocation,
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        Icon(
                           Icons.keyboard_arrow_down_rounded,
                           color: Colors.white,
                         ),
-                        onTap: () async {
-                          final location = await Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => CustomerLocation(),
-                            ),
-                          );
-
-                          if (location != null) {
-                            final lat = location["lat"];
-                            final lng = location["lng"];
-                            final address = location["address"];
-
-                            setState(() {
-                              String locationString = address.toString();
-                              List<String> parts = locationString
-                                  .split(',')
-                                  .map((e) => e.trim())
-                                  .toList();
-
-                              userLocation = parts.first;
-                            });
-
-                            ref
-                                .read(homeProvider.notifier)
-                                .getHomeData(
-                                  lat: lat.toString(),
-                                  lng: lng.toString(),
-                                );
-                          }
-                        },
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ],
               ),
@@ -409,7 +413,7 @@ class _HomeState extends ConsumerState<Home> with TickerProviderStateMixin {
                     const SizedBox(width: 12),
                     Expanded(
                       child: Text(
-                        _token == null
+                        authState.userData == null
                             ? "Welcome Guest"
                             : "Welcome ${authState.userData?['name']}",
                         style: const TextStyle(
@@ -430,7 +434,10 @@ class _HomeState extends ConsumerState<Home> with TickerProviderStateMixin {
                 title: "Restaurant request",
                 onTap: () => Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (_) => RestaurantRequest()),
+                  MaterialPageRoute(
+                    builder: (_) =>
+                        authState.userData != null ? RestaurantRequest() : LockScreen(),
+                  ),
                 ),
               ),
 
@@ -457,62 +464,68 @@ class _HomeState extends ConsumerState<Home> with TickerProviderStateMixin {
                 title: "Calorie tracker",
                 onTap: () => Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (_)=> _token ==null? ErrorScreen() : Welcome()),
+                  MaterialPageRoute(
+                    builder: (_) => authState.userData == null ? ErrorScreen() : Welcome(),
+                  ),
                 ),
               ),
               Spacer(),
 
-              if(_token == null ) Padding(
-                padding: EdgeInsetsGeometry.symmetric(
-                  vertical: 10,
-                  horizontal: 20,
-                ),
-                child: SizedBox(
-                  height: 50,
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: colors.primary,
-                      foregroundColor: colors.onPrimary,
-                    ),
-                    onPressed: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (_) => Login()),
-                    ),
-                    child: Text(
-                      "Log in",
-                      style: TextStyle(fontWeight: FontWeight.bold),
+              if (authState.userData == null)
+                Padding(
+                  padding: EdgeInsetsGeometry.symmetric(
+                    vertical: 10,
+                    horizontal: 20,
+                  ),
+                  child: SizedBox(
+                    height: 50,
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: colors.primary,
+                        foregroundColor: colors.onPrimary,
+                      ),
+                      onPressed: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => Login(redirectTo: "home"),
+                        ),
+                      ),
+                      child: Text(
+                        "Log in",
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
                     ),
                   ),
                 ),
-              ),
 
-              if(_token == null ) Padding(
-                padding: EdgeInsetsGeometry.only(
-                  bottom: 20,
-                  right: 20,
-                  left: 20,
-                ),
-                child: SizedBox(
-                  height: 50,
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      elevation: 10,
-                      foregroundColor: colors.primary,
-                      backgroundColor: Colors.black,
-                    ),
-                    onPressed: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (_) => Register()),
-                    ),
-                    child: Text(
-                      "Sing Up",
-                      style: TextStyle(fontWeight: FontWeight.bold),
+              if (authState.userData == null)
+                Padding(
+                  padding: EdgeInsetsGeometry.only(
+                    bottom: 20,
+                    right: 20,
+                    left: 20,
+                  ),
+                  child: SizedBox(
+                    height: 50,
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        elevation: 10,
+                        foregroundColor: colors.primary,
+                        backgroundColor: Colors.black,
+                      ),
+                      onPressed: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => Register()),
+                      ),
+                      child: Text(
+                        "Sing Up",
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
                     ),
                   ),
                 ),
-              ),
             ],
           ),
         ),
@@ -547,7 +560,7 @@ class _HomeBody extends StatelessWidget {
 
             const SizedBox(height: 20),
             Text(
-              userLocation != "Select location"
+              userLocation != "Home"
                   ? "Restaurants Near You:"
                   : "Top Rated Restaurants:",
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
@@ -661,33 +674,48 @@ class _MoreButton extends StatelessWidget {
         context,
         MaterialPageRoute(builder: (_) => const CategoriesList()),
       ),
-      child: SizedBox(
-        width: 80,
+      child: Container(
+        width: 76,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(18),
+          border: Border.all(color: Colors.grey.shade100, width: 1.5),
+        ),
+        clipBehavior:
+            Clip.antiAlias, // قص الحدود الخارجة عن المحتوى بطريقة مرنة
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Container(
-              height: 65,
-              width: 65,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(15),
-                color: colors.surface,
-                border: Border.all(color: colors.outline.withOpacity(0.4)),
-              ),
-              child: Icon(
-                Icons.grid_view_rounded,
-                size: 26,
-                color: colors.primary,
+            Expanded(
+              child: Container(
+                height: 65,
+                width: 65,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(15),
+                  color: colors.surface,
+                  border: Border.all(color: colors.outline.withOpacity(0.4)),
+                ),
+                child: Icon(
+                  Icons.grid_view_rounded,
+                  size: 36,
+                  color: colors.primary,
+                ),
               ),
             ),
-            const SizedBox(height: 6),
-            SizedBox(
-              height: 32,
-              child: Text(
-                "More",
-                style: TextStyle(
-                  fontSize: 11,
-                  color: colors.onSurface.withOpacity(0.7),
+            Container(
+              width: double.infinity,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(15),
+              ),
+              padding: const EdgeInsets.symmetric(vertical: 5),
+              child: Center(
+                child: Text(
+                  "More",
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w700,
+                    color: colors.onSurface,
+                  ),
                 ),
               ),
             ),

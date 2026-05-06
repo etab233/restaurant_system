@@ -2,7 +2,6 @@
 
 import 'package:flutter/material.dart';
 import 'package:restaurants_system/models/restaurant_model.dart';
-import 'package:restaurants_system/utils/category_utils.dart';
 
 class RestaurantCard extends StatelessWidget {
   final RestaurantModel restaurant;
@@ -13,7 +12,6 @@ class RestaurantCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
-    final color = CategoryUtils.colorFromName(restaurant.name);
     return InkWell(
       onTap: onTap,
       child: Container(
@@ -45,7 +43,6 @@ class RestaurantCard extends StatelessWidget {
               right: 7,
               child: _LogoAvatar(
                 name: restaurant.name,
-                color: color,
                 logoUrl: restaurant.logo,
               ),
             ),
@@ -63,15 +60,12 @@ class _CoverSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = CategoryUtils.colorFromName(restaurant.name);
-
     return Stack(
       children: [
         ClipRRect(
           borderRadius: const BorderRadius.vertical(top: Radius.circular(18)),
           child: _CoverPlaceholder(
             name: restaurant.name,
-            color: color,
             coverUrl: restaurant.coverImage,
           ),
         ),
@@ -90,12 +84,10 @@ class _CoverSection extends StatelessWidget {
 // ── Cover Placeholder ─────────────────────────────────────────
 class _CoverPlaceholder extends StatelessWidget {
   final String name;
-  final Color color;
   final String? coverUrl;
 
   const _CoverPlaceholder({
     required this.name,
-    required this.color,
     this.coverUrl,
   });
 
@@ -116,33 +108,30 @@ class _CoverPlaceholder extends StatelessWidget {
           height: 140,
           width: double.infinity,
           fit: BoxFit.cover,
-          errorBuilder: (_, __, ___) => _buildPlaceholder(color, name),
+          errorBuilder: (_, __, ___) => _buildPlaceholder(name),
           loadingBuilder: (_, child, progress) =>
-              progress == null ? child : _buildPlaceholder(color, name),
+              progress == null ? child : _buildPlaceholder(name),
         ),
       );
     }
-    return _buildPlaceholder(color, name);
+    return _buildPlaceholder(name);
   }
 
-  Widget _buildPlaceholder(Color color, String name) {
-    return Container(
+  Widget _buildPlaceholder(String name) {
+    return SizedBox(
       height: 140,
       width: double.infinity,
-      color: color.withOpacity(0.1),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(
             Icons.storefront_rounded,
             size: 44,
-            color: color.withOpacity(0.5),
           ),
           const SizedBox(height: 6),
           Text(
             name,
             style: TextStyle(
-              color: color.withOpacity(0.7),
               fontWeight: FontWeight.bold,
               fontSize: 15,
             ),
@@ -197,10 +186,9 @@ class _OpenBadge extends StatelessWidget {
 // ── Logo Avatar ───────────────────────────────────────────────
 class _LogoAvatar extends StatelessWidget {
   final String name;
-  final Color color;
   final String? logoUrl;
 
-  const _LogoAvatar({required this.name, required this.color, this.logoUrl});
+  const _LogoAvatar({required this.name, this.logoUrl});
 
   @override
   Widget build(BuildContext context) {
@@ -210,7 +198,7 @@ class _LogoAvatar extends StatelessWidget {
       height: 58,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        border: Border.all(color: colors.outline, width: 0.5),
+        border: Border.all(color: colors.outline.withAlpha(2), width: 0.5),
         boxShadow: [
           BoxShadow(
             color: colors.shadow,
@@ -218,26 +206,24 @@ class _LogoAvatar extends StatelessWidget {
             blurRadius: 5,
           ),
         ],
-        color: color.withOpacity(0.15),
       ),
       child: logoUrl != null
           ? ClipOval(
               child: Image.network(
                 logoUrl!,
                 fit: BoxFit.cover,
-                errorBuilder: (_, __, ___) => _buildInitial(color, name),
+                errorBuilder: (_, __, ___) => _buildInitial(name),
               ),
             )
-          : _buildInitial(color, name),
+          : _buildInitial(name),
     );
   }
 
-  Widget _buildInitial(Color color, String name) {
+  Widget _buildInitial(String name) {
     return Center(
       child: Text(
         name.isNotEmpty ? name[0].toUpperCase() : '?',
         style: TextStyle(
-          color: color,
           fontWeight: FontWeight.bold,
           fontSize: 16,
         ),

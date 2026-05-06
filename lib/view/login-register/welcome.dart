@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:flutter/material.dart';
 import 'login.dart';
 
@@ -17,7 +19,7 @@ class WelcomeState extends State<Welcome>{
     Future.delayed(Duration(seconds: 2), (){
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (_)=>Login())
+        MaterialPageRoute(builder: (_)=>Login(redirectTo: "",))
       );
     });
   }

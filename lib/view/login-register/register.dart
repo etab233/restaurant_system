@@ -482,7 +482,7 @@ class _RegisterState extends ConsumerState<Register> {
                     onPressed: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (_) => Login()),
+                        MaterialPageRoute(builder: (_) => Login(redirectTo: "",)),
                       );
                     },
                   ),

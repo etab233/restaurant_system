@@ -4,12 +4,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:restaurants_system/constants.dart';
 import 'package:restaurants_system/providers/auth_provider.dart';
+import 'package:restaurants_system/view/calorie_tracker/dashboard/dashboard_main_screen.dart';
+import 'package:restaurants_system/view/restaurant-request/restaurant_request.dart';
 import 'forgot_password.dart';
 import 'register.dart';
 import '../home/home.dart';
 
 class Login extends ConsumerStatefulWidget {
-  const Login({super.key});
+  final String redirectTo;
+  const Login({super.key, required this.redirectTo});
 
   @override
   ConsumerState<Login> createState() => _LoginState();
@@ -126,7 +129,10 @@ class _LoginState extends ConsumerState<Login> {
                         ),
                         focusedErrorBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10),
-                          borderSide: BorderSide(color: colors.outline, width: 2),
+                          borderSide: BorderSide(
+                            color: colors.outline,
+                            width: 2,
+                          ),
                         ),
                         errorStyle: TextStyle(
                           fontSize: 14,
@@ -303,10 +309,39 @@ class _LoginState extends ConsumerState<Login> {
                             // إذا تم تسجيل الدخول بنجاح
                             final myState = ref.read(authProvider);
                             if (myState.isLoggedIn) {
-                              Navigator.pushReplacement(
-                                context,
-                                MaterialPageRoute(builder: (context) => Home()),
-                              );
+                              switch (widget.redirectTo) {
+                                case "home":
+                                  Navigator.pushReplacement(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => Home(),
+                                    ),
+                                  );
+                                  break;
+                                case "dashboard":
+                                  Navigator.pushReplacement(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => Dashboard(),
+                                    ),
+                                  );
+                                  break;
+                                case "restaurant_request":
+                                  Navigator.pushReplacement(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => RestaurantRequest(),
+                                    ),
+                                  );
+                                  break;
+                                default:
+                                  Navigator.pushReplacement(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => Home(),
+                                    ),
+                                  );
+                              }
                             }
                           }
                         },

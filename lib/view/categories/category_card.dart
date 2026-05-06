@@ -1,7 +1,6 @@
 // ignore_for_file: deprecated_member_use
 
 import 'package:flutter/material.dart';
-import 'package:restaurants_system/utils/category_utils.dart';
 
 class CategoryIconCard extends StatelessWidget {
   final String name;
@@ -17,29 +16,25 @@ class CategoryIconCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = CategoryUtils.colorFromName(name);
-    final icon = CategoryUtils.iconFromName(name);
-
     final colors = Theme.of(context).colorScheme;
 
-    return GestureDetector(
+    return InkWell(
       onTap: onTap,
       child: Container(
         width: 76,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(18),
-          border: Border.all(color: color.withOpacity(0.3), width: 1.5),
+          border: Border.all(color:Colors.grey.shade100, width: 1.5),
         ),
         clipBehavior: Clip.antiAlias,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Expanded(
-              child: Container(
+              child: SizedBox(
                 width: double.infinity,
-                color: color.withOpacity(0.12),
                 child: imgUrl == null
-                    ? Icon(icon, color: color, size: 28)
+                    ? Icon(Icons.image_not_supported, size: 28)
                     : ClipRRect(
                         borderRadius: BorderRadiusGeometry.circular(15),
                         child: Image.network(imgUrl!, fit: BoxFit.cover),
