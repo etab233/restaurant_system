@@ -5,14 +5,13 @@ import 'package:restaurants_system/constants.dart';
 class ViewRestaurantService {
   Future<http.Response> viewRestaurant(int restaurantId) async {
     http.Response response = await http.get(
-      Uri.parse("${Constants.baseUrl}/restaurant/$restaurantId"),
+      Uri.parse("${Constants.baseUrl}/restaurants/$restaurantId/menu"),
       headers: {
         'Accept': 'application/json',
         'Content-Type': 'application/json'
         // 'Authorization': 'Bearer $token'
         }
     );
-    print(response.body);
     return response;
   }
 }

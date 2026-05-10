@@ -303,9 +303,7 @@ class _RestaurantRequestState extends ConsumerState<RestaurantRequest> {
                                 }).toList(),
                                 onConfirm: (values) {
                                   setState(() {
-                                    selected = List<int>.from(
-                                      values,
-                                    );
+                                    selected = List<int>.from(values);
                                   });
                                 },
                               ),
@@ -338,10 +336,12 @@ class _RestaurantRequestState extends ConsumerState<RestaurantRequest> {
                                             restaurantRequestProvider.notifier,
                                           )
                                           .getCurrentLocation();
-                                      final location = ref
-                                          .read(restaurantRequestProvider)
-                                          .pickedLocation;
-                                      _mapController.move(location, 15);
+                                      if (!mounted) {
+                                        final location = ref
+                                            .read(restaurantRequestProvider)
+                                            .pickedLocation;
+                                        _mapController.move(location, 15);
+                                      };
                                     },
                                     icon: Icon(Icons.my_location),
                                   ),

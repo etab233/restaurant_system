@@ -289,8 +289,29 @@ class AuthNotifier extends Notifier<AuthState> {
   }
 
   // دالة تسجيل الخروج
-  void logout() {
-    state = const AuthState(); // إعادة الحالة للابتدائية
+  Future<void> logout() async {
+    try {
+      state = const AuthState();
+      state = state.copyWith(isLoading: true);
+      final response = await _authService.logout(token: state.token!);
+      final data = json.decode(response.body);
+      if (response.statusCode == 200) {
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.remove('token');
+        state = const AuthState();
+        state = state.copyWith(isLoading: false);
+      } else {
+        state = state.copyWith(
+          isLoading: false,
+          message: data["message"] ?? "Failed to logout, please try again !",
+        );
+      }
+    } catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        message: "Failed to logout, please try again !",
+      );
+    }
   }
 
   // دالة لتحديث بيانات المستخدم

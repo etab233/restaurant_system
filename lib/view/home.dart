@@ -6,6 +6,7 @@ import 'package:restaurants_system/providers/auth_provider.dart';
 import 'package:restaurants_system/providers/restaurant_request_provider.dart';
 import 'package:restaurants_system/view/restaurant-request/restaurant_request.dart';
 import 'package:restaurants_system/view/bottom_navbar.dart';
+import 'package:restaurants_system/view/settings.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:restaurants_system/constants.dart';
 import 'package:restaurants_system/view/login-register/login.dart';
@@ -222,8 +223,15 @@ class _HomeState extends ConsumerState<Home> {
             ),
             ListTile(
               title: Text("Settings"),
-              leading: Icon(Icons.settings),
+              leading: Icon(
+              Icons.settings),
               selectedColor: Color(Constants.orangeColor),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => Settings()),
+                );
+              },
             ),
             Divider(color: Colors.grey.shade300, thickness: 0.7),
             ListTile(
