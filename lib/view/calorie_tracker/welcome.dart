@@ -22,9 +22,7 @@ class WelcomeState extends ConsumerState<Welcome>
   late Animation<double>   switchAnimation;
 
   
-  late AnimationController _leafController;
   late AnimationController _glowController;
-  late Animation<double>   _leafFloat;
   late Animation<double>   _glowPulse;
 
   bool    hasAccount = false;
@@ -66,15 +64,6 @@ class WelcomeState extends ConsumerState<Welcome>
       CurvedAnimation(parent: switchController, curve: Curves.easeInOut),
     );
 
-    // ── إضافة: أوراق عائمة ─────────────────────────
-    _leafController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 2500),
-    )..repeat(reverse: true);
-    _leafFloat = Tween(begin: 0.0, end: -12.0).animate(
-      CurvedAnimation(parent: _leafController, curve: Curves.easeInOut),
-    );
-
     // ── إضافة: توهج السويتش ────────────────────────
     _glowController = AnimationController(
       vsync: this,
@@ -92,7 +81,6 @@ class WelcomeState extends ConsumerState<Welcome>
   @override
   void dispose() {
     switchController.dispose();
-    _leafController.dispose();
     _glowController.dispose();
     super.dispose();
   }
@@ -143,39 +131,6 @@ class WelcomeState extends ConsumerState<Welcome>
                       ],
                     ),
                   ),
-                ),
-              ),
-
-              // ── أوراق زينة (تظهر مع التقدم) ────────
-              AnimatedBuilder(
-                animation: _leafFloat,
-                builder: (_, __) => Stack(
-                  children: [
-                    Positioned(
-                      top: sh * 0.08 + _leafFloat.value,
-                      right: sw * 0.07,
-                      child: Opacity(
-                        opacity: val * 0.85,
-                        child: const Icon(Icons.eco_rounded, size: 80, color: Colors.white),
-                      ),
-                    ),
-                    Positioned(
-                      top: sh * 0.12 - _leafFloat.value * 0.6,
-                      left: sw * 0.06,
-                      child: Opacity(
-                        opacity: val * 0.7,
-                        child: const Icon(Icons.eco_rounded, size: 80, color: Colors.white),
-                      ),
-                    ),
-                    Positioned(
-                      bottom: sh * 0.12 + _leafFloat.value * 0.5,
-                      right: sw * 0.1,
-                      child: Opacity(
-                        opacity: val * 0.6,
-                        child: const Icon(Icons.eco_rounded, size: 80, color: Colors.white), 
-                      ),
-                    ),
-                  ],
                 ),
               ),
 
