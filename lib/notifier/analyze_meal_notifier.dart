@@ -60,10 +60,11 @@ class AnalyzeMealNotifier extends Notifier<AnalyzeMealState> {
 
   Future<void> analyze({
     required String imagePath,
+    String? description,
     required String token,
   })async {
     try{
-      final response = await _analyzeMealServices.analyze(imagePath: imagePath, token: token);
+      final response = await _analyzeMealServices.analyze(imagePath: imagePath, token: token, description: description);
 
       if(response.containsKey("error")){
         // حالة خطأ 

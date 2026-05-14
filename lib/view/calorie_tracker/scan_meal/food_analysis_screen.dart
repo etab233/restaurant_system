@@ -14,6 +14,8 @@
 //    and returns the analysis results
 // ─────────────────────────────────────────────────────────────
 
+// ignore_for_file: must_be_immutable
+
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -25,7 +27,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class FoodAnalysisScreen extends ConsumerStatefulWidget {
   final String imagePath;
-  const FoodAnalysisScreen({super.key, required this.imagePath});
+  String? description;
+  FoodAnalysisScreen({super.key, required this.imagePath, this.description});
   @override
   ConsumerState<FoodAnalysisScreen> createState() => FoodAnalysisScreenState();
 }
@@ -90,6 +93,7 @@ class FoodAnalysisScreenState extends ConsumerState<FoodAnalysisScreen>
     try {
       await analyzeMealState.analyze(
         imagePath: widget.imagePath,
+        description: widget.description,
         token: token!,
       );
       if (mounted) {

@@ -5,7 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:camera/camera.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:restaurants_system/view/calorie_tracker/scan_meal/food_analysis_screen.dart';
+import 'package:restaurants_system/view/calorie_tracker/scan_meal/add_description.dart';
 
 class AddMealPic extends ConsumerStatefulWidget {
   const AddMealPic({super.key});
@@ -69,7 +69,7 @@ class AddMealPicState extends ConsumerState<AddMealPic>
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (_) => FoodAnalysisScreen(imagePath: file.path),
+          builder: (_) => AddDescription(imagePath: file.path),
         ),
       );
     } catch (e) {
@@ -111,7 +111,7 @@ class AddMealPicState extends ConsumerState<AddMealPic>
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (_) => FoodAnalysisScreen(imagePath: image.path),
+          builder: (_) => AddDescription(imagePath: image.path),
         ),
       );
     } catch (e) {
@@ -151,14 +151,6 @@ class AddMealPicState extends ConsumerState<AddMealPic>
             const Center(
               child: CircularProgressIndicator(color: Color(0xFFFF6B35)),
             ),
-
-          /*//Dark Overlay with cutout
-          Positioned.fill(
-            child: CustomPaint(
-              painter: OverlayPainter(frameSize: frameSize, screenSize: size),
-            ),
-          ),*/
-
           // ── Scanner Frame Corners ────────────────────────────
           Center(
             child: SizedBox(

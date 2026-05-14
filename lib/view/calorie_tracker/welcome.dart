@@ -45,7 +45,7 @@ class WelcomeState extends ConsumerState<Welcome>
 
     switchController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 900),
+      duration: const Duration(milliseconds: 700),
       animationBehavior: AnimationBehavior.preserve,
     );
     switchController.addStatusListener((status) async {
@@ -73,7 +73,7 @@ class WelcomeState extends ConsumerState<Welcome>
       CurvedAnimation(parent: _glowController, curve: Curves.easeInOut),
     );
 
-    Future.delayed(const Duration(seconds: 2), () {
+    Future.delayed(const Duration(seconds: 1), () {
       if (mounted) switchController.forward();
     });
   }
