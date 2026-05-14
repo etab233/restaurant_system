@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:restaurants_system/constants.dart';
 import 'package:restaurants_system/providers/auth_provider.dart';
-import 'package:restaurants_system/view/calorie_tracker/dashboard/dashboard_main_screen.dart';
+import 'package:restaurants_system/view/calorie_tracker/welcome.dart';
 import 'package:restaurants_system/view/restaurant-request/restaurant_request.dart';
 import 'forgot_password.dart';
 import 'register.dart';
@@ -293,7 +293,9 @@ class _LoginState extends ConsumerState<Login> {
                             if (newState.message != null) {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
-                                  padding: EdgeInsets.all(15),
+                                  padding: EdgeInsets.all(13),
+                                  margin: EdgeInsets.all(9),
+                                  behavior: SnackBarBehavior.floating,
                                   content: Text(
                                     newState.message!,
                                     style: TextStyle(fontSize: 20),
@@ -318,11 +320,11 @@ class _LoginState extends ConsumerState<Login> {
                                     ),
                                   );
                                   break;
-                                case "dashboard":
+                                case "welcome":
                                   Navigator.pushReplacement(
                                     context,
                                     MaterialPageRoute(
-                                      builder: (context) => Dashboard(),
+                                      builder: (context) => Welcome(),
                                     ),
                                   );
                                   break;

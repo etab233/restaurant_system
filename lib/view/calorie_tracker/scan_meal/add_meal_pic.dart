@@ -1,4 +1,4 @@
-// ignore_for_file: use_build_context_synchronously, deprecated_member_use
+// ignore_for_file: avoid_print, use_build_context_synchronously, deprecated_member_use
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -44,7 +44,7 @@ class AddMealPicState extends ConsumerState<AddMealPic>
   // _____ fetch available camera in devices _______________________________
   Future<void> initCamera() async {
     final cameras = await availableCameras();
-    cameraController = CameraController(cameras[0], ResolutionPreset.low);
+    cameraController = CameraController(cameras[0], ResolutionPreset.medium);
 
     await cameraController!.initialize();
     if (!mounted) return;
@@ -55,38 +55,41 @@ class AddMealPicState extends ConsumerState<AddMealPic>
   Future<void> takePhoto() async {
     if (capturing ||
         cameraController == null ||
-        !cameraController!.value.isInitialized)
+        !cameraController!.value.isInitialized) {
       return;
+    }
 
-    setState(() {
-      capturing = true;
-    });
-    final file = await cameraController!.takePicture();
+    try {
+      setState(() {
+        capturing = true;
+      });
+      final file = await cameraController!.takePicture();
 
-    // ايقاف الكاميرا بعد الالتقاط
-    await cameraController?.stopImageStream();
-    await cameraController?.dispose();
-    cameraController = null;
-
-    if (!mounted) return;
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (_) => FoodAnalysisScreen(imagePath: file.path),
-      ),
-    );
-
-    setState(() {
-      capturing = false;
-    });
+      if (!mounted) return;
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => FoodAnalysisScreen(imagePath: file.path),
+        ),
+      );
+    } catch (e) {
+      print("Camera error: $e");
+    } finally {
+      if (mounted) {
+        setState(() {
+          capturing = false;
+        });
+      }
+    }
   }
 
   // ____ A function to pick a picture from gallery __________________________
   Future<void> pickFromGallery() async {
     if (capturing ||
         cameraController == null ||
-        !cameraController!.value.isInitialized)
+        !cameraController!.value.isInitialized) {
       return;
+    }
 
     setState(() {
       capturing = true;
@@ -102,10 +105,7 @@ class AddMealPicState extends ConsumerState<AddMealPic>
         });
         return;
       }
-
-      await cameraController?.dispose();
-      cameraController = null;
-
+      
       if (!mounted) return;
 
       Navigator.push(
@@ -152,12 +152,12 @@ class AddMealPicState extends ConsumerState<AddMealPic>
               child: CircularProgressIndicator(color: Color(0xFFFF6B35)),
             ),
 
-          //Dark Overlay with cutout
+          /*//Dark Overlay with cutout
           Positioned.fill(
             child: CustomPaint(
               painter: OverlayPainter(frameSize: frameSize, screenSize: size),
             ),
-          ),
+          ),*/
 
           // ── Scanner Frame Corners ────────────────────────────
           Center(

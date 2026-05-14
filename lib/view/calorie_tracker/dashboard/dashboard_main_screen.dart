@@ -7,7 +7,9 @@ import 'package:intl/intl.dart';
 import 'package:restaurants_system/models/dashboard_model.dart';
 import 'package:restaurants_system/providers/auth_provider.dart';
 import 'package:restaurants_system/providers/dashboard_provider.dart';
+import 'package:restaurants_system/providers/health_profile.dart';
 import 'package:restaurants_system/utils/calorie_logic.dart';
+import 'package:restaurants_system/view/calorie_tracker/scan_label/scan_label.dart';
 import 'package:restaurants_system/view/calorie_tracker/scan_meal/add_meal_pic.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -35,22 +37,21 @@ class DashboardState extends ConsumerState<Dashboard> {
   void initState() {
     super.initState();
     _fetchData();
+    _loadSavedMacros();
   }
 
   Future<void> _fetchData() async {
-    final prefs = await SharedPreferences.getInstance();
-    final birth = prefs.getString("birthday");
+    final healthState = ref.read(healthProfileProvider);
+
+    final birth = healthState.birthDate;
     if (birth != null) {
-      final p = birth.split('-');
-      age = calculateAge(
-        DateTime(int.parse(p[0]), int.parse(p[1]), int.parse(p[2])),
-      );
+      age = calculateAge(birth);
     }
-    h = prefs.getDouble("height");
-    w = prefs.getDouble("weight");
-    gender = prefs.getString("gender");
-    goal = prefs.getString("goal");
-    activityLevel = prefs.getString("activity_level");
+    h = healthState.heightCm;
+    w = healthState.weightKg;
+    gender = healthState.gender;
+    goal = healthState.goal;
+    activityLevel = healthState.activityLevel;
 
     if (age != null &&
         gender != null &&
@@ -69,21 +70,27 @@ class DashboardState extends ConsumerState<Dashboard> {
         fatGrams: fat,
       );
     }
-    setState(() {});
+    setState(() {
+
+    });
   }
+
+  Future<void> _loadSavedMacros() async {
+  final prefs = await SharedPreferences.getInstance();
+
+  ref.read(dashboardProvider.notifier).setDashboardData(
+    calories: prefs.getDouble('saved_calories') ?? 0,
+    protein: prefs.getDouble('saved_protein') ?? 0,
+    carbs: prefs.getDouble('saved_carbs') ?? 0,
+    fat: prefs.getDouble('saved_fat') ?? 0,
+  );
+}
 
   // ════════════════════════════════════════════════════
   @override
   Widget build(BuildContext context) {
     final authState = ref.watch(authProvider);
     userName = authState.userData?['name'] ?? "here";
-
-    if (age == null) {
-      return const Scaffold(
-        backgroundColor: _bg,
-        body: Center(child: CircularProgressIndicator(color: _green)),
-      );
-    }
 
     final dash = ref.watch(dashboardProvider);
     final left = (dailyCalorieNeeds - dash.calories).clamp(
@@ -115,10 +122,34 @@ class DashboardState extends ConsumerState<Dashboard> {
                     const SizedBox(height: 14),
                     _buildMacrosCard(dash),
                     const SizedBox(height: 14),
-                    _buildScanCard(),
+                    _buildScanCard(
+                      img: "assets/images/pizza.png",
+                      title: "Scan your meal",
+                      description:
+                          "Snap your meal and get instant\ncalorie & macro analysis",
+                      accentColor: const Color(0xFF8FBD5A),
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (_) => AddMealPic()),
+                        );
+                      },
+                    ),
                     const SizedBox(height: 14),
-                    _buildQuickActions(),
-                    const SizedBox(height: 90),
+                    _buildScanCard(
+                      img: "assets/images/nutrition_table.jpg",
+                      title: "Read Nutrition table",
+                      description:
+                          "AI reads nutrition facts and\ntracks macros automatically",
+                      accentColor: const Color(0xFF9B7FD4),
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (_) => LabelScan()),
+                        );
+                      },
+                    ),
+                    const SizedBox(height: 14),
                   ],
                 ),
               ),
@@ -204,7 +235,7 @@ class DashboardState extends ConsumerState<Dashboard> {
         ),
         const Text(
           "Here's your nutrition overview",
-          style: TextStyle(fontSize: 13, color: Colors.grey),
+          style: TextStyle(fontSize: 13, color: Colors.black87),
         ),
       ],
     );
@@ -267,7 +298,7 @@ class DashboardState extends ConsumerState<Dashboard> {
                           builder: (_, val, __) => CircularProgressIndicator(
                             value: val,
                             strokeWidth: 10,
-                            strokeAlign: 6,
+                            strokeAlign: 7.2,
                             backgroundColor: Colors.white24,
                             valueColor: AlwaysStoppedAnimation(
                               Color.lerp(
@@ -285,8 +316,8 @@ class DashboardState extends ConsumerState<Dashboard> {
                             const Text(
                               "Calories",
                               style: TextStyle(
-                                fontSize: 11,
-                                color: Colors.white70,
+                                fontSize: 14,
+                                color: Colors.white,
                               ),
                             ),
                             Text(
@@ -300,8 +331,8 @@ class DashboardState extends ConsumerState<Dashboard> {
                             Text(
                               "/ ${dailyCalorieNeeds.toInt()} kcal",
                               style: const TextStyle(
-                                fontSize: 10,
-                                color: Colors.white60,
+                                fontSize: 13,
+                                color: Colors.white,
                               ),
                             ),
                           ],
@@ -673,10 +704,24 @@ class DashboardState extends ConsumerState<Dashboard> {
   }
 
   // ── Scan Card ─────────────────────────────────────────
-  Widget _buildScanCard() {
+  Widget _buildScanCard({
+    required String img,
+    required String title,
+    required String description,
+    required Color accentColor,
+    required VoidCallback onPressed,
+  }) {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
+        image: DecorationImage(
+          image: AssetImage("assets/images/leaves.jpg"),
+          fit: BoxFit.cover,
+          colorFilter: ColorFilter.mode(
+            Colors.grey.withOpacity(0.4),
+            BlendMode.darken,
+          ),
+        ),
         color: const Color(0xFF1A1A2E),
         borderRadius: BorderRadius.circular(22),
       ),
@@ -688,20 +733,7 @@ class DashboardState extends ConsumerState<Dashboard> {
             alignment: Alignment.center,
             children: [
               // الصحن
-              Container(
-                width: 90,
-                height: 90,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  gradient: LinearGradient(
-                    colors: [_green.withOpacity(0.5), _orange.withOpacity(0.3)],
-                  ),
-                  border: Border.all(color: Colors.white24, width: 2),
-                ),
-                child: const Center(
-                  child: Text("🍽️", style: TextStyle(fontSize: 40)),
-                ),
-              ),
+              CircleAvatar(radius: 45, backgroundImage: AssetImage(img)),
 
               // الزوايا الأربع
               Positioned(top: 0, left: 0, child: _corner()),
@@ -717,48 +749,101 @@ class DashboardState extends ConsumerState<Dashboard> {
 
           const SizedBox(width: 16),
 
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          Stack(
             children: [
-              const Text(
-                "Scan your meal",
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w800,
-                  color: Colors.white,
-                ),
-              ),
-              const SizedBox(height: 4),
-              const Text(
-                "AI detects calories & nutrients\nfrom your photo instantly",
-                style: TextStyle(
-                  fontSize: 11,
-                  color: Colors.white54,
-                  height: 1.5,
-                ),
-              ),
-              const SizedBox(height: 12),
-              ElevatedButton.icon(
-                onPressed: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (_)=> AddMealPic()));
-                },
-                icon: const Icon(Icons.camera_alt_rounded, size: 18),
-                label: const Text(
-                  "Take Photo",
-                  style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
-                ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: _orange,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 18,
-                    vertical: 11,
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w800,
+                      color: Colors.black87,
+                    ),
                   ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(14),
+
+                  const SizedBox(height: 6),
+
+                  Text(
+                    description,
+                    style: TextStyle(
+                      fontSize: 11,
+                      color: Colors.black87,
+                      height: 1.5,
+                    ),
                   ),
-                  elevation: 0,
-                ),
+
+                  const SizedBox(height: 16),
+
+                  Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(18),
+                      gradient: const LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: [Color(0xFFB7C58D), Color(0xFF8FA86B)],
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Color(0xFF8FA86B).withOpacity(0.35),
+                          blurRadius: 14,
+                          offset: Offset(0, 6),
+                        ),
+                      ],
+                    ),
+
+                    child: ElevatedButton(
+                      onPressed: onPressed,
+
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.transparent,
+                        shadowColor: Colors.transparent,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 18,
+                          vertical: 13,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(18),
+                        ),
+                      ),
+
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(6),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.18),
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(
+                              Icons.camera_alt_rounded,
+                              size: 16,
+                              color: Colors.white,
+                            ),
+                          ),
+
+                          const SizedBox(width: 10),
+
+                          const Text(
+                            "Take Photo",
+                            style: TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w700,
+                              letterSpacing: 0.2,
+                            ),
+                          ),
+
+                          const SizedBox(width: 12),
+
+                          const Icon(Icons.arrow_forward_rounded, size: 18),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
@@ -791,115 +876,4 @@ class DashboardState extends ConsumerState<Dashboard> {
       ),
     );
   }
-
-  // ── Quick Actions ─────────────────────────────────────
-  Widget _buildQuickActions() {
-    final actions = [
-      _QuickAction(
-        Icons.qr_code_scanner_rounded,
-        "Scan Label",
-        "Nutrition facts",
-        const Color(0xFFE8F5E9),
-        _green,
-      ),
-      _QuickAction(
-        Icons.search_rounded,
-        "Search Food",
-        "Find by name",
-        const Color(0xFFFFF3E0),
-        const Color(0xFFF5A623),
-      ),
-      _QuickAction(
-        Icons.restaurant_menu_rounded,
-        "From Menu",
-        "Restaurant meal",
-        const Color(0xFFFFF0EB),
-        _orange,
-      ),
-      _QuickAction(
-        Icons.favorite_rounded,
-        "Favorites",
-        "Your foods",
-        const Color(0xFFF3E5F5),
-        const Color(0xFF9B5DE5),
-      ),
-    ];
-
-    return Column(
-      children: actions
-          .map(
-            (a) => Padding(
-              padding: const EdgeInsets.only(bottom: 10),
-              child: GestureDetector(
-                onTap: () {}, // TODO
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 14,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(16),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.04),
-                        blurRadius: 8,
-                      ),
-                    ],
-                  ),
-                  child: Row(
-                    children: [
-                      Container(
-                        width: 42,
-                        height: 42,
-                        decoration: BoxDecoration(
-                          color: a.bg,
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Icon(a.icon, color: a.color, size: 22),
-                      ),
-                      const SizedBox(width: 14),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              a.label,
-                              style: const TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w700,
-                                color: Colors.black87,
-                              ),
-                            ),
-                            Text(
-                              a.sub,
-                              style: TextStyle(
-                                fontSize: 11,
-                                color: Colors.grey.shade500,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      Icon(
-                        Icons.chevron_right_rounded,
-                        color: Colors.grey.shade300,
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          )
-          .toList(),
-    );
-  }
-
-}
-// ── Helper class ──────────────────────────────────────────
-class _QuickAction {
-  final IconData icon;
-  final String label, sub;
-  final Color bg, color;
-  const _QuickAction(this.icon, this.label, this.sub, this.bg, this.color);
 }

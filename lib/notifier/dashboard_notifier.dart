@@ -12,14 +12,12 @@ class DashboardNotifier extends Notifier<DashboardModel> {
     required protein,
     required carbs,
     required fat,
-    required food,
   }) {
     state = state.copyWith(
       calories: state.calories + calories,
       protein: state.protein + protein,
       carbs: state.carbs + carbs,
       fat: state.fat + fat,
-      meals: [...state.meals, food],
     );
   }
 
@@ -28,4 +26,18 @@ class DashboardNotifier extends Notifier<DashboardModel> {
     final updated = [...state.meals]..removeAt(index);
     state = state.copyWith(meals: updated);
   }
+
+  void setDashboardData({
+  required double calories,
+  required double protein,
+  required double carbs,
+  required double fat,
+}) {
+  state = DashboardModel(
+    calories: calories,
+    protein: protein,
+    carbs: carbs,
+    fat: fat,
+  );
+}
 }

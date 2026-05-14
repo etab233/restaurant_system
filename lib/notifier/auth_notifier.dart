@@ -11,6 +11,7 @@ class AuthState {
   final bool isCodeSent;
   final bool isVerify;
   final bool isPasswordSet;
+  final bool isInitialized;
   final Map<String, dynamic>? userData;
   final String? token;
   final List<String>? roles;
@@ -24,6 +25,7 @@ class AuthState {
     this.isCodeSent = false,
     this.isVerify = false,
     this.isPasswordSet = false,
+    this.isInitialized = false,
     this.token,
     this.roles,
     this.userData,
@@ -38,6 +40,7 @@ class AuthState {
     bool? isCodeSent,
     bool? isVerify,
     bool? isPasswordSet,
+    bool? isInitialized,
     String? token,
     List<String>? roles,
     Map<String, dynamic>? userData,
@@ -51,6 +54,7 @@ class AuthState {
       isCodeSent: isCodeSent ?? this.isCodeSent,
       isVerify: isVerify ?? this.isVerify,
       isPasswordSet: isPasswordSet ?? this.isPasswordSet,
+      isInitialized: isInitialized ?? this.isInitialized,
       token: token ?? this.token,
       roles: roles ?? this.roles,
       userData: userData ?? this.userData,
@@ -81,6 +85,8 @@ class AuthNotifier extends Notifier<AuthState> {
         final data = json.decode(response.body);
         final prefs = await SharedPreferences.getInstance();
         await prefs.setString("token", data['data']['access_token']);
+        await prefs.setString("userData", jsonEncode(data['data']['user']));
+
         state = state.copyWith(
           isLoading: false,
           isLoggedIn: true,
@@ -299,10 +305,19 @@ class AuthNotifier extends Notifier<AuthState> {
   }
 
   // load data from SharedPreferences when first open the app
-  void restoreSession(String token){
-    state = AuthState(
-    isLoggedIn: true,
-    token: token,
-  );
+  Future<void> restoreSession() async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+    final userData = prefs.getString('userData');
+
+    if (token != null) {
+      state = state.copyWith(
+        isInitialized: true,
+        isLoggedIn: true,
+        userData: userData != null ? jsonDecode(userData) : null,
+      );
+    } else {
+      state = state.copyWith(isInitialized: true, isLoggedIn: false);
+    }
   }
 }

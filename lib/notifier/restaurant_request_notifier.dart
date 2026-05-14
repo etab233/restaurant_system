@@ -234,19 +234,23 @@ class RestaurantRequestNotifier extends Notifier<RestaurantRequestState> {
     );
   }
 
-  Future<void> fetchCategories({required String token}) async {
+  Future<void> fetchCategories() async {
     state = state.copyWith(isLoadCategories: true, categories: {});
+
     try {
-      final response = await _restaurantRequestService.fetchCategories(
-        token: token,
-      );
+      final response = await _restaurantRequestService.fetchCategories();
+
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
+
+        final List categoriesList = data['data'];
+
         final Map<String, int> categoriesMap = {};
 
-        (data['data'] as Map<String, dynamic>).forEach((key, value) {
-          categoriesMap[key] = value as int;
-        });
+        for (var item in categoriesList) {
+          categoriesMap[item['name']] = item['id'];
+        }
+
         state = state.copyWith(
           isLoadCategories: false,
           categories: categoriesMap,

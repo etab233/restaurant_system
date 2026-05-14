@@ -15,11 +15,11 @@
 // ─────────────────────────────────────────────────────────────
 
 import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:restaurants_system/models/food_item.dart';
-import 'package:restaurants_system/services/api/analyze_meal_services.dart';
+import 'package:restaurants_system/notifier/analyze_meal_notifier.dart';
+import 'package:restaurants_system/providers/analyze_meal_provider.dart';
+import 'package:restaurants_system/providers/dashboard_provider.dart';
 import 'package:restaurants_system/view/calorie_tracker/dashboard/dashboard_main_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -33,9 +33,11 @@ class FoodAnalysisScreen extends ConsumerStatefulWidget {
 class FoodAnalysisScreenState extends ConsumerState<FoodAnalysisScreen>
     with TickerProviderStateMixin {
   bool _loading = true;
-  bool _added = false;
   String? _error;
-  FoodItem? _result;
+
+  // متحولات لزر الإضافة
+  bool _isAdding = false;
+  bool _added = false;
 
   // colors
   static const _green = Color(0xFF4A7A2E);
@@ -58,7 +60,7 @@ class FoodAnalysisScreenState extends ConsumerState<FoodAnalysisScreen>
     super.initState();
     _spinController = AnimationController(
       vsync: this,
-      duration: Duration(seconds: 1),
+      duration: Duration(seconds: 3),
     )..repeat();
 
     _resultCtrl = AnimationController(
@@ -84,14 +86,14 @@ class FoodAnalysisScreenState extends ConsumerState<FoodAnalysisScreen>
 
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString("token");
+    final analyzeMealState = ref.read(analyzeMealProvider.notifier);
     try {
-      final result = await AnalyzeMealServices().analyze(
+      await analyzeMealState.analyze(
         imagePath: widget.imagePath,
         token: token!,
       );
       if (mounted) {
         setState(() {
-          _result = result;
           _loading = false;
           _stepDone = _steps.length;
         });
@@ -103,21 +105,25 @@ class FoodAnalysisScreenState extends ConsumerState<FoodAnalysisScreen>
         _error = e.toString();
         _loading = false;
       });
-      debugPrint(_error);
+      debugPrint("Error $_error");
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final analyzeMealState = ref.watch(analyzeMealProvider);
+
     return Scaffold(
       backgroundColor: _loading
           ? const Color(0xFF0F1117)
           : const Color(0xFFF5F5F0),
       body: _loading
           ? _buildAnalyzing()
-          : _error != null
-          ? _buildError()
-          : _buildResults(),
+          : analyzeMealState.name.isEmpty && !analyzeMealState.success
+          ? _buildAnalyzing()
+          : analyzeMealState.success
+          ? _buildResults(analyzeMealState)
+          : _buildError(),
     );
   }
 
@@ -128,33 +134,28 @@ class FoodAnalysisScreenState extends ConsumerState<FoodAnalysisScreen>
         children: [
           // food pic + spinner
           Stack(
+            alignment: Alignment.center,
             children: [
-              Container(
-                width: 130,
-                height: 130,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  image: DecorationImage(
-                    image: FileImage(File(widget.imagePath)),
-                    fit: BoxFit.cover,
+              // الحلقة المتحركة
+              RotationTransition(
+                turns: _spinController,
+                child: SizedBox(
+                  width: 149,
+                  height: 149,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 5,
+                    valueColor: AlwaysStoppedAnimation(Color(0xFFFF6B35)),
+                    backgroundColor: Colors.transparent,
                   ),
                 ),
               ),
-              AnimatedBuilder(
-                animation: _spinController,
-                builder: (_, __) => Transform.rotate(
-                  angle: _spinController.value * 6.28,
-                  child: Container(
-                    width: 148,
-                    height: 148,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      border: Border.all(color: Colors.transparent, width: 3),
-                      gradient: SweepGradient(
-                        colors: [Color(0xFFFF6B35), Colors.transparent],
-                      ),
-                    ),
-                  ),
+
+              ClipOval(
+                child: Image.file(
+                  File(widget.imagePath),
+                  width: 142,
+                  height: 142,
+                  fit: BoxFit.cover,
                 ),
               ),
             ],
@@ -200,8 +201,9 @@ class FoodAnalysisScreenState extends ConsumerState<FoodAnalysisScreen>
                         ? Icon(Icons.done_rounded)
                         : Text(
                             "${i + 1}",
+                            textAlign: TextAlign.center,
                             style: TextStyle(
-                              fontSize: 9,
+                              fontSize: 13,
                               fontWeight: FontWeight.bold,
                               color: (done || active)
                                   ? Colors.white
@@ -231,7 +233,7 @@ class FoodAnalysisScreenState extends ConsumerState<FoodAnalysisScreen>
     ),
   );
 
-  Widget _buildResults() => SafeArea(
+  Widget _buildResults(AnalyzeMealState analyzeMealState) => SafeArea(
     child: SingleChildScrollView(
       child: Column(
         children: [
@@ -246,16 +248,17 @@ class FoodAnalysisScreenState extends ConsumerState<FoodAnalysisScreen>
                   ),
                 ),
               ),
+
               Positioned(
+                top: 15,
+                left: 15,
                 child: InkWell(
                   onTap: () {
                     showDialog(
                       context: context,
                       builder: (context) {
                         return AlertDialog(
-                          content: Text(
-                            "Are you sure you want to discard this meal?",
-                          ),
+                          content: Text("Discard this meal?"),
                           actions: [
                             TextButton(
                               onPressed: () => Navigator.pop(context),
@@ -284,125 +287,220 @@ class FoodAnalysisScreenState extends ConsumerState<FoodAnalysisScreen>
                       color: Colors.grey.shade100,
                       borderRadius: BorderRadius.circular(8),
                     ),
-                    child: Center(
-                      child: Icon(Icons.close, color: Colors.black),
-                    ),
+                    child: const Icon(Icons.close, color: Colors.black),
                   ),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 10),
-          Text(
-            _result!.description!,
-            style: const TextStyle(fontSize: 12, color: Colors.white70),
-          ),
-          const SizedBox(height: 14),
 
-          // Calories Hero
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Color(0xFF4A7A2E),
-              borderRadius: BorderRadius.circular(18),
-            ),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+            child: Column(
               children: [
-                Image.asset(
-                  'assets/images/fire.png',
-                  width: 100,
-                  height: 100,
-                  fit: BoxFit.cover,
+                // ───────────── NAME ─────────────
+                Text(
+                  analyzeMealState.name.isEmpty
+                      ? "Unknown meal"
+                      : analyzeMealState.name,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w800,
+                    color: Colors.black87,
+                  ),
                 ),
-                const SizedBox(width: 14),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      "TOTAL CALORIES",
-                      style: TextStyle(
-                        fontSize: 10,
-                        color: Colors.white70,
-                        fontWeight: FontWeight.w700,
-                      ),
+
+                const SizedBox(height: 6),
+
+                // ───────────── DESCRIPTION ─────────────
+                Text(
+                  analyzeMealState.description,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(fontSize: 12, color: Colors.grey),
+                ),
+
+                const SizedBox(height: 10),
+
+                // ───────────── CONFIDENCE ─────────────
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 6,
+                  ),
+                  decoration: BoxDecoration(
+                    color: analyzeMealState.confidence.toLowerCase() == "high"
+                        ? Colors.green.shade100
+                        : analyzeMealState.confidence.toLowerCase() == "medium"
+                        ? Colors.orange.shade100
+                        : Colors.red.shade100,
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Text(
+                    "Confidence: ${analyzeMealState.confidence}",
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: analyzeMealState.confidence.toLowerCase() == "high"
+                          ? Colors.green.shade800
+                          : analyzeMealState.confidence.toLowerCase() ==
+                                "medium"
+                          ? Colors.orange.shade800
+                          : Colors.red.shade800,
                     ),
-                    Text(
-                      "${_result!.calories}",
-                      style: const TextStyle(
-                        fontSize: 26,
-                        fontWeight: FontWeight.w900,
-                        color: Colors.white,
+                  ),
+                ),
+
+                const SizedBox(height: 20),
+
+                // ───────────── CALORIES ─────────────
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF4A7A2E),
+                    borderRadius: BorderRadius.circular(18),
+                  ),
+                  child: Row(
+                    children: [
+                      Image.asset(
+                        'assets/images/fire.png',
+                        width: 70,
+                        height: 70,
                       ),
+                      const SizedBox(width: 14),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            "TOTAL CALORIES",
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.white70,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                          Text(
+                            "${analyzeMealState.calories.toInt()}",
+                            style: const TextStyle(
+                              fontSize: 26,
+                              fontWeight: FontWeight.w900,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+
+                const SizedBox(height: 15),
+
+                // ───────────── MACROS ─────────────
+                GridView.count(
+                  crossAxisCount: 3,
+                  shrinkWrap: true,
+                  mainAxisSpacing: 15,
+                  crossAxisSpacing: 15,
+                  physics: const NeverScrollableScrollPhysics(),
+                  children: [
+                    macroCard(
+                      label: "Protein",
+                      val: "${analyzeMealState.protein.toInt()} g",
+                      color: const Color(0xFF4A7A2E),
+                      bg: const Color(0xFFE8F5E9),
+                    ),
+                    macroCard(
+                      label: "Carbs",
+                      val: "${analyzeMealState.carbs.toInt()} g",
+                      color: const Color(0xFFF5A623),
+                      bg: const Color(0xFFFFFDE7),
+                    ),
+                    macroCard(
+                      label: "Fat",
+                      val: "${analyzeMealState.fat.toInt()} g",
+                      color: const Color(0xFFE05C5C),
+                      bg: const Color(0xFFFCE4EC),
                     ),
                   ],
                 ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 10),
-          // Macros grid
-          GridView.count(
-            crossAxisCount: 3,
-            shrinkWrap: true,
-            physics: NeverScrollableScrollPhysics(),
-            children: [
-              macroCard(
-                label: "Protein",
-                val: "${_result!.protein!} g",
-                color: const Color(0xFF4A7A2E),
-                bg: const Color(0xFFE8F5E9),
-              ),
-              macroCard(
-                label: "Carbs",
-                val: "${_result!.carbs!} g",
-                color: const Color(0xFFF5A623),
-                bg: const Color(0xFFFFFDE7),
-              ),
-              macroCard(
-                label: "Fat",
-                val: "${_result!.fat!} g",
-                color: const Color(0xFFE05C5C),
-                bg: const Color(0xFFFCE4EC),
-              ),
-            ],
-          ),
 
-          // Add button
-          Container(
-            padding: EdgeInsets.fromLTRB(
-              16,
-              12,
-              16,
-              MediaQuery.of(context).padding.bottom + 12,
-            ),
-            color: const Color(0xFFF5F5F0),
-            child: Column(
-              children: [
+                const SizedBox(height: 40),
+
+                // ───────────── BUTTON ─────────────
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
-                    onPressed: () {},
+                    onPressed: (_isAdding || _added)
+                        ? null
+                        : () async {
+                            setState(() {
+                              _isAdding = true;
+                            });
+
+                            try {
+                              ref
+                                  .read(dashboardProvider.notifier)
+                                  .addMeal(
+                                    calories: analyzeMealState.calories,
+                                    protein: analyzeMealState.protein,
+                                    carbs: analyzeMealState.carbs,
+                                    fat: analyzeMealState.fat,
+                                  );
+
+                              // قراءة القيم الجديدة من الـ provider
+                              final dash = ref.read(dashboardProvider);
+
+                              // حفظ البيانات
+                              final prefs =
+                                  await SharedPreferences.getInstance();
+
+                              await prefs.setDouble('calories', dash.calories);
+                              await prefs.setDouble('protein', dash.protein);
+                              await prefs.setDouble('carbs', dash.carbs);
+                              await prefs.setDouble('fat', dash.fat);
+
+                              setState(() {
+                                _added = true;
+                              });
+                            } catch (e) {
+                              debugPrint("Add meal error: $e");
+                            } finally {
+                              setState(() {
+                                _isAdding = false;
+                              });
+                            }
+                          },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: _added ? _green : _orange,
-                      disabledBackgroundColor: _green,
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(16),
                       ),
-                      elevation: 0,
                     ),
-                    child: Text(
-                      _added ? "✓ Added to dashboard!" : "+ Add to Dashboard",
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w800,
-                        color: Colors.white,
-                      ),
-                    ),
+                    child: _isAdding
+                        ? const SizedBox(
+                            height: 20,
+                            width: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.white,
+                            ),
+                          )
+                        : Text(
+                            _added
+                                ? "✓ Added to dashboard!"
+                                : "+ Add to Dashboard",
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w800,
+                              color: Colors.white,
+                            ),
+                          ),
                   ),
                 ),
-                const SizedBox(height: 8),
+
+                const SizedBox(height: 20),
+
                 GestureDetector(
                   onTap: () => Navigator.pop(context),
                   child: const Text(
@@ -440,25 +538,23 @@ Widget macroCard({
   required String val,
   required Color color,
   required Color bg,
-}) => Expanded(
-  child: Container(
-    padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
-    decoration: BoxDecoration(
-      color: Colors.white,
-      borderRadius: BorderRadius.circular(14),
-    ),
-    child: Column(
-      children: [
-        Text(
-          val,
-          style: TextStyle(
-            fontSize: 15,
-            fontWeight: FontWeight.w800,
-            color: color,
-          ),
+}) => Container(
+  padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+  decoration: BoxDecoration(
+    color: Colors.white,
+    borderRadius: BorderRadius.circular(14),
+  ),
+  child: Column(
+    children: [
+      Text(
+        val,
+        style: TextStyle(
+          fontSize: 15,
+          fontWeight: FontWeight.w800,
+          color: color,
         ),
-        Text(label, style: const TextStyle(fontSize: 10, color: Colors.grey)),
-      ],
-    ),
+      ),
+      Text(label, style: const TextStyle(fontSize: 10, color: Colors.grey)),
+    ],
   ),
 );

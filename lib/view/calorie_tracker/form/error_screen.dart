@@ -62,9 +62,9 @@ class ErrorScreen extends StatelessWidget {
                     ),
                   ),
                   onPressed: () {
-                    Navigator.push(
+                    Navigator.pushReplacement(
                       context,
-                      MaterialPageRoute(builder: (_) => Login(redirectTo: "dashboard",)),
+                      MaterialPageRoute(builder: (_) => Login(redirectTo: "welcome",)),
                     );
                   },
                   child: const Text(

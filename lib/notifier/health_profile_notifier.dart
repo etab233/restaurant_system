@@ -1,7 +1,7 @@
+import 'dart:convert';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:restaurants_system/services/api/health_profile_services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
 
 class HealthProfileState {
   final String? birthDate;
@@ -43,11 +43,36 @@ class HealthProfileNotifier extends Notifier<HealthProfileState> {
   late final HealthProfileServices _healthProfileService;
 
   @override
-HealthProfileState build() {
-  _healthProfileService = HealthProfileServices();
-  return const HealthProfileState();
-}
+  HealthProfileState build() {
+    _healthProfileService = HealthProfileServices();
+    return const HealthProfileState();
+  }
 
+  Future<bool> hasHealthAccount({required token}) async {
+    try {
+      final response = await _healthProfileService.hasHealthAccount(
+        token: token,
+      );
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        state = state.copyWith(
+          birthDate: data['data']['birth_date'],
+          gender: data['data']['gender'],
+          heightCm: double.parse(data['data']['height_cm'].toString()),
+          weightKg: double.parse(data['data']['weight_kg'].toString()),
+          activityLevel: data['data']['activity_level'],
+          goal: data['data']['goal'],
+        );
+        return true;
+      } else {
+        return false;
+      }
+    } catch (e) {
+      return false;
+    }
+  }
+
+  // نستدعيه لحفظ بياناته لما يسجل أول مرة
   Future<void> saveUserData({
     required String birthDate,
     required double heightCm,
@@ -55,36 +80,34 @@ HealthProfileState build() {
     required String gender,
     required String activityLevel,
     required String goal,
-    required String token
+    required String token,
   }) async {
-    try{
+    try {
       final response = await _healthProfileService.saveUserData(
-      gender: gender,
-      birthDate: birthDate,
-      heightCm: heightCm,
-      weightKg: weightKg,
-      activityLevel: activityLevel,
-      goal: goal,
-      token: token
-    );
-    if (response.statusCode == 201 || response.statusCode == 200) {
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setBool("hasHealthAccount", true);
-
-      state = state.copyWith(
-        birthDate: birthDate, 
-        gender: gender, 
-        heightCm: heightCm, 
-        weightKg: weightKg, 
-        activityLevel: activityLevel, 
-        goal: goal
+        gender: gender,
+        birthDate: birthDate,
+        heightCm: heightCm,
+        weightKg: weightKg,
+        activityLevel: activityLevel,
+        goal: goal,
+        token: token,
       );
-    }
-    else{
-      print("Error: ${response.body}");
-    }
-    }
-    catch(e){
+      if (response.statusCode == 201 || response.statusCode == 200) {
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setBool("hasHealthAccount", true);
+
+        state = state.copyWith(
+          birthDate: birthDate,
+          gender: gender,
+          heightCm: heightCm,
+          weightKg: weightKg,
+          activityLevel: activityLevel,
+          goal: goal,
+        );
+      } else {
+        print("Error: ${response.body}");
+      }
+    } catch (e) {
       print(e);
     }
   }
