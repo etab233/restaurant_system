@@ -57,7 +57,7 @@ class _Header extends StatelessWidget {
               color: colors.surface,
               border: Border.all(color: colors.outline.withOpacity(0.3)),
             ),
-            child: Icon(Icons.close, size: 18, color: colors.onSurface),
+            child: Icon(Icons.close, size: 18, color: colors.onSurface,),
           ),
         ),
       ],
@@ -72,6 +72,7 @@ class _CategoriesGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
     return GridView.builder(
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 3,

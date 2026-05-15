@@ -4,6 +4,19 @@ import 'dart:convert';
 import 'package:restaurants_system/constants.dart';
 
 class HealthProfileServices {
+
+  Future<http.Response> hasHealthAccount({required token})async{
+    final url = Uri.parse("${Constants.baseUrl}/health-profile");
+    return await http.get(
+      url, 
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        "Authorization": "Bearer $token",
+      },
+    );
+  }
+
   Future<http.Response> saveUserData({
     required String birthDate,
     required double heightCm,
@@ -14,7 +27,7 @@ class HealthProfileServices {
     required String token
   }) async {
     final url = Uri.parse("${Constants.baseUrl}/health-profile");
-    return http.post(
+    return await http.post(
       url,
       headers: {
         'Accept': 'application/json',

@@ -9,7 +9,7 @@ import 'package:restaurants_system/providers/home_provider.dart';
 import 'package:restaurants_system/providers/restaurant_request_provider.dart';
 import 'package:restaurants_system/providers/search_provider.dart';
 import 'package:restaurants_system/view/bottom_navbar.dart';
-import 'package:restaurants_system/view/calorie_tracker/error_screen.dart'
+import 'package:restaurants_system/view/calorie_tracker/form/error_screen.dart'
     show ErrorScreen;
 import 'package:restaurants_system/view/calorie_tracker/welcome.dart';
 import 'package:restaurants_system/view/categories/categories_grid.dart';
@@ -20,9 +20,8 @@ import 'package:restaurants_system/view/restaurant-request/lock_screen.dart';
 import 'package:restaurants_system/view/restaurant-request/restaurant_request.dart';
 import 'package:restaurants_system/view/categories/category_card.dart';
 import 'package:restaurants_system/view/restaurant_by_category.dart';
-import 'package:restaurants_system/view/restaurant_screen/restaurant_screen.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:restaurants_system/view/restaurant_card.dart';
+import 'package:restaurants_system/view/restaurant_screen/restaurant_screen.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 import 'package:restaurants_system/view/home/customer_location.dart';
 
@@ -55,7 +54,7 @@ class _HomeState extends ConsumerState<Home> with TickerProviderStateMixin {
     super.initState();
     _initBubbles();
     Future.microtask(() async {
-      await initAuth(ref);
+      await ref.read(authProvider.notifier).restoreSession();
       ref.read(homeProvider.notifier).getHomeData();
     });
   }
@@ -87,15 +86,6 @@ class _HomeState extends ConsumerState<Home> with TickerProviderStateMixin {
     _bubble3Anim = Tween(begin: 0.0, end: -15.0).animate(
       CurvedAnimation(parent: _bubble3Ctrl, curve: Curves.easeInOutCubic),
     );
-  }
-
-  Future<void> initAuth(WidgetRef ref) async {
-    final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString('token');
-
-    if (token != null) {
-      ref.read(authProvider.notifier).restoreSession(token);
-    }
   }
 
   @override
@@ -437,9 +427,8 @@ class _HomeState extends ConsumerState<Home> with TickerProviderStateMixin {
                 onTap: () => Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (_) => authState.userData != null
-                        ? RestaurantRequest()
-                        : LockScreen(),
+                    builder: (_) =>
+                        authState.userData != null ? RestaurantRequest() : LockScreen(),
                   ),
                 ),
               ),
@@ -468,8 +457,7 @@ class _HomeState extends ConsumerState<Home> with TickerProviderStateMixin {
                 onTap: () => Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (_) =>
-                        authState.userData == null ? ErrorScreen() : Welcome(),
+                    builder: (_) => authState.userData == null ? ErrorScreen() : Welcome(),
                   ),
                 ),
               ),
@@ -556,7 +544,7 @@ class _HomeBody extends StatelessWidget {
   Widget build(BuildContext context) {
     return SafeArea(
       child: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 18),
+        padding: const EdgeInsets.symmetric(horizontal: 18),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -579,14 +567,15 @@ class _HomeBody extends StatelessWidget {
                 return RestaurantCard(
                   restaurant: homeState.restaurants[index],
                   onTap: () {
-                    Navigator.push(
-                      context,
+                    // لاحقاً: انتقل لصفحة تفاصيل المطعم
+                      Navigator.push(context,
                       MaterialPageRoute(
                         builder: (context) => RestaurantScreen(
                           restaurantId: homeState.restaurants[index].id,
                         ),
                       ),
                     );
+                    
                   },
                 );
               },

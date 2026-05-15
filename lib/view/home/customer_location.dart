@@ -183,7 +183,7 @@ class _CustomerLocationState extends ConsumerState<CustomerLocation> {
                   Row(
                     children: [
                       Container(
-                        padding: const EdgeInsets.all(8),
+                        padding: const EdgeInsets.all(18),
                         decoration: BoxDecoration(
                           color: const Color(0xFFFFF0EB),
                           borderRadius: BorderRadius.circular(10),

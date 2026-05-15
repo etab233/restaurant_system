@@ -27,9 +27,9 @@ class RestaurantRequestServices {
         'description': description,
         'restaurant_phone': number,
         'address': address,
-        'categories' : categories,
+        'categories': categories,
         'latitude': latitude,
-        'longitude': longitude
+        'longitude': longitude,
       }),
     );
   }
@@ -60,13 +60,8 @@ class RestaurantRequestServices {
     );
   }
 
-  Future<http.Response> fetchCategories({required String token}) async{
+  Future<http.Response> fetchCategories() async {
     final url = Uri.parse("${Constants.baseUrl}/restaurant-categories");
-    return await http.get(
-      url,
-      headers: {
-        "Authorization": "Bearer $token",
-      }
-    );
+    return await http.get(url);
   }
 }

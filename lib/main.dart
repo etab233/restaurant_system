@@ -67,9 +67,7 @@ class MyAppState extends State<MyApp> {
           background: const Color(0xFF121212),
           onBackground: Colors.white,
 
-          surface: const Color(
-            0xFF1E1E1E,
-          ), // لون الخلفيات الداخلية( التي تكون فوق الخلفية الأساسية)
+          surface: const Color(0xFF1E1E1E), // لون الخلفيات الداخلية( التي تكون فوق الخلفية الأساسية)
           onSurface: Colors.white70, // النصوص و الأيقونات فوق الخلفيات الداخلية
 
           error: Colors.red,

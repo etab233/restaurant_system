@@ -1,10 +1,17 @@
-int calculateAge(DateTime birthDate) {
-  final today = DateTime.now();
-  int age = today.year - birthDate.year;
-  if (today.month < birthDate.month ||
-      (today.month == birthDate.month && today.day < birthDate.day)) {
+int calculateAge(String birthDate) {
+  DateTime birth = DateTime.parse(birthDate);
+  DateTime today = DateTime.now();
+
+  int age = today.year - birth.year;
+
+  // إذا عيد الميلاد لسا ما إجا هالسنة
+  if (
+    today.month < birth.month ||
+    (today.month == birth.month && today.day < birth.day)
+  ) {
     age--;
   }
+
   return age;
 }
 

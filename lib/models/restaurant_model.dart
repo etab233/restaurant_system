@@ -1,4 +1,5 @@
 import 'package:restaurants_system/models/category_model.dart';
+
 class RestaurantModel {
   final int id;
   final String name;
@@ -38,8 +39,8 @@ class RestaurantModel {
       coverImage: json['cover_image'],
       hours: RestaurantHours.fromJson(json['hours'] ?? json),
       location: json['location'] != null
-    ? RestaurantLocation.fromJson(json['location'])
-    : RestaurantLocation(),
+          ? RestaurantLocation.fromJson(json['location'])
+          : RestaurantLocation(),
       categories:
           (json['categories'] as List<dynamic>?)
               ?.map((c) => Category.fromJson(c))
@@ -99,7 +100,7 @@ class RestaurantLocation {
   // fromJson
   factory RestaurantLocation.fromJson(Map<String, dynamic> json) {
     return RestaurantLocation(
-      latitude: (json ['latitude'] != null)
+      latitude: (json['latitude'] != null)
           ? (json['latitude'] as num).toDouble()
           : null,
       longitude: (json['longitude'] != null)
