@@ -1,11 +1,11 @@
 import 'dart:convert';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:restaurants_system/models/Category.dart';
-import 'package:restaurants_system/models/restaurant.dart';
+import 'package:restaurants_system/models/category_model.dart';
+import 'package:restaurants_system/models/restaurant_model.dart';
 import 'package:restaurants_system/services/view_restaurant_service.dart';
 
 class RestaurantScreenState {
-  final Restaurant? restaurant;
+  final RestaurantModel? restaurant;
   final List<Category>? categories;
   final bool isLoading;
   final String? message;
@@ -19,7 +19,7 @@ class RestaurantScreenState {
   });
 
   RestaurantScreenState copyWith({
-    Restaurant? restaurant,
+    RestaurantModel? restaurant,
     List<Category>? categories,
     bool? isLoading,
     String? message,
@@ -50,12 +50,16 @@ class RestaurantNotifier extends Notifier<RestaurantScreenState> {
   Future<void> viewRestaurant(int restaurantId) async {
     try {
       state = state.copyWith(isLoading: true);
-      final result = await ref.read(viewRestaurantProvider).viewRestaurant(2);
+      final result = await ref
+          .read(viewRestaurantProvider)
+          .viewRestaurant(restaurantId);
       final data = jsonDecode(result.body);
       if (result.statusCode == 200) {
         state = state.copyWith(
-          restaurant: Restaurant.fromJson(data["data"]["restaurant"]),
-          categories: (data["data"]["categories"] as List?)?.map((e) => Category.fromJson(e)).toList(),
+          restaurant: RestaurantModel.fromJson(data["data"]["restaurant"]),
+          categories: (data["data"]["categories"] as List?)
+              ?.map((e) => Category.fromJson(e))
+              .toList(),
           isLoading: false,
           status: data["status"],
         );

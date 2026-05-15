@@ -1,9 +1,11 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:flutter/material.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:restaurants_system/providers/auth_provider.dart';
 import 'reset_password.dart';
-import '../home.dart';
+import '../home/home.dart';
 
 class Verification extends ConsumerStatefulWidget {
   final String purpose;

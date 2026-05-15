@@ -4,6 +4,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:intl_phone_number_input/intl_phone_number_input.dart';
 import 'package:restaurants_system/providers/restaurant_request_provider.dart';
+import 'package:restaurants_system/view/home/home.dart';
 import 'package:restaurants_system/view/restaurant-request/map_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:restaurants_system/constants.dart';
@@ -82,7 +83,7 @@ class _RestaurantRequestState extends ConsumerState<RestaurantRequest> {
       appBar: AppBar(
         backgroundColor: Colors.white,
         leading: IconButton(
-          onPressed: () => Navigator.pop(context),
+          onPressed: () => Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => Home())),
           icon: Icon(Icons.arrow_back, size: 30),
         ),
         title: const Text(
@@ -303,7 +304,9 @@ class _RestaurantRequestState extends ConsumerState<RestaurantRequest> {
                                 }).toList(),
                                 onConfirm: (values) {
                                   setState(() {
-                                    selected = List<int>.from(values);
+                                    selected = List<int>.from(
+                                      values,
+                                    );
                                   });
                                 },
                               ),
@@ -336,12 +339,10 @@ class _RestaurantRequestState extends ConsumerState<RestaurantRequest> {
                                             restaurantRequestProvider.notifier,
                                           )
                                           .getCurrentLocation();
-                                      if (!mounted) {
-                                        final location = ref
-                                            .read(restaurantRequestProvider)
-                                            .pickedLocation;
-                                        _mapController.move(location, 15);
-                                      };
+                                      final location = ref
+                                          .read(restaurantRequestProvider)
+                                          .pickedLocation;
+                                      _mapController.move(location, 15);
                                     },
                                     icon: Icon(Icons.my_location),
                                   ),

@@ -1,14 +1,18 @@
-import 'dart:ui';
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:restaurants_system/constants.dart';
 import 'package:restaurants_system/providers/auth_provider.dart';
+import 'package:restaurants_system/view/calorie_tracker/dashboard/dashboard_main_screen.dart';
+import 'package:restaurants_system/view/restaurant-request/restaurant_request.dart';
 import 'forgot_password.dart';
 import 'register.dart';
-import '../home.dart';
+import '../home/home.dart';
 
 class Login extends ConsumerStatefulWidget {
-  const Login({super.key});
+  final String redirectTo;
+  const Login({super.key, required this.redirectTo});
 
   @override
   ConsumerState<Login> createState() => _LoginState();
@@ -30,6 +34,7 @@ class _LoginState extends ConsumerState<Login> {
   @override
   Widget build(BuildContext context) {
     final authState = ref.watch(authProvider);
+    final colors = Theme.of(context).colorScheme;
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
@@ -65,7 +70,7 @@ class _LoginState extends ConsumerState<Login> {
                 child: Text(
                   "Fresh • Tasty • Fast",
                   style: TextStyle(
-                    color: Color(Constants.orangeColor),
+                    color: const Color(0xFFFF7A3D),
                     fontSize: 22,
                     fontWeight: FontWeight.bold,
                     fontFamily: "Tajawal",
@@ -124,7 +129,10 @@ class _LoginState extends ConsumerState<Login> {
                         ),
                         focusedErrorBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10),
-                          borderSide: BorderSide(color: Colors.red, width: 2),
+                          borderSide: BorderSide(
+                            color: colors.outline,
+                            width: 2,
+                          ),
                         ),
                         errorStyle: TextStyle(
                           fontSize: 14,
@@ -301,15 +309,44 @@ class _LoginState extends ConsumerState<Login> {
                             // إذا تم تسجيل الدخول بنجاح
                             final myState = ref.read(authProvider);
                             if (myState.isLoggedIn) {
-                              Navigator.pushReplacement(
-                                context,
-                                MaterialPageRoute(builder: (context) => Home()),
-                              );
+                              switch (widget.redirectTo) {
+                                case "home":
+                                  Navigator.pushReplacement(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => Home(),
+                                    ),
+                                  );
+                                  break;
+                                case "dashboard":
+                                  Navigator.pushReplacement(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => Dashboard(),
+                                    ),
+                                  );
+                                  break;
+                                case "restaurant_request":
+                                  Navigator.pushReplacement(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => RestaurantRequest(),
+                                    ),
+                                  );
+                                  break;
+                                default:
+                                  Navigator.pushReplacement(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => Home(),
+                                    ),
+                                  );
+                              }
                             }
                           }
                         },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Color(Constants.orangeColor),
+                    backgroundColor: const Color(0xFFFF7A3D),
                     foregroundColor: Colors.white,
                     elevation: 5,
                     shadowColor: Colors.grey,
@@ -353,7 +390,7 @@ class _LoginState extends ConsumerState<Login> {
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
                         decoration: TextDecoration.underline,
-                        decorationColor: Color(Constants.orangeColor),
+                        decorationColor: const Color(0xFFFF7A3D),
                         color: Color(Constants.orangeColor),
                         shadows: [
                           Shadow(

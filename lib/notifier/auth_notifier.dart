@@ -319,8 +319,11 @@ class AuthNotifier extends Notifier<AuthState> {
     state = state.copyWith(userData: newData);
   }
 
-  // change user type in register screen
-  void changeUserType(UserType type) {
-    state = state.copyWith(toggleState: type);
+  // load data from SharedPreferences when first open the app
+  void restoreSession(String token){
+    state = AuthState(
+    isLoggedIn: true,
+    token: token,
+  );
   }
 }

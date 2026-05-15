@@ -1,10 +1,10 @@
 import 'dart:convert';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:restaurants_system/models/restaurant.dart';
+import 'package:restaurants_system/models/restaurant_model.dart';
 import 'package:restaurants_system/providers/restaurant_by_category.dart';
 
 class RestaurantListState {
-  final List<Restaurant> restaurants;
+  final List<RestaurantModel> restaurants;
   final bool isLoading;
   final String? message;
   final String? status;
@@ -15,7 +15,7 @@ class RestaurantListState {
     this.status,
   });
   RestaurantListState copyWith({
-    List<Restaurant>? restaurants,
+    List<RestaurantModel>? restaurants,
     bool? isLoading,
     String? message,
     String? status,
@@ -49,8 +49,12 @@ class RestaurantListNotifier extends Notifier<RestaurantListState> {
       final data = jsonDecode(response.body);
       if (response.statusCode == 200) {
         final restaurants = (data["data"]["restaurants"] as List)
-            .map((e) => Restaurant.fromJson(e))
+            .map((e) => RestaurantModel.fromJson(e))
             .toList();
+        state = state.copyWith(
+          restaurants: restaurants,
+          status: data["status"],
+        );
         if (state.restaurants.isEmpty) {
           state = state.copyWith(
             message: "No Restaurants Found",
@@ -58,10 +62,6 @@ class RestaurantListNotifier extends Notifier<RestaurantListState> {
           );
           return;
         }
-        state = state.copyWith(
-          restaurants: restaurants,
-          status: data["status"],
-        );
       } else {
         state = state.copyWith(
           message: data["message"],

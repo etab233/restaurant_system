@@ -1,20 +1,86 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:flutter/material.dart';
+import 'package:restaurants_system/view/home/home.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:restaurants_system/view/login-register/welcome.dart';
 
 void main() {
   runApp(const ProviderScope(child: MyApp()));
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
+
+  @override
+  State<MyApp> createState() => MyAppState();
+}
+
+class MyAppState extends State<MyApp> {
+  ThemeMode _themeMode = ThemeMode.light;
+
+  void _toggleTheme() {
+    setState(() {
+      _themeMode = _themeMode == ThemeMode.light
+          ? ThemeMode.dark
+          : ThemeMode.light;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Restaurants System',
+      home: Home(themeMode: _themeMode, toggleTheme: _toggleTheme),
+      theme: ThemeData(
+        colorScheme: ColorScheme(
+          brightness: Brightness.light,
+
+          primary: const Color(0xFFFF6B35),
+          onPrimary: Colors.white,
+
+          secondary: const Color(0xFFFFA07A),
+          onSecondary: Colors.black,
+
+          background: const Color(0xFFF8F8F8),
+          onBackground: Colors.black,
+
+          surface: Colors.white,
+          onSurface: Colors.black87,
+
+          error: Colors.red,
+          onError: Colors.white,
+
+          shadow: Colors.black.withOpacity(0.06),
+        ),
+      ),
+
+      darkTheme: ThemeData(
+        colorScheme: ColorScheme(
+          brightness: Brightness.dark,
+
+          primary: const Color(0xFFFF6B35),
+          onPrimary: Colors.white,
+
+          secondary: const Color(0xFFFFA07A),
+          onSecondary: Colors.black,
+
+          background: const Color(0xFF121212),
+          onBackground: Colors.white,
+
+          surface: const Color(
+            0xFF1E1E1E,
+          ), // لون الخلفيات الداخلية( التي تكون فوق الخلفية الأساسية)
+          onSurface: Colors.white70, // النصوص و الأيقونات فوق الخلفيات الداخلية
+
+          error: Colors.red,
+          onError: Colors.white,
+
+          shadow: Colors.black.withOpacity(0.4),
+        ),
+      ),
+
+      themeMode: _themeMode,
       debugShowCheckedModeBanner: false,
-      home: Welcome(),
     );
   }
 }
