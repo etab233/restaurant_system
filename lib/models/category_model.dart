@@ -1,7 +1,11 @@
+import 'package:hive_flutter/hive_flutter.dart';
+part 'category_model.g.dart';
+
+@HiveType(typeId: 3)
 class Category {
-  final int id;
-  final String name;
-  final String? image;
+  @HiveField(0) int id;
+  @HiveField(1) String name;
+  @HiveField(2) String? image;
 
   Category({
     required this.id,

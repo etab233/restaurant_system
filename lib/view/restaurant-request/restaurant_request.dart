@@ -44,14 +44,16 @@ class _RestaurantRequestState extends ConsumerState<RestaurantRequest>
     _fadeAnim = CurvedAnimation(parent: _animCtrl, curve: Curves.easeOut);
     _animCtrl.forward();
 
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      final prefs = await SharedPreferences.getInstance();
-      final token = prefs.getString("token");
-      if (token != null) {
-        await ref.read(restaurantRequestProvider.notifier).fetchCategories();
-      }
-    });
+    _loadCategories();
   }
+  Future<void> _loadCategories() async {
+  final prefs = await SharedPreferences.getInstance();
+  final token = prefs.getString("token");
+
+  if (token != null) {
+    await ref.read(restaurantRequestProvider.notifier).fetchCategories();
+  }
+}
 
   @override
   void dispose() {
@@ -117,9 +119,7 @@ class _RestaurantRequestState extends ConsumerState<RestaurantRequest>
 
     return Scaffold(
       backgroundColor: _bg,
-      body: state.isLoadCategories
-          ? const Center(child: CircularProgressIndicator(color: _orange))
-          : FadeTransition(
+      body: FadeTransition(
               opacity: _fadeAnim,
               child: CustomScrollView(
                 slivers: [
@@ -268,8 +268,8 @@ class _RestaurantRequestState extends ConsumerState<RestaurantRequest>
                               selectedItemsTextStyle: const TextStyle(fontSize: 13, color: _orange, fontWeight: FontWeight.w600),
                               checkColor: Colors.white,
                               selectedColor: _orange,
-                              items: state.categories.entries.map((e) {
-                                return MultiSelectItem<int>(e.value, e.key);
+                              items: state.categories.map((e) {
+                                return MultiSelectItem<int>(e.id, e.name);
                               }).toList(),
                               onConfirm: (vals) => setState(() => selected = List<int>.from(vals)),
                             ),

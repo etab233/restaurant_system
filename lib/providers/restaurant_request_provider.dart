@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:restaurants_system/models/category_model.dart';
 import 'package:restaurants_system/notifier/restaurant_request_notifier.dart';
 
 final restaurantRequestProvider = NotifierProvider<RestaurantRequestNotifier,RestaurantRequestState>((){
@@ -26,7 +27,7 @@ final finalAddressProvider = Provider<bool?>((ref){
   return ref.watch(restaurantRequestProvider).findAddress;
 });
 
-final categories = Provider<Map<String,int>?>((ref){
+final categories = Provider<List<Category>?>((ref){
   return ref.watch(restaurantRequestProvider).categories;
 });
 

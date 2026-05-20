@@ -23,17 +23,27 @@ class AnalyzeMealServices {
     }
 
     final streamed = await req.send();
-    final res = await http.Response.fromStream(streamed);
 
-    if (res.statusCode == 200) {
-      final data = json.decode(res.body);
-      if (data.containsKey('data')) {
-        return data['data'];
-      } else {
-        return data;
-      }
+    final res = await http.Response.fromStream(streamed);
+    Map<String, dynamic> data = {};
+
+    try {
+      data = json.decode(res.body);
+    } catch (e) {
+      print("ERRRRRROR $e");
+      return {"error": "Invalid server response"};
+    }
+    if (streamed.statusCode != 200) {
+      return {
+        "error": data["message"] ?? "Server error (${streamed.statusCode})",
+      };
+      //throw Exception("Analysis failed: ${streamed.statusCode}");
+    }
+
+    if (data.containsKey('data')) {
+      return data['data'];
     } else {
-      throw Exception("Analysis failed: ${res.statusCode}\n${res.body}");
+      return data;
     }
   }
 }

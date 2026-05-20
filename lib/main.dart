@@ -1,10 +1,33 @@
 // ignore_for_file: deprecated_member_use
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+import 'package:restaurants_system/models/category_model.dart';
+import 'package:restaurants_system/models/restaurant_model.dart';
 import 'package:restaurants_system/view/home/home.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Hive.initFlutter();
+
+  SystemChrome.setSystemUIOverlayStyle(
+    const SystemUiOverlayStyle(
+      statusBarColor: Colors.transparent,
+      statusBarIconBrightness: Brightness.dark,
+      statusBarBrightness: Brightness.light,
+    ),
+  );
+
+  Hive.registerAdapter(RestaurantModelAdapter());
+  Hive.registerAdapter(RestaurantHoursAdapter());
+  Hive.registerAdapter(RestaurantLocationAdapter());
+  Hive.registerAdapter(CategoryAdapter());
+
+  await Hive.openBox<RestaurantModel>("restaurantsBox");
+  await Hive.openBox<Category>("categoriesBox");
+
   runApp(const ProviderScope(child: MyApp()));
 }
 
@@ -67,7 +90,9 @@ class MyAppState extends State<MyApp> {
           background: const Color(0xFF121212),
           onBackground: Colors.white,
 
-          surface: const Color(0xFF1E1E1E), // لون الخلفيات الداخلية( التي تكون فوق الخلفية الأساسية)
+          surface: const Color(
+            0xFF1E1E1E,
+          ), // لون الخلفيات الداخلية( التي تكون فوق الخلفية الأساسية)
           onSurface: Colors.white70, // النصوص و الأيقونات فوق الخلفيات الداخلية
 
           error: Colors.red,

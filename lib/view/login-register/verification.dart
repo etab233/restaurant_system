@@ -112,12 +112,12 @@ class _VerificationState extends ConsumerState<Verification> {
                         duration: Duration(seconds: 3),
                       ),
                     );
-                    if (newState.isVerify && newState.isCodeSent) {
+                    if (newState.isVerify && newState.purpose == "reset_password") {
                       Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(builder: (_) => ResetPassword()),
                       );
-                    } else if (newState.isVerify && newState.isRegistered) {
+                    } else if (newState.isVerify && newState.purpose == "register") {
                       Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(builder: (_) => Home()),
@@ -137,16 +137,19 @@ class _VerificationState extends ConsumerState<Verification> {
               const SizedBox(height: 35),
               TextButton(
                 onPressed: () async {
+                  _textController.clear();
                   final newState = ref.read(authProvider);
                   await ref
                       .read(authProvider.notifier)
                       .forgotPassword(newState.userData!['email']);
                   await Future.delayed(Duration(milliseconds: 500));
+                  if(!mounted) return ;
+                  final updatedState = ref.read(authProvider);
                   if (newState.message != null) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
                         content: Text(
-                          newState.message!,
+                          updatedState.message!,
                           style: TextStyle(fontSize: 20),
                         ),
                         backgroundColor: newState.isCodeSent

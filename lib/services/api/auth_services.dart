@@ -57,7 +57,7 @@ class AuthServices{
 }
 
 // otp تابع للتحقق من صحة 
-Future<http.Response> verifyOtp({required String email, required String otpCode, required String purpose})async{
+Future<http.Response> verifyOtp({required String email, required String otpCode})async{
   final url =Uri.parse("${Constants.baseUrl}/verify-otp-email");
   return await http.post(
     url,
@@ -67,8 +67,7 @@ Future<http.Response> verifyOtp({required String email, required String otpCode,
     },
     body: json.encode({
       'email':email.trim(),
-      'otp_code':otpCode.trim(),
-      'purpose': purpose,
+      'otp_code':otpCode.trim()
     })
   );
 }

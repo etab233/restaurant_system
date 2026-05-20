@@ -1,5 +1,6 @@
 // ignore_for_file: deprecated_member_use
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:restaurants_system/models/restaurant_model.dart';
 
@@ -86,10 +87,7 @@ class _CoverPlaceholder extends StatelessWidget {
   final String name;
   final String? coverUrl;
 
-  const _CoverPlaceholder({
-    required this.name,
-    this.coverUrl,
-  });
+  const _CoverPlaceholder({required this.name, this.coverUrl});
 
   @override
   Widget build(BuildContext context) {
@@ -103,14 +101,13 @@ class _CoverPlaceholder extends StatelessWidget {
             end: Alignment.bottomCenter,
           ),
         ),
-        child: Image.network(
-          coverUrl!,
+        child: CachedNetworkImage(
+          imageUrl: coverUrl!,
           height: 140,
           width: double.infinity,
           fit: BoxFit.cover,
-          errorBuilder: (_, __, ___) => _buildPlaceholder(name),
-          loadingBuilder: (_, child, progress) =>
-              progress == null ? child : _buildPlaceholder(name),
+          errorWidget: (context, url, error) => _buildPlaceholder(name),
+          placeholder: (context, url) => _buildPlaceholder(name),
         ),
       );
     }
@@ -124,17 +121,11 @@ class _CoverPlaceholder extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
-            Icons.storefront_rounded,
-            size: 44,
-          ),
+          Icon(Icons.storefront_rounded, size: 44, color: Colors.grey),
           const SizedBox(height: 6),
           Text(
             name,
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 15,
-            ),
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
           ),
         ],
       ),
@@ -200,11 +191,7 @@ class _LogoAvatar extends StatelessWidget {
         shape: BoxShape.circle,
         border: Border.all(color: colors.outline.withAlpha(2), width: 0.5),
         boxShadow: [
-          BoxShadow(
-            color: colors.shadow,
-            offset: Offset(0, 3),
-            blurRadius: 5,
-          ),
+          BoxShadow(color: colors.shadow, offset: Offset(0, 3), blurRadius: 5),
         ],
       ),
       child: logoUrl != null
@@ -223,10 +210,7 @@ class _LogoAvatar extends StatelessWidget {
     return Center(
       child: Text(
         name.isNotEmpty ? name[0].toUpperCase() : '?',
-        style: TextStyle(
-          fontWeight: FontWeight.bold,
-          fontSize: 16,
-        ),
+        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
       ),
     );
   }
@@ -249,10 +233,7 @@ class _InfoSection extends StatelessWidget {
     final colors = Theme.of(context).colorScheme;
     final opens = restaurant.hours.opens ?? '--';
     final closes = restaurant.hours.closes ?? '--';
-    final cats = restaurant.categories
-        .take(2)
-        .map((c) => c.name as String)
-        .join(' · ');
+    final cats = restaurant.categories.take(2).map((c) => c.name).join(' · ');
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(14, 22, 14, 14),

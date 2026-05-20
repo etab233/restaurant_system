@@ -1,5 +1,9 @@
+import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:restaurants_system/services/api/analyze_meal_services.dart';
+
+enum Status { initial, loading, success, error }
 
 class AnalyzeMealState {
   final String name;
@@ -9,8 +13,8 @@ class AnalyzeMealState {
   final double carbs;
   final double fat;
   final String confidence;
-  final bool success;
   final String message;
+  final Status analyzeStatus;
 
   const AnalyzeMealState({
     this.name = "",
@@ -20,8 +24,8 @@ class AnalyzeMealState {
     this.carbs = 0.0,
     this.fat = 0.0,
     this.confidence = "",
-    this.success=false, 
-    this.message= ""
+    this.message = "",
+    this.analyzeStatus = Status.initial,
   });
 
   AnalyzeMealState copyWith({
@@ -32,8 +36,8 @@ class AnalyzeMealState {
     double? carbs,
     double? fat,
     String? confidence,
-    bool? success, 
-    String? message
+    String? message,
+    Status? analyzeStatus,
   }) {
     return AnalyzeMealState(
       name: name ?? this.name,
@@ -43,8 +47,8 @@ class AnalyzeMealState {
       carbs: carbs ?? this.carbs,
       fat: fat ?? this.fat,
       confidence: confidence ?? this.confidence,
-      success: success ?? this.success, 
-      message: message ?? this.message
+      message: message ?? this.message,
+      analyzeStatus: analyzeStatus ?? this.analyzeStatus,
     );
   }
 }
@@ -62,31 +66,45 @@ class AnalyzeMealNotifier extends Notifier<AnalyzeMealState> {
     required String imagePath,
     String? description,
     required String token,
-  })async {
-    try{
-      final response = await _analyzeMealServices.analyze(imagePath: imagePath, token: token, description: description);
+  }) async {
+    // reset state
+    state = const AnalyzeMealState(analyzeStatus: Status.loading, message: "");
+    try {
+      final response = await _analyzeMealServices
+          .analyze(imagePath: imagePath, token: token, description: description)
+          .timeout(const Duration(seconds: 40));
 
-      if(response.containsKey("error")){
-        // حالة خطأ 
-        state = state.copyWith(success: false, message: response['error']);
-      }
-      else{
+      if (response.containsKey("error")) {
+        state = state.copyWith(
+          analyzeStatus: Status.error,
+          message: response['error'],
+        );
+        print("ERRRRRROR ${response['error']}");
+        return;
+      } else {
         // تم المسح بنجاح
         state = state.copyWith(
-          name       : response["dish_name"], 
-          description: response["description"], 
-          calories   : (response["calories"] as num).toDouble(), 
-          protein    : (response["protein"] as num).toDouble(), 
-          carbs      : (response["carbs"] as num).toDouble(), 
-          fat        : (response["fat"] as num).toDouble(), 
-          confidence : response["confidence"], 
-          success    : true, 
-          message    : "Operation successful"
+          name: response["dish_name"],
+          description: response["description"],
+          calories: (response["calories"] as num).toDouble(),
+          protein: (response["protein"] as num).toDouble(),
+          carbs: (response["carbs"] as num).toDouble(),
+          fat: (response["fat"] as num).toDouble(),
+          confidence: response["confidence"],
+          message: "Operation successful",
+          analyzeStatus: Status.success,
         );
       }
-    } catch(e){
+    } on TimeoutException catch (_) {
       state = state.copyWith(
-        success: false, 
+        analyzeStatus: Status.error,
+        message:
+            "The image quality is too low for accurate analysis. Please provide a clearer image.",
+      );
+    } catch (e) {
+      print("ERRRRRRRRRRRRRRORRRRRRR $e");
+      state = state.copyWith(
+        analyzeStatus: Status.error,
         message: "Something went wrong. Please try again.",
       );
     }

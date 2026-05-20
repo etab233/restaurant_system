@@ -1,16 +1,20 @@
+import 'package:hive/hive.dart';
 import 'package:restaurants_system/models/category_model.dart';
+part 'restaurant_model.g.dart';
+
+@HiveType(typeId: 0) // hive adapter
 class RestaurantModel {
-  final int id;
-  final String name;
-  final String description;
-  final String address;
-  final String phone;
-  final String? logo;
-  final String? coverImage;
-  final RestaurantHours hours;
-  final RestaurantLocation location;
-  final List<dynamic> categories;
-  final int rate;
+  @HiveField(0) final int id;
+  @HiveField(1) final String name;
+  @HiveField(2) final String description;
+  @HiveField(3) final String address;
+  @HiveField(4) final String phone;
+  @HiveField(5) final String? logo;
+  @HiveField(6) final String? coverImage;
+  @HiveField(7) final RestaurantHours hours;
+  @HiveField(8) final RestaurantLocation location;
+  @HiveField(9) final List<Category> categories;
+  @HiveField(10) final int rate;
 
   RestaurantModel({
     required this.id,
@@ -56,7 +60,7 @@ class RestaurantModel {
       'address': address,
       'phone': phone,
       'logo': logo,
-      'coverImage': coverImage,
+      'cover_image': coverImage,
       'hours': hours.toJson(),
       'location': location.toJson(),
       'categories': categories,
@@ -65,10 +69,11 @@ class RestaurantModel {
   }
 }
 
+@HiveType(typeId: 1)
 class RestaurantHours {
-  final String? opens;
-  final String? closes;
-  final bool isOpen;
+  @HiveField(0) final String? opens;
+  @HiveField(1) final String? closes;
+  @HiveField(2) final bool isOpen;
 
   RestaurantHours({this.opens, this.closes, required this.isOpen});
 
@@ -87,10 +92,11 @@ class RestaurantHours {
   }
 }
 
+@HiveType(typeId: 2)
 class RestaurantLocation {
-  final double? latitude;
-  final double? longitude;
-  final double? distanceKm;
+  @HiveField(0) final double? latitude;
+  @HiveField(1) final double? longitude;
+  @HiveField(2) final double? distanceKm;
 
   RestaurantLocation({this.latitude, this.longitude, this.distanceKm});
 

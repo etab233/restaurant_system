@@ -35,9 +35,6 @@ class FoodAnalysisScreen extends ConsumerStatefulWidget {
 
 class FoodAnalysisScreenState extends ConsumerState<FoodAnalysisScreen>
     with TickerProviderStateMixin {
-  bool _loading = true;
-  String? _error;
-
   // متحولات لزر الإضافة
   bool _isAdding = false;
   bool _added = false;
@@ -70,6 +67,7 @@ class FoodAnalysisScreenState extends ConsumerState<FoodAnalysisScreen>
       vsync: this,
       duration: const Duration(milliseconds: 600),
     );
+
     analyze();
   }
 
@@ -98,18 +96,12 @@ class FoodAnalysisScreenState extends ConsumerState<FoodAnalysisScreen>
       );
       if (mounted) {
         setState(() {
-          _loading = false;
           _stepDone = _steps.length;
         });
         _resultCtrl.forward();
       }
     } catch (e) {
       if (!mounted) return;
-      setState(() {
-        _error = e.toString();
-        _loading = false;
-      });
-      debugPrint("Error $_error");
     }
   }
 
@@ -118,16 +110,18 @@ class FoodAnalysisScreenState extends ConsumerState<FoodAnalysisScreen>
     final analyzeMealState = ref.watch(analyzeMealProvider);
 
     return Scaffold(
-      backgroundColor: _loading
+      backgroundColor:
+          analyzeMealState.analyzeStatus == Status.loading ||
+              analyzeMealState.analyzeStatus == Status.initial
           ? const Color(0xFF0F1117)
           : const Color(0xFFF5F5F0),
-      body: _loading
+      body:
+          analyzeMealState.analyzeStatus == Status.loading ||
+              analyzeMealState.analyzeStatus == Status.initial
           ? _buildAnalyzing()
-          : analyzeMealState.name.isEmpty && !analyzeMealState.success
-          ? _buildAnalyzing()
-          : analyzeMealState.success
+          : analyzeMealState.analyzeStatus == Status.success
           ? _buildResults(analyzeMealState)
-          : _buildError(),
+          : _buildError(analyzeMealState.message),
     );
   }
 
@@ -520,14 +514,17 @@ class FoodAnalysisScreenState extends ConsumerState<FoodAnalysisScreen>
     ),
   );
 
-  Widget _buildError() => Center(
+  Widget _buildError(String message) => Center(
     child: Column(
       mainAxisSize: MainAxisSize.min,
       children: [
         const Icon(Icons.error_outline_rounded, size: 48, color: Colors.red),
         const SizedBox(height: 12),
-        const Text("Couldn't analyze the photo"),
-        const SizedBox(height: 12),
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: 20),
+          child: Text(message),
+        ),
+        const SizedBox(height: 15),
         ElevatedButton(
           onPressed: () => Navigator.pop(context),
           child: const Text("Try again"),

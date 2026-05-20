@@ -14,6 +14,7 @@ class AuthState {
   final bool isInitialized;
   final Map<String, dynamic>? userData;
   final String? token;
+  final String? purpose;
   final List<String>? roles;
   final String? message;
   final UserType toggleState;
@@ -27,6 +28,7 @@ class AuthState {
     this.isPasswordSet = false,
     this.isInitialized = false,
     this.token,
+    this.purpose,
     this.roles,
     this.userData,
     this.message,
@@ -42,6 +44,7 @@ class AuthState {
     bool? isPasswordSet,
     bool? isInitialized,
     String? token,
+    String? purpose,
     List<String>? roles,
     Map<String, dynamic>? userData,
     String? message,
@@ -56,6 +59,7 @@ class AuthState {
       isPasswordSet: isPasswordSet ?? this.isPasswordSet,
       isInitialized: isInitialized ?? this.isInitialized,
       token: token ?? this.token,
+      purpose: purpose ?? this.purpose,
       roles: roles ?? this.roles,
       userData: userData ?? this.userData,
       message: message ?? this.message,
@@ -74,7 +78,7 @@ class AuthNotifier extends Notifier<AuthState> {
   }
 
   Future<void> login(String email, String password) async {
-    state = state.copyWith(isLoading: true, message: null);
+    state = state.copyWith(isLoading: true ,message: null);
     try {
       // لا يقوم بالطلب بنفسه
       final response = await _authService.login(
@@ -100,11 +104,12 @@ class AuthNotifier extends Notifier<AuthState> {
         final data = json.decode(response.body);
         state = state.copyWith(
           isLoading: false,
+          isLoggedIn: false,
           message: data['error'] ?? "failed to login",
         );
       }
     } catch (e) {
-      state = state.copyWith(isLoading: false, message: "failed to login");
+      state = state.copyWith(isLoading: false, isLoggedIn: false ,message: "failed to login");
     }
   }
 
@@ -137,10 +142,9 @@ class AuthNotifier extends Notifier<AuthState> {
         state = state.copyWith(
           isLoading: false,
           isRegistered: true,
-          userData: data['user'],
-          token: data['access_token'],
-          roles: data['roles'] != null
-              ? List<String>.from(data['roles'])
+          userData: data['data']['user'],
+          roles: data['data']['roles'] != null
+              ? List<String>.from(data['data']['roles'])
               : null,
           message: data['message'] ?? "Registration Successfully",
         );
@@ -183,22 +187,22 @@ class AuthNotifier extends Notifier<AuthState> {
           isLoading: false,
         );
       } else {
-        String? errorMessage;
         final data = json.decode(response.body);
+        String? errorMessage;
         if (data['errors'] != null) {
-          final Map<String, dynamic> errors = data['errors'];
+          final errors = data['errors'] as Map<String, dynamic>;
           final firstError = errors.values.first;
           if (firstError is List && firstError.isNotEmpty) {
             errorMessage = firstError.first;
           } else if (firstError is String) {
             errorMessage = firstError;
           }
-          state = state.copyWith(
-            isLoading: false,
-            isCodeSent: false,
-            message: errorMessage ?? "failed to optain code",
-          );
         }
+        state = state.copyWith(
+          isLoading: false,
+          isCodeSent: false,
+          message: errorMessage ?? "failed to obtain code",
+        );
       }
     } catch (e) {
       state = state.copyWith(
@@ -215,7 +219,6 @@ class AuthNotifier extends Notifier<AuthState> {
       final response = await _authService.verifyOtp(
         email: email,
         otpCode: otpCode,
-        purpose: purpose,
       );
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
@@ -223,17 +226,23 @@ class AuthNotifier extends Notifier<AuthState> {
         if (purpose == "register") {
           isRegister = true;
           isPasswordSet = false;
+          purpose = "register";
           final prefs = await SharedPreferences.getInstance();
-          await prefs.setString("token", data['data']['access_token']);
+          await prefs.setString("token", data['data']['token']);
+
         } else if (purpose == "reset_password") {
+          final prefs = await SharedPreferences.getInstance();
+          await prefs.setString("token", data['data']['token']);
           isPasswordSet = true;
           isRegister = false;
+          purpose= "reset_password";
         }
         state = state.copyWith(
           isLoading: false,
           isVerify: true,
           isRegistered: isRegister,
           isPasswordSet: isPasswordSet,
+          purpose: purpose,
           message: data['message'],
           userData: data['data']['user'],
         );
@@ -244,7 +253,7 @@ class AuthNotifier extends Notifier<AuthState> {
           isVerify: false,
           isRegistered: false,
           isCodeSent: false,
-          message: data['error'] ?? "failed to optain code",
+          message: data['message'] ?? "failed to optain code",
         );
       }
     } catch (e) {

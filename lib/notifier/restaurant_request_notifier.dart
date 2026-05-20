@@ -1,3 +1,5 @@
+import 'package:restaurants_system/data/local/category_local_data.dart';
+import 'package:restaurants_system/models/category_model.dart';
 import 'package:restaurants_system/services/api/restaurant_request_services.dart';
 import 'package:riverpod/riverpod.dart';
 import 'dart:convert';
@@ -11,7 +13,7 @@ class RestaurantRequestState {
   final LatLng pickedLocation;
   final String addressField;
   final bool findAddress; // إذا المستخد كتب بالحقل عنوان محدد و استطعنا ايجاده
-  final Map<String, int> categories;
+  final List<Category> categories;
   final bool isLoadCategories;
 
   const RestaurantRequestState({
@@ -32,7 +34,7 @@ class RestaurantRequestState {
     LatLng? pickedLocation,
     String? addressField,
     bool? findAddress,
-    Map<String, int>? categories,
+    List<Category>? categories,
     bool? isLoadCategories,
   }) {
     return RestaurantRequestState(
@@ -63,7 +65,7 @@ class RestaurantRequestNotifier extends Notifier<RestaurantRequestState> {
       pickedLocation: LatLng(35.5148, 35.7768),
       addressField: "",
       findAddress: false,
-      categories: {},
+      categories: [],
       isLoadCategories: false,
     );
   }
@@ -235,7 +237,13 @@ class RestaurantRequestNotifier extends Notifier<RestaurantRequestState> {
   }
 
   Future<void> fetchCategories() async {
-    state = state.copyWith(isLoadCategories: true, categories: {});
+    final localData = CategoryLocalData();
+    final cachedCategories = localData.getCachedCategories();
+
+    state = state.copyWith(
+      isLoadCategories: false,
+      categories: cachedCategories,
+    );
 
     try {
       final response = await _restaurantRequestService.fetchCategories();
@@ -245,21 +253,25 @@ class RestaurantRequestNotifier extends Notifier<RestaurantRequestState> {
 
         final List categoriesList = data['data'];
 
-        final Map<String, int> categoriesMap = {};
-
-        for (var item in categoriesList) {
-          categoriesMap[item['name']] = item['id'];
-        }
+        final List<Category> loadedCategories = categoriesList
+            .map((item) => Category.fromJson(item))
+            .toList();
 
         state = state.copyWith(
           isLoadCategories: false,
-          categories: categoriesMap,
+          categories: loadedCategories,
         );
       } else {
-        state = state.copyWith(isLoadCategories: false, categories: {});
+        state = state.copyWith(
+          isLoadCategories: false,
+          categories: cachedCategories,
+        );
       }
     } catch (e) {
-      state = state.copyWith(isLoadCategories: false, categories: {});
+      state = state.copyWith(
+        isLoadCategories: false,
+        categories: cachedCategories,
+      );
     }
   }
 }

@@ -392,7 +392,7 @@ class _RegisterState extends ConsumerState<Register> {
                       : () async {
                           if (_formKey.currentState!.validate()) {
                             await ref
-                                .read(authProvider.notifier)
+                                .watch(authProvider.notifier)
                                 .register(
                                   _usernameController.text,
                                   _emailController.text,
@@ -415,6 +415,7 @@ class _RegisterState extends ConsumerState<Register> {
                               );
                             }
                             await Future.delayed(Duration(seconds: 1));
+                            if (!mounted) return;
                             if (newState.isRegistered) {
                               Navigator.push(
                                 context,
