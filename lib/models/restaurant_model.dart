@@ -1,8 +1,12 @@
 import 'package:hive/hive.dart';
 import 'package:restaurants_system/models/category_model.dart';
+<<<<<<< HEAD
 part 'restaurant_model.g.dart';
 
 @HiveType(typeId: 0) // hive adapter
+=======
+
+>>>>>>> 92ee6f91d0fcf992e722100014ed996468c4d7f5
 class RestaurantModel {
   @HiveField(0) final int id;
   @HiveField(1) final String name;
@@ -40,14 +44,16 @@ class RestaurantModel {
       phone: json['phone'],
       logo: json['logo'],
       coverImage: json['cover_image'],
-      hours: RestaurantHours.fromJson(json['hours']),
-      location: RestaurantLocation.fromJson(json['location']),
+      hours: RestaurantHours.fromJson(json['hours'] ?? json),
+      location: json['location'] != null
+          ? RestaurantLocation.fromJson(json['location'])
+          : RestaurantLocation(),
       categories:
           (json['categories'] as List<dynamic>?)
               ?.map((c) => Category.fromJson(c))
               .toList() ??
           [],
-      rate: json['rate'],
+      rate: json['rate'] ?? 0,
     );
   }
 
@@ -63,7 +69,7 @@ class RestaurantModel {
       'cover_image': coverImage,
       'hours': hours.toJson(),
       'location': location.toJson(),
-      'categories': categories,
+      // 'categories': categories,
       'rate': rate,
     };
   }
@@ -80,9 +86,9 @@ class RestaurantHours {
   // fromJson
   factory RestaurantHours.fromJson(Map<String, dynamic> json) {
     return RestaurantHours(
-      opens: json['opens'],
-      closes: json['closes'],
-      isOpen: json['is_open'],
+      opens: json['opens'] ?? json['opening_time'],
+      closes: json['closes'] ?? json['closing_time'],
+      isOpen: json['is_open'] ?? json['is_open_now'],
     );
   }
 
@@ -103,7 +109,7 @@ class RestaurantLocation {
   // fromJson
   factory RestaurantLocation.fromJson(Map<String, dynamic> json) {
     return RestaurantLocation(
-      latitude: (json ['latitude'] != null)
+      latitude: (json['latitude'] != null)
           ? (json['latitude'] as num).toDouble()
           : null,
       longitude: (json['longitude'] != null)

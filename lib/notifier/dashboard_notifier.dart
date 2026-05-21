@@ -28,16 +28,16 @@ class DashboardNotifier extends Notifier<DashboardModel> {
   }
 
   void setDashboardData({
-  required double calories,
-  required double protein,
-  required double carbs,
-  required double fat,
-}) {
-  state = DashboardModel(
-    calories: calories,
-    protein: protein,
-    carbs: carbs,
-    fat: fat,
-  );
-}
+    required double calories,
+    required double protein,
+    required double carbs,
+    required double fat,
+  }) {
+    state = DashboardModel(
+      calories: calories,
+      protein: protein,
+      carbs: carbs,
+      fat: fat,
+    );
+  }
 }

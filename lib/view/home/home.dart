@@ -19,7 +19,9 @@ import 'package:restaurants_system/view/login-register/register.dart';
 import 'package:restaurants_system/view/restaurant-request/lock_screen.dart';
 import 'package:restaurants_system/view/restaurant-request/restaurant_request.dart';
 import 'package:restaurants_system/view/categories/category_card.dart';
+import 'package:restaurants_system/view/restaurant_by_category.dart';
 import 'package:restaurants_system/view/restaurant_card.dart';
+import 'package:restaurants_system/view/restaurant_screen/restaurant_screen.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 import 'package:restaurants_system/view/home/customer_location.dart';
 
@@ -566,6 +568,14 @@ class _HomeBody extends StatelessWidget {
                   restaurant: homeState.restaurants[index],
                   onTap: () {
                     // لاحقاً: انتقل لصفحة تفاصيل المطعم
+                      Navigator.push(context,
+                      MaterialPageRoute(
+                        builder: (context) => RestaurantScreen(
+                          restaurantId: homeState.restaurants[index].id,
+                        ),
+                      ),
+                    );
+                    
                   },
                 );
               },
@@ -645,7 +655,17 @@ class _CategoriesRow extends StatelessWidget {
           return CategoryIconCard(
             name: category.name,
             imgUrl: category.image,
-            onTap: () {},
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => RestaurantByCategory(
+                    categoryId: category.id,
+                    categoryName: category.name,
+                  ),
+                ),
+              );
+            },
           );
         },
       ),

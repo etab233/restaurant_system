@@ -7,7 +7,8 @@ plugins {
 
 android {
     namespace = "com.example.restaurants_system"
-    compileSdk = flutter.compileSdkVersion
+    compileSdk = 36
+    buildToolsVersion = "36.1.0"
     ndkVersion = flutter.ndkVersion
 
     compileOptions {
