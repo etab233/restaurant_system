@@ -1,12 +1,8 @@
 import 'package:hive/hive.dart';
 import 'package:restaurants_system/models/category_model.dart';
-<<<<<<< HEAD
 part 'restaurant_model.g.dart';
 
 @HiveType(typeId: 0) // hive adapter
-=======
-
->>>>>>> 92ee6f91d0fcf992e722100014ed996468c4d7f5
 class RestaurantModel {
   @HiveField(0) final int id;
   @HiveField(1) final String name;
@@ -18,7 +14,7 @@ class RestaurantModel {
   @HiveField(7) final RestaurantHours hours;
   @HiveField(8) final RestaurantLocation location;
   @HiveField(9) final List<Category> categories;
-  @HiveField(10) final int rate;
+  @HiveField(10)final int rate;
 
   RestaurantModel({
     required this.id,
@@ -44,7 +40,7 @@ class RestaurantModel {
       phone: json['phone'],
       logo: json['logo'],
       coverImage: json['cover_image'],
-      hours: RestaurantHours.fromJson(json['hours'] ?? json),
+      hours: RestaurantHours.fromJson(json),
       location: json['location'] != null
           ? RestaurantLocation.fromJson(json['location'])
           : RestaurantLocation(),
@@ -69,7 +65,7 @@ class RestaurantModel {
       'cover_image': coverImage,
       'hours': hours.toJson(),
       'location': location.toJson(),
-      // 'categories': categories,
+      'categories': categories,
       'rate': rate,
     };
   }
@@ -88,7 +84,7 @@ class RestaurantHours {
     return RestaurantHours(
       opens: json['opens'] ?? json['opening_time'],
       closes: json['closes'] ?? json['closing_time'],
-      isOpen: json['is_open'] ?? json['is_open_now'],
+      isOpen: json['is_open'] ?? json['is_open_now'] ?? false,
     );
   }
 

@@ -53,7 +53,7 @@ import 'dart:convert';
 class HomeState {
   final String status;
   final List<Category> categories;
-  final List<RestaurantModel>? restaurants;
+  final List<RestaurantModel> restaurants;
 
   const HomeState({
     required this.status,
@@ -102,11 +102,11 @@ class HomeNotifier extends Notifier<HomeState> {
       final result = await _homeServices.getHomeData(lat: lat, lng: lng);
       if (result.statusCode == 200) {
         final data = json.decode(result.body);
-        final categories = (data['data']['categories'] as List)
+        final categories = ((data['data']['categories'] ?? []) as List)
             .map((e) => Category.fromJson(e))
             .toList();
 
-        final restaurants = (data['data']['restaurants'] as List)
+        final restaurants = ((data['data']['restaurants'] ?? []) as List)
             .map((e) => RestaurantModel.fromJson(e))
             .toList();
 
@@ -173,7 +173,6 @@ class SkeletonData {
       ),
       location: RestaurantLocation(latitude: 0, longitude: 0, distanceKm: null),
       categories: [],
-
       rate: 4,
     ),
   );

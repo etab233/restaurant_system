@@ -7,6 +7,7 @@ import 'package:restaurants_system/models/category_model.dart';
 import 'package:restaurants_system/models/restaurant_model.dart';
 import 'package:restaurants_system/view/home/home.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:restaurants_system/view/main_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -27,6 +28,7 @@ void main() async {
 
   await Hive.openBox<RestaurantModel>("restaurantsBox");
   await Hive.openBox<Category>("categoriesBox");
+  await Hive.openBox('locationBox');
 
   runApp(const ProviderScope(child: MyApp()));
 }
@@ -53,7 +55,7 @@ class MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Restaurants System',
-      home: Home(themeMode: _themeMode, toggleTheme: _toggleTheme),
+      home: MainScreen(),
       theme: ThemeData(
         colorScheme: ColorScheme(
           brightness: Brightness.light,

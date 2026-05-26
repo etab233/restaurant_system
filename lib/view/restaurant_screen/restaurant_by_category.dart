@@ -6,7 +6,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:restaurants_system/models/restaurant_model.dart';
 import 'package:restaurants_system/providers/restaurant_by_category.dart';
-import 'package:restaurants_system/view/restaurant_screen/restaurant_screen.dart';
 
 class RestaurantByCategory extends ConsumerStatefulWidget {
   final int categoryId;
@@ -28,7 +27,7 @@ class _RestaurantByCategoryState extends ConsumerState<RestaurantByCategory> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref
-          .read(RestaurantListProvider.notifier)
+          .read(restaurantListProvider.notifier)
           .fetchRestaurantsByCategory(widget.categoryId);
     });
   }
@@ -55,7 +54,7 @@ class _RestaurantByCategoryState extends ConsumerState<RestaurantByCategory> {
 
   @override
   Widget build(BuildContext context) {
-    final state = ref.watch(RestaurantListProvider);
+    final state = ref.watch(restaurantListProvider);
     List<RestaurantModel> restaurants = state.restaurants;
     return Scaffold(
       appBar: AppBar(
@@ -103,13 +102,13 @@ class _RestaurantByCategoryState extends ConsumerState<RestaurantByCategory> {
                     child: InkWell(
                       borderRadius: BorderRadius.circular(15),
                       onTap: () {
-                        Navigator.push(
+                        /*Navigator.push(
                           context,
                           MaterialPageRoute(
                             builder: (context) =>
-                                RestaurantScreen(restaurantId: restaurant.id),
+                                //RestaurantScreen(restaurantId: restaurant.id),
                           ),
-                        );
+                        );*/
                       },
                       child: Padding(
                         padding: const EdgeInsets.all(12),

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
 import 'package:restaurants_system/constants.dart';
+import 'package:restaurants_system/providers/bottom_navbar_provider.dart';
 
 class BottomNavBar extends ConsumerStatefulWidget {
   const BottomNavBar({super.key});
@@ -15,6 +16,8 @@ class _BottomNavBarState extends ConsumerState<BottomNavBar> {
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
+    final currentIndex = ref.watch(bottomNavbarProvider);
+    
     return Container(
       decoration: BoxDecoration(
         color: colors.background,
@@ -34,7 +37,10 @@ class _BottomNavBarState extends ConsumerState<BottomNavBar> {
           tabBackgroundColor: Color(Constants.orangeColor).withOpacity(0.2),
           padding: EdgeInsets.symmetric(horizontal: 12, vertical: 12),
           haptic: true, // اهتزاز عند اللمس
-          //onTabChange:
+          selectedIndex: currentIndex,
+          onTabChange: (index){
+            ref.read(bottomNavbarProvider.notifier).setIndex(index);
+          },
           tabs: const [
             GButton(icon: Icons.home, text: 'Home', iconSize: 28),
             GButton(icon: Icons.shopping_cart, text: 'Cart', iconSize: 28),

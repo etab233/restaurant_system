@@ -8,7 +8,6 @@ import 'package:restaurants_system/providers/auth_provider.dart';
 import 'package:restaurants_system/providers/home_provider.dart';
 import 'package:restaurants_system/providers/restaurant_request_provider.dart';
 import 'package:restaurants_system/providers/search_provider.dart';
-import 'package:restaurants_system/view/bottom_navbar.dart';
 import 'package:restaurants_system/view/calorie_tracker/form/error_screen.dart'
     show ErrorScreen;
 import 'package:restaurants_system/view/calorie_tracker/welcome.dart';
@@ -19,8 +18,8 @@ import 'package:restaurants_system/view/login-register/register.dart';
 import 'package:restaurants_system/view/restaurant-request/lock_screen.dart';
 import 'package:restaurants_system/view/restaurant-request/restaurant_request.dart';
 import 'package:restaurants_system/view/categories/category_card.dart';
-import 'package:restaurants_system/view/restaurant_by_category.dart';
-import 'package:restaurants_system/view/restaurant_card.dart';
+import 'package:restaurants_system/view/restaurant_screen/restaurant_by_category.dart';
+import 'package:restaurants_system/view/home/restaurant_card.dart';
 import 'package:restaurants_system/view/restaurant_screen/restaurant_screen.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 import 'package:restaurants_system/view/home/customer_location.dart';
@@ -115,7 +114,6 @@ class _HomeState extends ConsumerState<Home> with TickerProviderStateMixin {
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.background,
       drawer: _buildDrawer(authState),
-      bottomNavigationBar: const BottomNavBar(),
 
       body: Column(
         children: [
@@ -171,9 +169,10 @@ class _HomeState extends ConsumerState<Home> with TickerProviderStateMixin {
               ),
             ],
           ),
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 40),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 30),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               //Drawer
               Builder(
@@ -185,17 +184,14 @@ class _HomeState extends ConsumerState<Home> with TickerProviderStateMixin {
 
               const SizedBox(width: 10),
               // Location
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
+                  /*Text(
                     "Deliver to",
                     style: TextStyle(
                       color: Colors.white.withOpacity(0.8),
                       fontSize: 14,
                     ),
                   ),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: 4),*/
                   InkWell(
                     onTap: () async {
                       final location = await Navigator.push(
@@ -234,6 +230,8 @@ class _HomeState extends ConsumerState<Home> with TickerProviderStateMixin {
                         SizedBox(width: 4),
                         Text(
                           userLocation == "Home" ? "Home" : userLocation,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 18,
@@ -247,8 +245,6 @@ class _HomeState extends ConsumerState<Home> with TickerProviderStateMixin {
                       ],
                     ),
                   ),
-                ],
-              ),
               Spacer(),
               // Notification
               Icon(Icons.notifications_none, size: 30, color: Colors.white),
@@ -427,8 +423,9 @@ class _HomeState extends ConsumerState<Home> with TickerProviderStateMixin {
                 onTap: () => Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (_) =>
-                        authState.userData != null ? RestaurantRequest() : LockScreen(),
+                    builder: (_) => authState.userData != null
+                        ? RestaurantRequest()
+                        : LockScreen(),
                   ),
                 ),
               ),
@@ -457,7 +454,8 @@ class _HomeState extends ConsumerState<Home> with TickerProviderStateMixin {
                 onTap: () => Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (_) => authState.userData == null ? ErrorScreen() : Welcome(),
+                    builder: (_) =>
+                        authState.userData == null ? ErrorScreen() : Welcome(),
                   ),
                 ),
               ),
@@ -568,14 +566,16 @@ class _HomeBody extends StatelessWidget {
                   restaurant: homeState.restaurants[index],
                   onTap: () {
                     // لاحقاً: انتقل لصفحة تفاصيل المطعم
-                      Navigator.push(context,
+                    Navigator.push(
+                      context,
                       MaterialPageRoute(
                         builder: (context) => RestaurantScreen(
                           restaurantId: homeState.restaurants[index].id,
+                          coverImage: homeState.restaurants[index].coverImage,
+                          logo: homeState.restaurants[index].logo,
                         ),
                       ),
                     );
-                    
                   },
                 );
               },

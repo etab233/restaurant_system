@@ -1,18 +1,21 @@
 import 'dart:convert';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:restaurants_system/models/category_model.dart';
+import 'package:restaurants_system/models/menu_item.dart';
 import 'package:restaurants_system/models/restaurant_model.dart';
-import 'package:restaurants_system/services/view_restaurant_service.dart';
+import 'package:restaurants_system/services/api/view_restaurant_service.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class RestaurantScreenState {
   final RestaurantModel? restaurant;
-  final List<Category>? categories;
+  final List<Category> categories;
   final bool isLoading;
   final String? message;
   final String? status;
+
   RestaurantScreenState({
     this.restaurant,
-    this.categories,
+    this.categories = const [],
     this.isLoading = false,
     this.message,
     this.status,
@@ -40,8 +43,7 @@ class RestaurantNotifier extends Notifier<RestaurantScreenState> {
   RestaurantScreenState build() {
     return RestaurantScreenState(
       restaurant: null,
-      categories: null,
-      isLoading: false,
+      isLoading: true,
       message: "please wait while we fetch restaurant data",
       status: null,
     );
@@ -76,9 +78,72 @@ class RestaurantNotifier extends Notifier<RestaurantScreenState> {
       state = state.copyWith(
         isLoading: false,
         message:
-            "An error has been occured please try again later ${e.toString()}",
+            "An error has been occurred please try again later ${e.toString()}",
         status: "error",
       );
     }
+  }
+}
+
+Future<void> openMap({required double lat, required double lng, required String name}) async {
+  final Uri url = Uri.parse(
+    'https://www.google.com/maps/search/?api=1&query=$name&center=$lat,$lng',
+  );
+
+  await launchUrl(url, mode: LaunchMode.externalApplication);
+}
+
+Future<void> makePhoneCall(String phoneNumber) async {
+  final url = Uri(scheme: 'tel', path: phoneNumber);
+
+  await launchUrl(url, mode: LaunchMode.externalApplication);
+}
+
+// ── Skeleton Data ────────────────────────────────────────────────────────────
+class RestaurantSkeletonizer {
+  static RestaurantScreenState get loadingData {
+    final fakeCategories = List.generate(
+      3,
+      (categoryIndex) => Category(
+        id: categoryIndex,
+        name: "Category",
+        menuItems: List.generate(
+          5,
+          (mealIndex) => MenuItem(
+            id: mealIndex,
+            name: "loading category..",
+            description: "loading description..",
+            image: null,
+            preparationTime: "20 min",
+            isFeatured: true,
+          ),
+        ),
+      ),
+    );
+
+    return RestaurantScreenState(
+      isLoading: true,
+      restaurant: RestaurantModel(
+        id: 1,
+        name: "restaurant",
+        description: "Loading description...",
+        address: "Loading address...",
+        phone: "00000000000",
+        coverImage: null,
+        logo: null,
+        rate: 4,
+        hours: RestaurantHours(
+          opens: "09:00:00",
+          closes: "23:00:00",
+          isOpen: true,
+        ),
+        categories: fakeCategories,
+        location: RestaurantLocation(
+          latitude: 0,
+          longitude: 0,
+          distanceKm: null,
+        ),
+      ),
+    );
   }
 }

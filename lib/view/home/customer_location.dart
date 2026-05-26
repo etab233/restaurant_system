@@ -3,9 +3,9 @@
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hive/hive.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:restaurants_system/providers/restaurant_request_provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class CustomerLocation extends ConsumerStatefulWidget {
   const CustomerLocation({super.key});
@@ -14,11 +14,6 @@ class CustomerLocation extends ConsumerStatefulWidget {
 }
 
 class _CustomerLocationState extends ConsumerState<CustomerLocation> {
-  Future<void> saveLocation({required LatLng location}) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setDouble('latitude', location.latitude);
-    await prefs.setDouble('longitude', location.longitude);
-  }
 
   final _mapController = MapController();
   LatLng pickedLocation = LatLng(35.5317, 35.7917);
@@ -35,6 +30,7 @@ class _CustomerLocationState extends ConsumerState<CustomerLocation> {
             options: MapOptions(
               initialCenter: LatLng(35.5317, 35.7917),
               initialZoom: 13,
+              
               onTap: (tapPosition, latlng) async {
                 setState(() {
                   pickedLocation = latlng;
@@ -222,7 +218,7 @@ class _CustomerLocationState extends ConsumerState<CustomerLocation> {
                             : Text(
                                 addressText,
                                 style: const TextStyle(
-                                  fontSize: 13,
+                                  fontSize: 16,
                                   fontWeight: FontWeight.w600,
                                   color: Colors.black87,
                                 ),
@@ -243,13 +239,14 @@ class _CustomerLocationState extends ConsumerState<CustomerLocation> {
                       onPressed: addressLoading
                           ? null
                           : () async {
-                              await saveLocation(location: pickedLocation);
-                              final prefs =
-                                  await SharedPreferences.getInstance();
-                              await prefs.setString(
-                                'location_text',
-                                addressText,
-                              );
+                              
+                              // حفظ الموقع ك lat, lng 
+                              final box = Hive.box('locationBox');
+                              await box.put("latitude", pickedLocation.latitude);
+                              await box.put("longitude", pickedLocation.longitude);
+                              await box.put("location_text", addressText);
+
+
                               Navigator.pop(context, {
                                 "lat": pickedLocation.latitude,
                                 "lng": pickedLocation.longitude,
@@ -268,7 +265,7 @@ class _CustomerLocationState extends ConsumerState<CustomerLocation> {
                       child: const Text(
                         "Deliver here",
                         style: TextStyle(
-                          fontSize: 15,
+                          fontSize: 16,
                           fontWeight: FontWeight.bold,
                         ),
                       ),

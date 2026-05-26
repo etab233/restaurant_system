@@ -45,6 +45,7 @@ class RestaurantCard extends StatelessWidget {
               child: _LogoAvatar(
                 name: restaurant.name,
                 logoUrl: restaurant.logo,
+                id: restaurant.id,
               ),
             ),
           ],
@@ -178,8 +179,9 @@ class _OpenBadge extends StatelessWidget {
 class _LogoAvatar extends StatelessWidget {
   final String name;
   final String? logoUrl;
+  final int id;
 
-  const _LogoAvatar({required this.name, this.logoUrl});
+  const _LogoAvatar({required this.name, this.logoUrl, required this.id});
 
   @override
   Widget build(BuildContext context) {
@@ -194,7 +196,9 @@ class _LogoAvatar extends StatelessWidget {
           BoxShadow(color: colors.shadow, offset: Offset(0, 3), blurRadius: 5),
         ],
       ),
-      child: logoUrl != null
+      child: Hero(
+        tag: "restaurant logo $id",
+        child:  logoUrl != null
           ? ClipOval(
               child: Image.network(
                 logoUrl!,
@@ -203,6 +207,7 @@ class _LogoAvatar extends StatelessWidget {
               ),
             )
           : _buildInitial(name),
+      )
     );
   }
 

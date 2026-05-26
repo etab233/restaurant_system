@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:restaurants_system/providers/home_provider.dart';
 import 'package:restaurants_system/view/categories/category_card.dart';
-import 'package:restaurants_system/view/restaurant_by_category.dart';
+import 'package:restaurants_system/view/restaurant_screen/restaurant_by_category.dart';
 
 class CategoriesList extends ConsumerWidget {
   const CategoriesList({super.key});
