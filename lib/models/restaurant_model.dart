@@ -4,17 +4,28 @@ part 'restaurant_model.g.dart';
 
 @HiveType(typeId: 0) // hive adapter
 class RestaurantModel {
-  @HiveField(0) final int id;
-  @HiveField(1) final String name;
-  @HiveField(2) final String description;
-  @HiveField(3) final String address;
-  @HiveField(4) final String phone;
-  @HiveField(5) final String? logo;
-  @HiveField(6) final String? coverImage;
-  @HiveField(7) final RestaurantHours hours;
-  @HiveField(8) final RestaurantLocation location;
-  @HiveField(9) final List<Category> categories;
-  @HiveField(10)final int rate;
+  @HiveField(0)
+  final int id;
+  @HiveField(1)
+  final String name;
+  @HiveField(2)
+  final String description;
+  @HiveField(3)
+  final String address;
+  @HiveField(4)
+  final String phone;
+  @HiveField(5)
+  final String? logo;
+  @HiveField(6)
+  final String? coverImage;
+  @HiveField(7)
+  final RestaurantHours hours;
+  @HiveField(8)
+  final RestaurantLocation location;
+  @HiveField(9)
+  final List<Category> categories;
+  @HiveField(10)
+  final double rate;
 
   RestaurantModel({
     required this.id,
@@ -39,7 +50,7 @@ class RestaurantModel {
       address: json['address'],
       phone: json['phone'],
       logo: json['logo'],
-      coverImage: json['cover_image'],
+      coverImage: json['cover_image'] ?? "assets/images/no_restaurant_image.png",
       hours: RestaurantHours.fromJson(json),
       location: json['location'] != null
           ? RestaurantLocation.fromJson(json['location'])
@@ -49,7 +60,7 @@ class RestaurantModel {
               ?.map((c) => Category.fromJson(c))
               .toList() ??
           [],
-      rate: json['rate'] ?? 0,
+      rate: (json['rate'] as num?)?.toDouble() ?? 0.0,
     );
   }
 
@@ -73,18 +84,22 @@ class RestaurantModel {
 
 @HiveType(typeId: 1)
 class RestaurantHours {
-  @HiveField(0) final String? opens;
-  @HiveField(1) final String? closes;
-  @HiveField(2) final bool isOpen;
+  @HiveField(0)
+  final String? opens;
+  @HiveField(1)
+  final String? closes;
+  @HiveField(2)
+  final bool isOpen;
 
   RestaurantHours({this.opens, this.closes, required this.isOpen});
 
   // fromJson
   factory RestaurantHours.fromJson(Map<String, dynamic> json) {
+    final hours = json['hours'];
     return RestaurantHours(
-      opens: json['opens'] ?? json['opening_time'],
-      closes: json['closes'] ?? json['closing_time'],
-      isOpen: json['is_open'] ?? json['is_open_now'] ?? false,
+      opens: hours?['opens'] ?? json['opening_time'] ?? "",
+      closes: hours?['closes'] ?? json['closing_time'] ?? "",
+      isOpen: hours?['is_open'] ?? json['is_open_now'] ?? false,
     );
   }
 
@@ -96,9 +111,12 @@ class RestaurantHours {
 
 @HiveType(typeId: 2)
 class RestaurantLocation {
-  @HiveField(0) final double? latitude;
-  @HiveField(1) final double? longitude;
-  @HiveField(2) final double? distanceKm;
+  @HiveField(0)
+  final double? latitude;
+  @HiveField(1)
+  final double? longitude;
+  @HiveField(2)
+  final double? distanceKm;
 
   RestaurantLocation({this.latitude, this.longitude, this.distanceKm});
 

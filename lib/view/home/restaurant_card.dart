@@ -66,7 +66,7 @@ class _CoverSection extends StatelessWidget {
       children: [
         ClipRRect(
           borderRadius: const BorderRadius.vertical(top: Radius.circular(18)),
-          child: _CoverPlaceholder(
+          child: CoverPlaceholder(
             name: restaurant.name,
             coverUrl: restaurant.coverImage,
           ),
@@ -84,11 +84,11 @@ class _CoverSection extends StatelessWidget {
 }
 
 // ── Cover Placeholder ─────────────────────────────────────────
-class _CoverPlaceholder extends StatelessWidget {
+class CoverPlaceholder extends StatelessWidget {
   final String name;
   final String? coverUrl;
 
-  const _CoverPlaceholder({required this.name, this.coverUrl});
+  const CoverPlaceholder({super.key, required this.name, this.coverUrl});
 
   @override
   Widget build(BuildContext context) {
@@ -122,7 +122,7 @@ class _CoverPlaceholder extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.storefront_rounded, size: 44, color: Colors.grey),
+          Icon(Icons.store_mall_directory, size: 44, color: Colors.grey),
           const SizedBox(height: 6),
           Text(
             name,

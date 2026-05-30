@@ -8,8 +8,7 @@ import 'package:restaurants_system/providers/auth_provider.dart';
 import 'package:restaurants_system/providers/home_provider.dart';
 import 'package:restaurants_system/providers/restaurant_request_provider.dart';
 import 'package:restaurants_system/providers/search_provider.dart';
-import 'package:restaurants_system/view/calorie_tracker/form/error_screen.dart'
-    show ErrorScreen;
+import 'package:restaurants_system/view/calorie_tracker/form/error_screen.dart';
 import 'package:restaurants_system/view/calorie_tracker/welcome.dart';
 import 'package:restaurants_system/view/categories/categories_grid.dart';
 import 'package:restaurants_system/view/home/bubble_widget.dart';
@@ -565,13 +564,13 @@ class _HomeBody extends StatelessWidget {
                 return RestaurantCard(
                   restaurant: homeState.restaurants[index],
                   onTap: () {
-                    // لاحقاً: انتقل لصفحة تفاصيل المطعم
+                    // انتقل لصفحة تفاصيل المطعم
                     Navigator.push(
                       context,
                       MaterialPageRoute(
                         builder: (context) => RestaurantScreen(
                           restaurantId: homeState.restaurants[index].id,
-                          coverImage: homeState.restaurants[index].coverImage,
+                          coverImage: homeState.restaurants[index].coverImage ,
                           logo: homeState.restaurants[index].logo,
                         ),
                       ),

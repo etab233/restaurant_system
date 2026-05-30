@@ -27,7 +27,7 @@ class RestaurantModelAdapter extends TypeAdapter<RestaurantModel> {
       hours: fields[7] as RestaurantHours,
       location: fields[8] as RestaurantLocation,
       categories: (fields[9] as List).cast<Category>(),
-      rate: (fields[10] as num).toInt(),
+      rate: (fields[10] as num).toDouble(),
     );
   }
 

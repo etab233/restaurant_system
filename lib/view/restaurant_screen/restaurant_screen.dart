@@ -5,20 +5,22 @@ import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:marquee/marquee.dart';
+import 'package:restaurants_system/models/favorite_meal_model.dart';
 import 'package:restaurants_system/notifier/restaurant_notifier.dart';
+import 'package:restaurants_system/providers/favorite_provider.dart';
 import 'package:restaurants_system/providers/restaurant_provider.dart';
 import 'package:restaurants_system/view/restaurant_screen/meal_details.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 
 class RestaurantScreen extends ConsumerStatefulWidget {
   final int restaurantId;
-  final String coverImage;
-  final String logo;
+  final String? coverImage;
+  final String? logo;
   const RestaurantScreen({
     super.key,
     required this.restaurantId,
-    required this.coverImage,
-    required this.logo,
+    this.coverImage,
+    this.logo,
   });
 
   @override
@@ -90,10 +92,17 @@ class _RestaurantScreenState extends ConsumerState<RestaurantScreen>
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(restaurantProvider);
+    final favoritesState = ref.watch(favoritesProvider);
+
     final isLoading = state.isLoading;
     final displayState = isLoading ? RestaurantSkeletonizer.loadingData : state;
     final safeCategories = displayState.categories;
     final tabCount = safeCategories.length;
+    final restaurant = displayState.restaurant;
+
+    final isFavorite = favoritesState.favoriteRestaurants.any(
+      (m) => m.id == restaurant?.id,
+    );
 
     if (_tabController == null) {
       _tabController = TabController(length: tabCount, vsync: this);
@@ -103,7 +112,7 @@ class _RestaurantScreenState extends ConsumerState<RestaurantScreen>
     }
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F5F5),
+      backgroundColor: const Color(0xFFF5F4F0),
       body: Skeletonizer(
         enabled: isLoading,
         effect: ShimmerEffect(
@@ -118,6 +127,7 @@ class _RestaurantScreenState extends ConsumerState<RestaurantScreen>
               displayState,
               safeCategories,
               isLoading,
+              isFavorite,
             ),
             SliverPadding(
               padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
@@ -194,6 +204,7 @@ class _RestaurantScreenState extends ConsumerState<RestaurantScreen>
     RestaurantScreenState displayState,
     List safeCategories,
     bool isLoading,
+    bool isFavorite,
   ) {
     final restaurant = displayState.restaurant;
     final tabLabels = safeCategories.map((c) => c.name).toList();
@@ -204,7 +215,7 @@ class _RestaurantScreenState extends ConsumerState<RestaurantScreen>
       systemOverlayStyle: SystemUiOverlayStyle.light,
       surfaceTintColor: Colors.transparent,
       pinned: true,
-      expandedHeight: 490,
+      expandedHeight: 410,
       elevation: 0,
       collapsedHeight: 100,
       toolbarHeight: 70,
@@ -290,15 +301,14 @@ class _RestaurantScreenState extends ConsumerState<RestaurantScreen>
               child: Hero(
                 tag: "restaurant_${restaurant?.id ?? 0}",
                 child: ClipRRect(
-                  borderRadius: const BorderRadius.only(
-                    bottomLeft: Radius.circular(40),
-                    bottomRight: Radius.circular(40),
+                  borderRadius: BorderRadius.vertical(
+                    bottom: Radius.circular(15),
                   ),
-                  child: Image.network(
-                    widget.coverImage,
-                    height: 250,
+
+                  child: SizedBox(
+                    height: 210,
                     width: double.infinity,
-                    fit: BoxFit.cover,
+                    child: Image.network(widget.coverImage!, fit: BoxFit.cover),
                   ),
                 ),
               ),
@@ -307,9 +317,9 @@ class _RestaurantScreenState extends ConsumerState<RestaurantScreen>
             // BACK BUTTON
             Positioned(
               top: MediaQuery.of(context).padding.top + 10,
-              left: 12,
+              left: 15,
               child: Skeleton.keep(
-                child: _circleButton(
+                child: circleButton(
                   icon: Icons.arrow_back_ios_new_rounded,
                   onTap: () => Navigator.pop(context),
                 ),
@@ -319,11 +329,19 @@ class _RestaurantScreenState extends ConsumerState<RestaurantScreen>
             // FAVORITE BUTTON
             Positioned(
               top: MediaQuery.of(context).padding.top + 10,
-              right: 12,
+              right: 15,
               child: Skeleton.keep(
-                child: _circleButton(
-                  icon: Icons.favorite_border_rounded,
-                  onTap: () {},
+                child: circleButton(
+                  icon: isFavorite
+                      ? Icons.favorite
+                      : Icons.favorite_border_rounded,
+                  onTap: () {
+                    if (restaurant != null) {
+                      ref
+                          .read(favoritesProvider.notifier)
+                          .toggleRestaurant(restaurant);
+                    }
+                  },
                   iconColor: primaryColor,
                 ),
               ),
@@ -331,7 +349,7 @@ class _RestaurantScreenState extends ConsumerState<RestaurantScreen>
 
             // FLOATING INFO CARD
             Positioned(
-              top: 170,
+              top: 155,
               left: 16,
               right: 16,
               child: Container(
@@ -368,13 +386,13 @@ class _RestaurantScreenState extends ConsumerState<RestaurantScreen>
                           icon: Icons.phone_outlined,
                           label: "Phone",
                           value: formatSyrianPhone(restaurant?.phone ?? ""),
-                          onTap: () => makePhoneCall(restaurant!.phone),
+                          onTap: () => makePhoneCall(restaurant?.phone ?? ""),
                         ),
                         _divider(),
                         _infoCol(
                           icon: Icons.delivery_dining_outlined,
                           label: "Away from",
-                          value: "${restaurant!.location.distanceKm} Km",
+                          value: "${restaurant?.location.distanceKm ?? 0} Km",
                         ),
                       ],
                     ),
@@ -414,7 +432,7 @@ class _RestaurantScreenState extends ConsumerState<RestaurantScreen>
                                 children: [
                                   Expanded(
                                     child: Marquee(
-                                      text: restaurant.address,
+                                      text: restaurant?.address ?? " ",
                                       style: const TextStyle(
                                         fontSize: 15,
                                         color: Colors.black,
@@ -441,11 +459,13 @@ class _RestaurantScreenState extends ConsumerState<RestaurantScreen>
                                   const SizedBox(width: 8),
                                   GestureDetector(
                                     onTap: () {
-                                      openMap(
-                                        lat: restaurant.location.latitude!,
-                                        lng: restaurant.location.longitude!,
-                                        name: restaurant.name,
-                                      );
+                                      if (restaurant != null) {
+                                        openMap(
+                                          lat: restaurant.location.latitude!,
+                                          lng: restaurant.location.longitude!,
+                                          name: restaurant.name,
+                                        );
+                                      }
                                     },
                                     child: Container(
                                       padding: const EdgeInsets.all(6),
@@ -483,7 +503,7 @@ class _RestaurantScreenState extends ConsumerState<RestaurantScreen>
                   Row(
                     children: [
                       Text(
-                        restaurant.name,
+                        restaurant?.name ?? "",
                         style: const TextStyle(
                           fontSize: 25,
                           fontWeight: FontWeight.w800,
@@ -493,11 +513,8 @@ class _RestaurantScreenState extends ConsumerState<RestaurantScreen>
                       ),
                       const SizedBox(width: 20),
                       Text(
-                        restaurant.rate.toString(),
-                        style: TextStyle(
-                          fontSize: 18,
-                          color: Colors.black87,
-                        ),
+                        restaurant?.rate.toString() ?? "",
+                        style: TextStyle(fontSize: 18, color: Colors.black87),
                       ),
                       const SizedBox(width: 2),
                       Icon(Icons.star_rounded, size: 20, color: primaryColor),
@@ -505,7 +522,7 @@ class _RestaurantScreenState extends ConsumerState<RestaurantScreen>
                   ),
                   const SizedBox(height: 7),
                   Text(
-                    restaurant.description,
+                    restaurant?.description ?? "",
                     maxLines: 4,
                     overflow: TextOverflow.ellipsis,
                     style: const TextStyle(fontSize: 16, color: Colors.grey),
@@ -516,12 +533,12 @@ class _RestaurantScreenState extends ConsumerState<RestaurantScreen>
 
             // LOGO
             Positioned(
-              top: 105,
+              top: 90,
               right: 35,
               child: _restaurantLogo(
                 widget.logo,
-                restaurant.id,
-                isOpen: restaurant.hours.isOpen,
+                restaurant?.id,
+                isOpen: restaurant?.hours.isOpen ?? false,
               ),
             ),
           ],
@@ -654,7 +671,7 @@ class _RestaurantScreenState extends ConsumerState<RestaurantScreen>
   Widget _verticatDivider() =>
       Container(width: 300, height: 1, color: Colors.grey.shade300);
 
-  Widget _circleButton({
+  Widget circleButton({
     required IconData icon,
     required VoidCallback onTap,
     Color iconColor = const Color(0xFF333333),
@@ -662,8 +679,8 @@ class _RestaurantScreenState extends ConsumerState<RestaurantScreen>
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        width: 42,
-        height: 42,
+        width: 45,
+        height: 45,
         decoration: BoxDecoration(
           color: Colors.white.withOpacity(0.92),
           shape: BoxShape.circle,
@@ -671,7 +688,7 @@ class _RestaurantScreenState extends ConsumerState<RestaurantScreen>
             BoxShadow(color: Colors.black.withOpacity(0.15), blurRadius: 8),
           ],
         ),
-        child: Icon(icon, size: 20, color: iconColor),
+        child: Icon(icon, size: 25, color: iconColor),
       ),
     );
   }
@@ -724,13 +741,24 @@ class _RestaurantScreenState extends ConsumerState<RestaurantScreen>
   }
 }
 
-class _MealCard extends StatelessWidget {
+class _MealCard extends ConsumerStatefulWidget {
   final dynamic meal;
   final Color primaryColor;
   const _MealCard({required this.meal, required this.primaryColor});
 
   @override
+  ConsumerState<_MealCard> createState() => _MealCardState();
+}
+
+class _MealCardState extends ConsumerState<_MealCard> {
+  @override
   Widget build(BuildContext context) {
+    final favoritesState = ref.watch(favoritesProvider);
+
+    final isFav = favoritesState.favoriteMeals.any(
+      (m) => m.itemId == widget.meal.itemId,
+    );
+
     return Container(
       height: 125,
       margin: const EdgeInsets.only(bottom: 14),
@@ -756,10 +784,12 @@ class _MealCard extends StatelessWidget {
                   bottomLeft: Radius.circular(18),
                 ),
                 child: Hero(
-                  tag: "meal_${meal.id}",
-                  child: (meal.image != null && meal.image!.isNotEmpty)
+                  tag: "meal_${widget.meal.itemId}",
+                  child:
+                      (widget.meal.image != null &&
+                          widget.meal.image!.isNotEmpty)
                       ? Image.network(
-                          meal.image!,
+                          widget.meal.image!,
                           width: 120,
                           height: 125,
                           fit: BoxFit.cover,
@@ -772,8 +802,8 @@ class _MealCard extends StatelessWidget {
                         ),
                 ),
               ),
-              if (meal.preparationTime != null &&
-                  meal.preparationTime!.isNotEmpty)
+              if (widget.meal.preparationTime != null &&
+                  widget.meal.preparationTime!.isNotEmpty)
                 Positioned(
                   bottom: 8,
                   left: 6,
@@ -796,12 +826,54 @@ class _MealCard extends StatelessWidget {
                         ),
                         const SizedBox(width: 4),
                         Text(
-                          meal.preparationTime!,
+                          widget.meal.preparationTime!,
                           style: const TextStyle(
                             color: Colors.white,
                             fontSize: 10,
                             fontWeight: FontWeight.w600,
                           ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+
+              // Badge "الأكثر طلباً"
+              if (widget.meal.isFeatured)
+                Positioned(
+                  top: 8,
+                  left: 6,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 6,
+                      vertical: 3,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(20),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.1),
+                          blurRadius: 8,
+                          offset: const Offset(0, 3),
+                        ),
+                      ],
+                    ),
+                    child: Row(
+                      children: [
+                        Text(
+                          "الأكثر طلباً",
+                          style: TextStyle(
+                            color: Color(0xFFFF6B35),
+                            fontWeight: FontWeight.bold,
+                            fontSize: 12,
+                          ),
+                        ),
+                        const SizedBox(width: 4),
+                        const Icon(
+                          Icons.star,
+                          size: 13,
+                          color: Color(0xFFFF6B35),
                         ),
                       ],
                     ),
@@ -821,7 +893,7 @@ class _MealCard extends StatelessWidget {
                     children: [
                       Expanded(
                         child: Text(
-                          meal.name,
+                          widget.meal.name,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: const TextStyle(
@@ -831,17 +903,34 @@ class _MealCard extends StatelessWidget {
                           ),
                         ),
                       ),
-                      Icon(
-                        Icons.favorite_border_rounded,
-                        size: 18,
-                        color: Colors.grey.shade500,
+                      InkWell(
+                        onTap: () {
+                          ref
+                              .read(favoritesProvider.notifier)
+                              .toggleMeal(
+                                FavoriteMeal(
+                                  itemId: widget.meal.itemId,
+                                  restaurantId: widget.meal.restaurantId,
+                                  name: widget.meal.name,
+                                  image: widget.meal.image,
+                                  description: widget.meal.description,
+                                ),
+                              );
+                        },
+                        child: Icon(
+                          isFav
+                              ? Icons.favorite
+                              : Icons.favorite_border_rounded,
+                          size: 24,
+                          color: const Color(0xFFFF6B35),
+                        ),
                       ),
                     ],
                   ),
                   const SizedBox(height: 5),
                   Text(
-                    meal.description,
-                    maxLines: 2,
+                    widget.meal.description ?? "",
+                    maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
                       fontSize: 13,
@@ -859,7 +948,11 @@ class _MealCard extends StatelessWidget {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (_) => MealDetails(id: meal.id),
+                                builder: (_) => MealDetails(
+                                  itemId: widget.meal.itemId,
+                                  restaurantId: widget.meal.restaurantId,
+                                  image: widget.meal.image,
+                                ),
                               ),
                             );
                           },

@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:restaurants_system/providers/bottom_navbar_provider.dart';
 import 'package:restaurants_system/view/bottom_navbar.dart';
+import 'package:restaurants_system/view/favorites.dart';
 import 'package:restaurants_system/view/home/home.dart';
 
 class MainScreen extends ConsumerStatefulWidget{
@@ -20,8 +21,9 @@ class _MainScreenState extends ConsumerState<MainScreen>{
 
   final List<Widget> screens = [
     Home(),
+    Home(),
     //CartScreen(),
-    //FavoriteScreen(),
+    Favorites(),
     //ProfileScreen(),
   ];
   @override  

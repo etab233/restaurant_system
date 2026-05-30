@@ -74,13 +74,14 @@ class RestaurantNotifier extends Notifier<RestaurantScreenState> {
           status: data["status"],
         );
       }
-    } catch (e) {
+    } catch (e,s) {
       state = state.copyWith(
         isLoading: false,
         message:
-            "An error has been occurred please try again later ${e.toString()}",
+            "An error has been occurred please try again later ${e.toString()}, $s",
         status: "error",
       );
+      print("ERROR : $e, $s");
     }
   }
 }
@@ -110,12 +111,16 @@ class RestaurantSkeletonizer {
         menuItems: List.generate(
           5,
           (mealIndex) => MenuItem(
-            id: mealIndex,
+            itemId: mealIndex,
+            restaurantId: 0,
             name: "loading category..",
             description: "loading description..",
             image: null,
-            preparationTime: "20 min",
+            preparationTime: "00 min",
             isFeatured: true,
+            price: 0.0,
+            variants: [], 
+            modifierGroups: []
           ),
         ),
       ),
@@ -133,8 +138,8 @@ class RestaurantSkeletonizer {
         logo: null,
         rate: 4,
         hours: RestaurantHours(
-          opens: "09:00:00",
-          closes: "23:00:00",
+          opens: "00:00:00",
+          closes: "00:00:00",
           isOpen: true,
         ),
         categories: fakeCategories,

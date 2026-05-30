@@ -4,9 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:restaurants_system/models/category_model.dart';
+import 'package:restaurants_system/models/favorite_meal_model.dart';
 import 'package:restaurants_system/models/restaurant_model.dart';
-import 'package:restaurants_system/view/home/home.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:restaurants_system/services/hive/favorite_restaurant_services.dart';
+import 'package:restaurants_system/services/hive/favorite_meal_services.dart';
 import 'package:restaurants_system/view/main_screen.dart';
 
 void main() async {
@@ -25,10 +27,13 @@ void main() async {
   Hive.registerAdapter(RestaurantHoursAdapter());
   Hive.registerAdapter(RestaurantLocationAdapter());
   Hive.registerAdapter(CategoryAdapter());
+  Hive.registerAdapter(FavoriteMealAdapter());
 
   await Hive.openBox<RestaurantModel>("restaurantsBox");
   await Hive.openBox<Category>("categoriesBox");
   await Hive.openBox('locationBox');
+  await FavoriteServices.init();
+  await FavoriteMealServices.init();
 
   runApp(const ProviderScope(child: MyApp()));
 }

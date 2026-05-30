@@ -1,7 +1,7 @@
 import 'package:restaurants_system/data/local/category_local_data.dart';
 import 'package:restaurants_system/models/category_model.dart';
 import 'package:restaurants_system/services/api/restaurant_request_services.dart';
-import 'package:riverpod/riverpod.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'dart:convert';
 import 'package:latlong2/latlong.dart';
 import 'package:geolocator/geolocator.dart';
