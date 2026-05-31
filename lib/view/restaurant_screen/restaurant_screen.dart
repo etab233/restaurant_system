@@ -6,10 +6,12 @@ import 'package:intl/intl.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:marquee/marquee.dart';
 import 'package:restaurants_system/models/favorite_meal_model.dart';
+import 'package:restaurants_system/models/menu_item.dart';
 import 'package:restaurants_system/notifier/restaurant_notifier.dart';
 import 'package:restaurants_system/providers/favorite_provider.dart';
 import 'package:restaurants_system/providers/restaurant_provider.dart';
 import 'package:restaurants_system/view/restaurant_screen/meal_details.dart';
+import 'package:restaurants_system/view/restaurant_screen/meal_search_delegate.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 
 class RestaurantScreen extends ConsumerStatefulWidget {
@@ -226,13 +228,13 @@ class _RestaurantScreenState extends ConsumerState<RestaurantScreen>
           final currentExtent = settings?.currentExtent ?? 0;
           final maxExtent = settings?.maxExtent ?? 1;
           final collapseRatio = currentExtent / maxExtent;
-          final showSearch = collapseRatio <= 0.35;
+          final isSearchVisible = collapseRatio <= 0.35;
 
           return AnimatedOpacity(
             duration: const Duration(milliseconds: 250),
-            opacity: showSearch ? 1 : 0,
+            opacity: isSearchVisible ? 1 : 0,
             child: IgnorePointer(
-              ignoring: !showSearch,
+              ignoring: !isSearchVisible,
               child: SafeArea(
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
@@ -272,14 +274,44 @@ class _RestaurantScreenState extends ConsumerState<RestaurantScreen>
                           ),
                         ],
                       ),
-                      child: TextField(
-                        controller: _searchController,
-                        decoration: InputDecoration(
-                          hintText: "Search meals...",
-                          prefixIcon: Icon(Icons.search, color: primaryColor),
-                          border: InputBorder.none,
-                          contentPadding: const EdgeInsets.symmetric(
-                            vertical: 10,
+                      child: InkWell(
+                        onTap: () {
+                          final allMeals = safeCategories
+                              .expand((category) => category.menuItems ?? [])
+                              .cast<MenuItem>()
+                              .toList();
+
+                          showSearch(
+                            context: context,
+                            delegate: MealSearchDelegate(allMeals),
+                          );
+                        },
+                        child: Container(
+                          height: 42,
+                          width: double.infinity,
+                          padding: const EdgeInsets.symmetric(horizontal: 12),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(12),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.08),
+                                blurRadius: 8,
+                              ),
+                            ],
+                          ),
+                          child: Row(
+                            children: [
+                              Icon(Icons.search, color: primaryColor),
+                              const SizedBox(width: 10),
+                              const Text(
+                                "Search meals...",
+                                style: TextStyle(
+                                  color: Colors.grey,
+                                  fontSize: 15,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       ),
@@ -618,7 +650,7 @@ class _RestaurantScreenState extends ConsumerState<RestaurantScreen>
                 ),
               ),
               ...category.menuItems.map<Widget>(
-                (meal) => _MealCard(meal: meal, primaryColor: primaryColor),
+                (meal) => MealCard(meal: meal, primaryColor: primaryColor),
               ),
             ],
           ),
@@ -741,16 +773,16 @@ class _RestaurantScreenState extends ConsumerState<RestaurantScreen>
   }
 }
 
-class _MealCard extends ConsumerStatefulWidget {
+class MealCard extends ConsumerStatefulWidget {
   final dynamic meal;
   final Color primaryColor;
-  const _MealCard({required this.meal, required this.primaryColor});
+  const MealCard({super.key, required this.meal, required this.primaryColor});
 
   @override
-  ConsumerState<_MealCard> createState() => _MealCardState();
+  ConsumerState<MealCard> createState() => _MealCardState();
 }
 
-class _MealCardState extends ConsumerState<_MealCard> {
+class _MealCardState extends ConsumerState<MealCard> {
   @override
   Widget build(BuildContext context) {
     final favoritesState = ref.watch(favoritesProvider);

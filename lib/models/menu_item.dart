@@ -120,7 +120,9 @@ class Modifier {
     return Modifier(
       id: json['id'] ?? 0,
       name: json['name'] ?? "",
-      price: double.tryParse(json["price"].toString()) ?? 0.0,
+      price: json["price"] != null
+          ? double.tryParse(json["price"].toString()) ?? 0.0
+          : 0.0,
       isAvailable: json['is_available'] ?? false,
     );
   }
