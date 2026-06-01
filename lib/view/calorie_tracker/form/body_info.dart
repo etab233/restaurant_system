@@ -1,17 +1,18 @@
 // ignore_for_file: use_build_context_synchronously
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:restaurants_system/providers/health_profile.dart';
 import 'package:restaurants_system/view/calorie_tracker/form/activity_goal_screen.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
-class BodyInfoScreen extends StatefulWidget {
+class BodyInfoScreen extends ConsumerStatefulWidget {
   const BodyInfoScreen({super.key});
 
   @override
-  State<BodyInfoScreen> createState() => _BodyInfoScreenState();
+  ConsumerState<BodyInfoScreen> createState() => _BodyInfoScreenState();
 }
 
-class _BodyInfoScreenState extends State<BodyInfoScreen> {
+class _BodyInfoScreenState extends ConsumerState<BodyInfoScreen> {
   final TextEditingController heightController = TextEditingController();
   final TextEditingController weightController = TextEditingController();
 
@@ -33,42 +34,39 @@ class _BodyInfoScreenState extends State<BodyInfoScreen> {
           child: SizedBox(
             height: 55,
             child: ElevatedButton(
-              onPressed: ()async {
+              onPressed: () {
                 final h = double.tryParse(heightController.text);
                 final w = double.tryParse(weightController.text);
 
                 if (h == null || w == null) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text("Enter valid numbers"),
-                    ),
+                    const SnackBar(content: Text("Enter valid numbers")),
                   );
                   return;
                 }
 
                 if (h < 50 || h > 250) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text("Enter realistic height"),
-                    ),
+                    const SnackBar(content: Text("Enter realistic height")),
                   );
                   return;
                 }
 
                 if (w < 30 || w > 200) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text("Enter realistic weight"),
-                    ),
+                    const SnackBar(content: Text("Enter realistic weight")),
                   );
                   return;
                 }
 
-                final prefs = await SharedPreferences.getInstance();
-                await prefs.setDouble('height', h);
-                await prefs.setDouble('weight', w);
+                ref
+                    .read(healthProfileProvider.notifier)
+                    .setBodyInfo(heightCm: h, weightKg: w);
 
-                Navigator.push(context, MaterialPageRoute(builder: (_)=> ActivityGoalScreen()));
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => ActivityGoalScreen()),
+                );
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF6AA84F),
@@ -110,10 +108,7 @@ class _BodyInfoScreenState extends State<BodyInfoScreen> {
 
               const Text(
                 "Your body information",
-                style: TextStyle(
-                  fontSize: 26,
-                  fontWeight: FontWeight.bold,
-                ),
+                style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold),
               ),
 
               const SizedBox(height: 30),
@@ -129,8 +124,10 @@ class _BodyInfoScreenState extends State<BodyInfoScreen> {
                     borderRadius: BorderRadius.circular(15),
                   ),
                   focusedBorder: OutlineInputBorder(
-                    borderSide:
-                        const BorderSide(color: Color(0xFF6AA84F), width: 2),
+                    borderSide: const BorderSide(
+                      color: Color(0xFF6AA84F),
+                      width: 2,
+                    ),
                     borderRadius: BorderRadius.circular(15),
                   ),
                 ),
@@ -149,8 +146,10 @@ class _BodyInfoScreenState extends State<BodyInfoScreen> {
                     borderRadius: BorderRadius.circular(15),
                   ),
                   focusedBorder: OutlineInputBorder(
-                    borderSide:
-                        const BorderSide(color: Color(0xFF6AA84F), width: 2),
+                    borderSide: const BorderSide(
+                      color: Color(0xFF6AA84F),
+                      width: 2,
+                    ),
                     borderRadius: BorderRadius.circular(15),
                   ),
                 ),

@@ -2,10 +2,10 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hive/hive.dart';
 import 'package:restaurants_system/providers/health_profile.dart';
 import 'package:restaurants_system/view/calorie_tracker/dashboard/dashboard_main_screen.dart';
 import 'package:restaurants_system/view/calorie_tracker/form/gender.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class Welcome extends ConsumerStatefulWidget {
   const Welcome({super.key});
@@ -16,23 +16,31 @@ class Welcome extends ConsumerStatefulWidget {
 
 class WelcomeState extends ConsumerState<Welcome>
     with TickerProviderStateMixin {
-
-  
   late AnimationController switchController;
-  late Animation<double>   switchAnimation;
+  late Animation<double> switchAnimation;
 
-  
   late AnimationController _glowController;
-  late Animation<double>   _glowPulse;
+  late Animation<double> _glowPulse;
 
-  bool    hasAccount = false;
+  bool hasAccount = false;
   String? token;
 
-  
   Future<void> check() async {
-    final prefs = await SharedPreferences.getInstance();
-    token = prefs.getString("token");
-    if (token == null) { hasAccount = false; return; }
+    final box = Hive.box("user_data");
+    token = box.get("token");
+
+    // التحقق إذا كان لديه حساب محليا قبل الطلب من السيرفر
+    final localHasAccount = box.get("hasHealthAccount");
+
+    if (localHasAccount != null) {
+      hasAccount = localHasAccount;
+      return;
+    }
+
+    if (token == null) {
+      hasAccount = false;
+      return;
+    }
     final result = await ref
         .read(healthProfileProvider.notifier)
         .hasHealthAccount(token: token);
@@ -140,7 +148,6 @@ class WelcomeState extends ConsumerState<Welcome>
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-
                     // ── "Switch to" ─────────────────────
                     Padding(
                       padding: EdgeInsets.only(left: sw * 0.05),
@@ -202,8 +209,7 @@ class WelcomeState extends ConsumerState<Welcome>
                     // ── tagline تظهر مع التقدم ──────────
                     if (val > 0.6)
                       Padding(
-                        padding: EdgeInsets.only(
-                          left: sw * 0.05, top: 14),
+                        padding: EdgeInsets.only(left: sw * 0.05, top: 14),
                         child: Opacity(
                           opacity: ((val - 0.6) / 0.4).clamp(0.0, 1.0),
                           child: Text(
@@ -237,7 +243,7 @@ class WelcomeState extends ConsumerState<Welcome>
   Widget _buildSwitch(double sw, double sh, double val) {
     final trackW = sw * 0.62;
     final trackH = sh * 0.1;
-    final thumbR  = trackH * 0.46;
+    final thumbR = trackH * 0.46;
 
     return AnimatedBuilder(
       animation: _glowPulse,
@@ -336,7 +342,7 @@ class WelcomeState extends ConsumerState<Welcome>
                 )!,
                 child: Container(
                   margin: EdgeInsets.all(trackH * 0.07),
-                  width:  thumbR * 2,
+                  width: thumbR * 2,
                   height: thumbR * 2,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,

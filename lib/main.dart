@@ -32,6 +32,9 @@ void main() async {
   await Hive.openBox<RestaurantModel>("restaurantsBox");
   await Hive.openBox<Category>("categoriesBox");
   await Hive.openBox('locationBox');
+  await Hive.openBox('user_data');
+  await Hive.openBox("health_account");
+  
   await FavoriteServices.init();
   await FavoriteMealServices.init();
 

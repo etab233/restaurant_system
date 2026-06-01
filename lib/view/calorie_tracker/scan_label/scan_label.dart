@@ -5,9 +5,9 @@ import 'dart:io';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hive/hive.dart';
 import 'package:restaurants_system/providers/analyze_label_provider.dart';
 import 'package:restaurants_system/providers/dashboard_provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:image_picker/image_picker.dart';
 
 class LabelScan extends ConsumerStatefulWidget {
@@ -101,8 +101,8 @@ class _LabelScanState extends ConsumerState<LabelScan>
         _state = _ScanState.analyzing;
       });
 
-      final prefs = await SharedPreferences.getInstance();
-      final token = prefs.getString('token') ?? '';
+      final box = Hive.box("user_data");
+      final token = box.get('token');
 
       final analyzeTabelState = ref.read(analyzeLabelProvider.notifier);
 
@@ -142,8 +142,8 @@ class _LabelScanState extends ConsumerState<LabelScan>
       final file = await _camCtrl!.takePicture();
       _imagePath = file.path;
 
-      final prefs = await SharedPreferences.getInstance();
-      final token = prefs.getString('token') ?? '';
+      final box = Hive.box("user_data");
+      final token = box.get('token');
       final analyzeTabelState = ref.read(analyzeLabelProvider.notifier);
 
       await analyzeTabelState.analyze(imagePath: _imagePath!, token: token);
@@ -552,12 +552,12 @@ class _LabelScanState extends ConsumerState<LabelScan>
                         final dash = ref.read(dashboardProvider);
 
                         // حفظ البيانات
-                        final prefs = await SharedPreferences.getInstance();
+                        final box = Hive.box("health_account");
 
-                        await prefs.setDouble('calories', dash.calories);
-                        await prefs.setDouble('protein', dash.protein);
-                        await prefs.setDouble('carbs', dash.carbs);
-                        await prefs.setDouble('fat', dash.fat);
+                        await box.put('calories', dash.calories);
+                        await box.put('protein', dash.protein);
+                        await box.put('carbs', dash.carbs);
+                        await box.put('fat', dash.fat);
 
                         // رسالة نجاح
                         if (mounted) {

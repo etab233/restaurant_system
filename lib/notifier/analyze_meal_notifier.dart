@@ -79,7 +79,6 @@ class AnalyzeMealNotifier extends Notifier<AnalyzeMealState> {
           analyzeStatus: Status.error,
           message: response['error'],
         );
-        print("ERRRRRROR ${response['error']}");
         return;
       } else {
         // تم المسح بنجاح
@@ -102,7 +101,6 @@ class AnalyzeMealNotifier extends Notifier<AnalyzeMealState> {
             "The image quality is too low for accurate analysis. Please provide a clearer image.",
       );
     } catch (e) {
-      print("ERRRRRRRRRRRRRRORRRRRRR $e");
       state = state.copyWith(
         analyzeStatus: Status.error,
         message: "Something went wrong. Please try again.",

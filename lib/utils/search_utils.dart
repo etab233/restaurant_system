@@ -9,7 +9,7 @@ class SearchUtils {
         .replaceAll('ة', 'ه')
         .trim();
   }
-
+  
    static double mealScore(String mealName, String query) {
     final words = normalize(mealName).split(' ');
     final q = normalize(query);

@@ -1,8 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hive/hive.dart';
 import 'package:restaurants_system/providers/auth_provider.dart';
 import '../services/api/auth_services.dart';
 import 'dart:convert';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthState {
   final bool isLoading;
@@ -78,7 +78,7 @@ class AuthNotifier extends Notifier<AuthState> {
   }
 
   Future<void> login(String email, String password) async {
-    state = state.copyWith(isLoading: true ,message: null);
+    state = state.copyWith(isLoading: true, message: null);
     try {
       // لا يقوم بالطلب بنفسه
       final response = await _authService.login(
@@ -87,9 +87,10 @@ class AuthNotifier extends Notifier<AuthState> {
       );
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
-        final prefs = await SharedPreferences.getInstance();
-        await prefs.setString("token", data['data']['access_token']);
-        await prefs.setString("userData", jsonEncode(data['data']['user']));
+        final Box box = Hive.box("user_data");
+
+        await box.put("token", data['data']['access_token']);
+        await box.put("userData", jsonEncode(data['data']['user']));
 
         state = state.copyWith(
           isLoading: false,
@@ -109,7 +110,11 @@ class AuthNotifier extends Notifier<AuthState> {
         );
       }
     } catch (e) {
-      state = state.copyWith(isLoading: false, isLoggedIn: false ,message: "failed to login");
+      state = state.copyWith(
+        isLoading: false,
+        isLoggedIn: false,
+        message: "failed to login",
+      );
     }
   }
 
@@ -222,20 +227,19 @@ class AuthNotifier extends Notifier<AuthState> {
       );
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
+        final box = Hive.box("user_data");
         bool? isRegister, isPasswordSet;
         if (purpose == "register") {
           isRegister = true;
           isPasswordSet = false;
           purpose = "register";
-          final prefs = await SharedPreferences.getInstance();
-          await prefs.setString("token", data['data']['token']);
 
+          await box.put("token", data['data']['token']);
         } else if (purpose == "reset_password") {
-          final prefs = await SharedPreferences.getInstance();
-          await prefs.setString("token", data['data']['token']);
+          await box.put("token", data['data']['token']);
           isPasswordSet = true;
           isRegister = false;
-          purpose= "reset_password";
+          purpose = "reset_password";
         }
         state = state.copyWith(
           isLoading: false,
@@ -306,26 +310,28 @@ class AuthNotifier extends Notifier<AuthState> {
   // دالة تسجيل الخروج
   Future<void> logout() async {
     try {
-      state = const AuthState();
       state = state.copyWith(isLoading: true);
-      final response = await _authService.logout(token: state.token!);
-      final data = json.decode(response.body);
+
+      final token = state.token ?? Hive.box("user_data").get("token");
+
+      final response = await _authService.logout(token: token);
+
+      final Box box = Hive.box("user_data");
+
       if (response.statusCode == 200) {
-        final prefs = await SharedPreferences.getInstance();
-        await prefs.remove('token');
-        state = const AuthState();
-        state = state.copyWith(isLoading: false);
+        await box.delete('token');
+        await box.delete('userData');
+
+        state = const AuthState(isInitialized: true);
       } else {
+        final data = json.decode(response.body);
         state = state.copyWith(
           isLoading: false,
-          message: data["message"] ?? "Failed to logout, please try again !",
+          message: data["message"] ?? "Failed to logout",
         );
       }
     } catch (e) {
-      state = state.copyWith(
-        isLoading: false,
-        message: "Failed to logout, please try again !",
-      );
+      state = state.copyWith(isLoading: false, message: "Failed to logout");
     }
   }
 
@@ -336,14 +342,15 @@ class AuthNotifier extends Notifier<AuthState> {
 
   // load data from SharedPreferences when first open the app
   Future<void> restoreSession() async {
-    final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString('token');
-    final userData = prefs.getString('userData');
+    final Box box = Hive.box("user_data");
+    final token = box.get('token');
+    final userData = box.get('userData');
 
     if (token != null) {
       state = state.copyWith(
         isInitialized: true,
         isLoggedIn: true,
+        token: token,
         userData: userData != null ? jsonDecode(userData) : null,
       );
     } else {

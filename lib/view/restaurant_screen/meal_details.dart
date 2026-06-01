@@ -1,8 +1,10 @@
-// ignore_for_file: deprecated_member_use
+// ignore_for_file: use_build_context_synchronously, deprecated_member_use
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hive/hive.dart';
 import 'package:restaurants_system/models/favorite_meal_model.dart';
+import 'package:restaurants_system/providers/cart_provider.dart';
 import 'package:restaurants_system/providers/favorite_provider.dart';
 import 'package:restaurants_system/providers/meal_details_provider.dart';
 import 'package:skeletonizer/skeletonizer.dart';
@@ -58,6 +60,8 @@ class MealDetailsState extends ConsumerState<MealDetails> {
   final bool isSelected = false;
   int selectedVariantId = -1;
   int quantity = 1;
+
+  final TextEditingController _noteController = TextEditingController();
   Map<int, bool> expandedGroup = {}; // لمعرفة أي مجموعة مفتوحة
   Map<int, List<int>> selectedModifier = {};
   /* example: {
@@ -79,6 +83,12 @@ class MealDetailsState extends ConsumerState<MealDetails> {
     });
   }
 
+  @override
+  void dispose() {
+    _noteController.dispose();
+    super.dispose();
+  }
+
   bool _isArabic(String text) {
     return RegExp(r'[\u0600-\u06FF]').hasMatch(text);
   }
@@ -86,7 +96,7 @@ class MealDetailsState extends ConsumerState<MealDetails> {
   // ── Total price ─────────────────────────────────────────────────────────────
   double _totalPrice() {
     final state = ref.read(mealDetailsProvider);
-    double base = 0;
+    double base = state.menuItem.price;
 
     if (selectedVariantId != -1) {
       final v = state.menuItem.variants.firstWhere(
@@ -94,8 +104,6 @@ class MealDetailsState extends ConsumerState<MealDetails> {
         orElse: () => state.menuItem.variants.first,
       );
       base = v.price;
-    } else if (state.menuItem.variants.isNotEmpty) {
-      base = state.menuItem.variants.first.price;
     }
 
     double extras = 0;
@@ -117,6 +125,9 @@ class MealDetailsState extends ConsumerState<MealDetails> {
   Widget build(BuildContext build) {
     final state = ref.watch(mealDetailsProvider);
     final favoritesState = ref.watch(favoritesProvider);
+
+    String? token = Hive.box("user_data").get("token");
+    final isLoggedIn = token != null && token.isNotEmpty;
 
     final bool isLoading = state.status == "loading";
     final isFav = favoritesState.favoriteMeals.any(
@@ -225,7 +236,59 @@ class MealDetailsState extends ConsumerState<MealDetails> {
                       child: SizedBox(
                         height: 54,
                         child: ElevatedButton(
-                          onPressed: () {},
+                          onPressed: !isLoggedIn
+                              ? null
+                              : () async {
+                                  final List<Map<String, dynamic>>
+                                  modifierSelections = [];
+                                  selectedModifier.forEach((
+                                    groupId,
+                                    modifierIds,
+                                  ) {
+                                    for (final modifierId in modifierIds) {
+                                      modifierSelections.add({
+                                        "modifier_group_id": groupId,
+                                        "modifier_id": modifierId,
+                                      });
+                                    }
+                                  });
+
+                                  await ref
+                                      .read(cartProvider.notifier)
+                                      .addToCart(
+                                        restaurantId: widget.restaurantId
+                                            .toString(),
+                                        itemId: widget.itemId.toString(),
+                                        variantId: (selectedVariantId == -1)
+                                            ? null
+                                            : selectedVariantId.toString(),
+                                        quantity: quantity,
+                                        description: _noteController.text
+                                            .trim(),
+                                        modifierSelections: modifierSelections,
+                                        token: token,
+                                      );
+                                  if (!mounted) return;
+
+                                  final newState = ref.read(cartProvider);
+
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      padding: EdgeInsets.all(13),
+                                      margin: EdgeInsets.all(9),
+                                      behavior: SnackBarBehavior.floating,
+                                      content: Text(
+                                        newState.message,
+                                        style: TextStyle(fontSize: 20),
+                                      ),
+                                      backgroundColor:
+                                          (newState.status == "success")
+                                          ? Colors.green
+                                          : Colors.red,
+                                      duration: Duration(seconds: 4),
+                                    ),
+                                  );
+                                },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: const Color(0xFFFF6B35),
                             elevation: 0,
@@ -233,17 +296,17 @@ class MealDetailsState extends ConsumerState<MealDetails> {
                               borderRadius: BorderRadius.circular(16),
                             ),
                           ),
-                          child: const Row(
+                          child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Icon(
+                              const Icon(
                                 Icons.shopping_cart_outlined,
                                 color: Colors.white,
                                 size: 18,
                               ),
-                              SizedBox(width: 8),
+                              const SizedBox(width: 8),
                               Text(
-                                "Add to Cart",
+                                isLoggedIn ? "Add to Cart" : "Log in to add",
                                 style: TextStyle(
                                   color: Colors.white,
                                   fontSize: 16,
@@ -850,6 +913,63 @@ class MealDetailsState extends ConsumerState<MealDetails> {
                           }).toList(),
                         ),
                       ],
+
+                      const SizedBox(height: 20),
+
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: Row(
+                          mainAxisAlignment: _isArabic(state.menuItem.name)
+                              ? MainAxisAlignment.end
+                              : MainAxisAlignment.start,
+                          children: const [
+                            Text(
+                              "ملاحظات إضافية",
+                              style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            SizedBox(width: 6),
+                            Icon(
+                              Icons.layers_outlined,
+                              color: Color(0xFFFF6B35),
+                              size: 25,
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      const SizedBox(height: 10),
+
+                      TextField(
+                        controller: _noteController,
+                        maxLines: 3,
+                        textDirection: TextDirection.rtl,
+                        decoration: InputDecoration(
+                          hintText:
+                              "أضف ملاحظاتك أو طلباتك الخاصة (قد تؤثر على السعر حسب الاختيار).",
+                          hintTextDirection: TextDirection.rtl,
+                          hintStyle: TextStyle(color: Colors.grey),
+                          filled: true,
+                          fillColor: Colors.white,
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(16),
+                            borderSide: BorderSide.none,
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(16),
+                            borderSide: BorderSide(color: Colors.grey.shade300),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(16),
+                            borderSide: const BorderSide(
+                              color: Color(0xFFFF6B35),
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 20),
                     ],
                   ),
                 ),

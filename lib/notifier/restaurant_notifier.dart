@@ -81,6 +81,7 @@ class RestaurantNotifier extends Notifier<RestaurantScreenState> {
             "An error has been occurred please try again later ${e.toString()}, $s",
         status: "error",
       );
+      // ignore: avoid_print
       print("ERROR : $e, $s");
     }
   }

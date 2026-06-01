@@ -19,11 +19,11 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hive/hive.dart';
 import 'package:restaurants_system/notifier/analyze_meal_notifier.dart';
 import 'package:restaurants_system/providers/analyze_meal_provider.dart';
 import 'package:restaurants_system/providers/dashboard_provider.dart';
 import 'package:restaurants_system/view/calorie_tracker/dashboard/dashboard_main_screen.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class FoodAnalysisScreen extends ConsumerStatefulWidget {
   final String imagePath;
@@ -85,8 +85,9 @@ class FoodAnalysisScreenState extends ConsumerState<FoodAnalysisScreen>
       if (mounted) setState(() => _stepDone = i + 1);
     }
 
-    final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString("token");
+    final box = Hive.box("user_data");
+    final token = box.get("token");
+
     final analyzeMealState = ref.read(analyzeMealProvider.notifier);
     try {
       await analyzeMealState.analyze(
@@ -449,13 +450,12 @@ class FoodAnalysisScreenState extends ConsumerState<FoodAnalysisScreen>
                               final dash = ref.read(dashboardProvider);
 
                               // حفظ البيانات
-                              final prefs =
-                                  await SharedPreferences.getInstance();
+                              final box = Hive.box("health_account");
 
-                              await prefs.setDouble('calories', dash.calories);
-                              await prefs.setDouble('protein', dash.protein);
-                              await prefs.setDouble('carbs', dash.carbs);
-                              await prefs.setDouble('fat', dash.fat);
+                              await box.put('calories', dash.calories);
+                              await box.put('protein', dash.protein);
+                              await box.put('carbs', dash.carbs);
+                              await box.put('fat', dash.fat);
 
                               setState(() {
                                 _added = true;

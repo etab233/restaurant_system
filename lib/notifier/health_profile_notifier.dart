@@ -2,8 +2,8 @@
 
 import 'dart:convert';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hive/hive.dart';
 import 'package:restaurants_system/services/api/health_profile_services.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class HealthProfileState {
   final String? birthDate;
@@ -50,13 +50,37 @@ class HealthProfileNotifier extends Notifier<HealthProfileState> {
     return const HealthProfileState();
   }
 
+  void setBirthDate(String birthDate) {
+    state = state.copyWith(birthDate: birthDate);
+  }
+
+  void setGender(String gender) {
+    state = state.copyWith(gender: gender);
+  }
+
+  void setBodyInfo({required double heightCm, required double weightKg}) {
+    state = state.copyWith(heightCm: heightCm, weightKg: weightKg);
+  }
+
+  void setActivityAndGoal({
+    required String activityLevel,
+    required String goal,
+  }) {
+    state = state.copyWith(activityLevel: activityLevel, goal: goal);
+  }
+
   Future<bool> hasHealthAccount({required token}) async {
+    final box = Hive.box("user_data");
     try {
       final response = await _healthProfileService.hasHealthAccount(
         token: token,
       );
+
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
+
+        await box.put("hasHealthAccount", true);
+
         state = state.copyWith(
           birthDate: data['data']['birth_date'],
           gender: data['data']['gender'],
@@ -67,9 +91,11 @@ class HealthProfileNotifier extends Notifier<HealthProfileState> {
         );
         return true;
       } else {
+         await box.put("hasHealthAccount", false);
         return false;
       }
     } catch (e) {
+       await box.put("hasHealthAccount", false);
       return false;
     }
   }
@@ -95,8 +121,8 @@ class HealthProfileNotifier extends Notifier<HealthProfileState> {
         token: token,
       );
       if (response.statusCode == 201 || response.statusCode == 200) {
-        final prefs = await SharedPreferences.getInstance();
-        await prefs.setBool("hasHealthAccount", true);
+        final box = Hive.box("user_data");
+        await box.put("hasHealthAccount", true);
 
         state = state.copyWith(
           birthDate: birthDate,

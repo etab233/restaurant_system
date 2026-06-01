@@ -1,18 +1,19 @@
-// ignore_for_file: use_build_context_synchronously
+// ignore_for_file: depend_on_referenced_packages, use_build_context_synchronously
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:restaurants_system/providers/health_profile.dart';
 import 'package:restaurants_system/view/calorie_tracker/form/body_info.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:intl/intl.dart';
 
-class BirthdayScreen extends StatefulWidget {
+class BirthdayScreen extends ConsumerStatefulWidget {
   const BirthdayScreen({super.key});
 
   @override
-  State<BirthdayScreen> createState() => _BirthdayScreenState();
+  ConsumerState<BirthdayScreen> createState() => _BirthdayScreenState();
 }
 
-class _BirthdayScreenState extends State<BirthdayScreen> {
+class _BirthdayScreenState extends ConsumerState<BirthdayScreen> {
   DateTime? selectedDate;
 
   @override
@@ -25,7 +26,7 @@ class _BirthdayScreenState extends State<BirthdayScreen> {
           child: SizedBox(
             height: 55,
             child: ElevatedButton(
-              onPressed: () async {
+              onPressed: () {
                 if (selectedDate == null) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
@@ -36,11 +37,7 @@ class _BirthdayScreenState extends State<BirthdayScreen> {
                 }
 
                 final birthDateFormatted =DateFormat('yyyy-MM-dd').format(selectedDate!);
-                final prefs = await SharedPreferences.getInstance();
-                await prefs.setString(
-                  'birthday',
-                  birthDateFormatted
-                );
+                ref.read(healthProfileProvider.notifier).setBirthDate(birthDateFormatted);
 
                 Navigator.push(
                   context,

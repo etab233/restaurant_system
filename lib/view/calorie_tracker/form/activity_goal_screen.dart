@@ -2,7 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:hive/hive.dart';
 import 'package:restaurants_system/providers/health_profile.dart';
 import 'package:restaurants_system/view/calorie_tracker/dashboard/dashboard_main_screen.dart';
 
@@ -33,12 +33,13 @@ class _ActivityGoalScreenState extends ConsumerState<ActivityGoalScreen> {
   final goalList = ["Lose Weight", "Maintain", "Gain Weight"];
 
   void fetchData() async {
-    final prefs = await SharedPreferences.getInstance();
-    birthday = prefs.getString("birthday");
-    gender = prefs.getString("gender")!;
-    height = prefs.getDouble("height")!;
-    weight = prefs.getDouble("weight")!;
-    token = prefs.getString("token");
+    final Box box = Hive.box("user_data"); 
+
+    birthday = ref.read(healthProfileProvider).birthDate;
+    gender = ref.read(healthProfileProvider).gender;
+    height = ref.read(healthProfileProvider).heightCm;
+    weight = ref.read(healthProfileProvider).weightKg;
+    token = box.get("token");
   }
 
   @override
@@ -64,10 +65,8 @@ class _ActivityGoalScreenState extends ConsumerState<ActivityGoalScreen> {
                   );
                   return;
                 }
+                ref.read(healthProfileProvider.notifier).setActivityAndGoal(activityLevel: activityLevel!, goal: goal!);
                 
-                final prefs = await SharedPreferences.getInstance();
-                await prefs.setString('activity_level', activityLevel!);
-                await prefs.setString('goal', goal!);
                 // Save data an go to Dashboard screen
                 await ref
                     .read(healthProfileProvider.notifier)

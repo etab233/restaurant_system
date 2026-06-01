@@ -3,6 +3,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hive/hive.dart';
 import 'package:intl/intl.dart';
 import 'package:restaurants_system/models/dashboard_model.dart';
 import 'package:restaurants_system/providers/auth_provider.dart';
@@ -11,7 +12,7 @@ import 'package:restaurants_system/providers/health_profile.dart';
 import 'package:restaurants_system/utils/calorie_logic.dart';
 import 'package:restaurants_system/view/calorie_tracker/scan_label/scan_label.dart';
 import 'package:restaurants_system/view/calorie_tracker/scan_meal/add_meal_pic.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+
 
 class Dashboard extends ConsumerStatefulWidget {
   const Dashboard({super.key});
@@ -76,13 +77,13 @@ class DashboardState extends ConsumerState<Dashboard> {
   }
 
   Future<void> _loadSavedMacros() async {
-  final prefs = await SharedPreferences.getInstance();
+  final box = Hive.box("health_account");
 
   ref.read(dashboardProvider.notifier).setDashboardData(
-    calories: prefs.getDouble('saved_calories') ?? 0,
-    protein: prefs.getDouble('saved_protein') ?? 0,
-    carbs: prefs.getDouble('saved_carbs') ?? 0,
-    fat: prefs.getDouble('saved_fat') ?? 0,
+    calories: box.get('saved_calories') ?? 0,
+    protein:  box.get('saved_protein') ?? 0,
+    carbs:    box.get('saved_carbs') ?? 0,
+    fat:      box.get('saved_fat') ?? 0,
   );
 }
 

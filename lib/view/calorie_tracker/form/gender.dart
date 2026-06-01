@@ -1,17 +1,18 @@
 // ignore_for_file: use_build_context_synchronously
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:restaurants_system/providers/health_profile.dart';
 import 'package:restaurants_system/view/calorie_tracker/form/birthday_screen.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
-class GenderScreen extends StatefulWidget {
+class GenderScreen extends ConsumerStatefulWidget {
   const GenderScreen({super.key});
 
   @override
-  State<GenderScreen> createState() => _GenderScreenState();
+  ConsumerState<GenderScreen> createState() => _GenderScreenState();
 }
 
-class _GenderScreenState extends State<GenderScreen> {
+class _GenderScreenState extends ConsumerState<GenderScreen> {
   String? selectedGender;
 
   @override
@@ -35,8 +36,7 @@ class _GenderScreenState extends State<GenderScreen> {
                   return;
                 }
 
-                final prefs = await SharedPreferences.getInstance();
-                await prefs.setString('gender',selectedGender!);
+                ref.read(healthProfileProvider.notifier).setGender(selectedGender!);
 
                 Navigator.push(
                   context,
