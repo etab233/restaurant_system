@@ -123,6 +123,7 @@ class AuthNotifier extends Notifier<AuthState> {
     String email,
     String password,
     String passwordConfirmation,
+    String phone
   ) async {
     // التحقق من تطابق كلمات المرور
     if (password != passwordConfirmation) {
@@ -140,6 +141,7 @@ class AuthNotifier extends Notifier<AuthState> {
         email: email,
         password: password,
         passwordConfirmation: passwordConfirmation,
+        phone: phone
       );
       String? errorMessage;
       if (response.statusCode == 200 || response.statusCode == 201) {

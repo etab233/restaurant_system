@@ -33,6 +33,7 @@ class FavoritesState extends ConsumerState<Favorites> with TickerProviderStateMi
     return DefaultTabController(
       length: 2,
       child: Scaffold(
+        backgroundColor: const Color(0xFFF5F5F5),
         appBar: AppBar(
           title: Text(
             "My Favorites",
@@ -43,22 +44,22 @@ class FavoritesState extends ConsumerState<Favorites> with TickerProviderStateMi
             ),
           ),
           centerTitle: true,
-          backgroundColor: Colors.white,
+          backgroundColor: const Color(0xFFF5F5F5),
           bottom: PreferredSize(
             preferredSize: const Size.fromHeight(70),
             child: Container(
-              color: Colors.white,
+              color: const Color(0xFFF5F5F5),
               padding: const EdgeInsets.fromLTRB(16, 0, 16, 14),
               // الكبسولة
               child: Container(
                 height: 48,
                 decoration: BoxDecoration(
-                  color: Colors.grey.shade300,
+                  color:  const Color(0xFFF5F5F5),
                   borderRadius: BorderRadius.circular(30),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.05),
-                      blurRadius: 12,
+                      color: Colors.black.withOpacity(0.15),
+                      blurRadius: 15,
                       offset: const Offset(0, 4),
                     ),
                   ],
@@ -81,7 +82,7 @@ class FavoritesState extends ConsumerState<Favorites> with TickerProviderStateMi
                     ],
                   ),
 
-                  labelColor: Colors.white,
+                  labelColor: const Color(0xFFF5F5F5),
                   unselectedLabelColor: const Color(0xFF777777),
 
                   labelStyle: const TextStyle(

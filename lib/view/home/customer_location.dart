@@ -69,7 +69,7 @@ class _CustomerLocationState extends ConsumerState<CustomerLocation> {
           ),
           // زر الرجوع
           Positioned(
-            top: MediaQuery.of(context).padding.top + 25,
+            top: MediaQuery.of(context).padding.top + 5,
             left: 15,
             child: SafeArea(
               child: CircleAvatar(
@@ -179,7 +179,7 @@ class _CustomerLocationState extends ConsumerState<CustomerLocation> {
                   Row(
                     children: [
                       Container(
-                        padding: const EdgeInsets.all(18),
+                        padding: const EdgeInsets.all(15),
                         decoration: BoxDecoration(
                           color: const Color(0xFFFFF0EB),
                           borderRadius: BorderRadius.circular(10),
@@ -187,7 +187,7 @@ class _CustomerLocationState extends ConsumerState<CustomerLocation> {
                         child: const Icon(
                           Icons.location_on_rounded,
                           color: Color(0xFFFF6B35),
-                          size: 20,
+                          size: 18,
                         ),
                       ),
                       const SizedBox(width: 10),
@@ -234,7 +234,7 @@ class _CustomerLocationState extends ConsumerState<CustomerLocation> {
                   // زر التأكيد
                   SizedBox(
                     width: double.infinity,
-                    height: 40,
+                    //height: 40,
                     child: ElevatedButton(
                       onPressed: addressLoading
                           ? null

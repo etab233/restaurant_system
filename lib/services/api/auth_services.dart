@@ -25,6 +25,7 @@ class AuthServices {
     required String email,
     required String password,
     required String passwordConfirmation,
+    required String phone
   }) async {
     final url = Uri.parse("${Constants.baseUrl}/register");
     return await http.post(
@@ -38,6 +39,7 @@ class AuthServices {
         'email': email.trim(),
         'password': password,
         'password_confirmation': passwordConfirmation,
+        'phone': phone
       }),
     );
   }

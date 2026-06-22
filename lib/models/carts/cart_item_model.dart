@@ -7,7 +7,7 @@ class CartItem {
   final String unitPrice;
   final String? description;
   final int quantity;
-  final List<CartModifierSelection>? modifierSelections;
+  final List<CartModifierSelection> modifierSelections;
 
   CartItem({
     required this.id,
@@ -18,7 +18,7 @@ class CartItem {
     this.description,
     required this.unitPrice,
     required this.quantity,
-    this.modifierSelections,
+    required this.modifierSelections,
   });
 
   factory CartItem.fromJson(Map<String, dynamic> json) {

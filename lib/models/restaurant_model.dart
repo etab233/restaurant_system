@@ -50,7 +50,7 @@ class RestaurantModel {
       address: json['address'],
       phone: json['phone'],
       logo: json['logo'],
-      coverImage: json['cover_image'] ?? "assets/images/no_restaurant_image.png",
+      coverImage: json['cover_image'],
       hours: RestaurantHours.fromJson(json),
       location: json['location'] != null
           ? RestaurantLocation.fromJson(json['location'])

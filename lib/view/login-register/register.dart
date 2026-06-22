@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl_phone_number_input/intl_phone_number_input.dart';
 import 'package:restaurants_system/providers/auth_provider.dart';
 import 'login.dart';
 import 'verification.dart';
@@ -20,6 +21,8 @@ class _RegisterState extends ConsumerState<Register> {
   final _emailController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
   final _passwordController = TextEditingController();
+  final _phoneNumberController = TextEditingController();
+  PhoneNumber _phoneNumber = PhoneNumber(isoCode: 'SY');
   bool _passwordVisible1 = false;
   bool _passwordVisible2 = false;
   final _usernameController = TextEditingController();
@@ -102,10 +105,7 @@ class _RegisterState extends ConsumerState<Register> {
                         ),
                         enabledBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(15),
-                          borderSide: BorderSide(
-                            color: Colors.grey,
-                            width: 2,
-                          ),
+                          borderSide: BorderSide(color: Colors.grey, width: 2),
                         ),
                         errorBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10),
@@ -113,7 +113,10 @@ class _RegisterState extends ConsumerState<Register> {
                         ),
                         focusedErrorBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10),
-                          borderSide: BorderSide(color: const Color(0xFFFF7A3D), width: 3),
+                          borderSide: BorderSide(
+                            color: const Color(0xFFFF7A3D),
+                            width: 3,
+                          ),
                         ),
                         errorStyle: TextStyle(
                           fontSize: 14,
@@ -205,179 +208,221 @@ class _RegisterState extends ConsumerState<Register> {
 
                     //password Field
                     TextFormField(
-                          controller: _passwordController,
-                          obscureText: !_passwordVisible1,
-                          autovalidateMode: AutovalidateMode.onUserInteraction,
-                          style: TextStyle(color: Colors.black, fontSize: 16),
-                          decoration: InputDecoration(
-                            labelText: 'Password',
-                            filled: true,
-                            fillColor: Colors.white,
-                            labelStyle: TextStyle(color: Colors.black),
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(15),
-                              borderSide: BorderSide(
-                                color: Colors.grey,
-                                width: 2,
-                              ),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
-                              borderSide: BorderSide(
-                                color: Color(Constants.orangeColor),
-                                width: 2.5,
-                              ),
-                            ),
-                            errorBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
-                              borderSide: BorderSide(
-                                color: Colors.red,
-                                width: 3,
-                              ),
-                            ),
-                            focusedErrorBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
-                              borderSide: BorderSide(
-                                color: const Color(0xFFFF7A3D),
-                                width: 3,
-                              ),
-                            ),
-                            errorStyle: TextStyle(
-                              fontSize: 14,
-                              color: Colors.red,
-                              fontStyle: FontStyle.italic,
-                            ),
-                            errorMaxLines: 2,
-                            suffixIcon: IconButton(
-                              icon: _passwordVisible1
-                                  ? Image.asset(
-                                      'assets/images/visibility.png',
-                                      width: 27,
-                                      color: Colors.grey,
-                                    )
-                                  : Image.asset(
-                                      'assets/images/eyebrow.png',
-                                      width: 27,
-                                      color: Colors.grey,
-                                    ),
-                              onPressed: () {
-                                setState(() {
-                                  _passwordVisible1 = !_passwordVisible1;
-                                });
-                              },
-                            ),
-                            prefixIcon: Icon(
-                              Icons.lock_outline,
-                              size: 27,
-                              color: Colors.grey,
-                            ),
+                      controller: _passwordController,
+                      obscureText: !_passwordVisible1,
+                      autovalidateMode: AutovalidateMode.onUserInteraction,
+                      style: TextStyle(color: Colors.black, fontSize: 16),
+                      decoration: InputDecoration(
+                        labelText: 'Password',
+                        filled: true,
+                        fillColor: Colors.white,
+                        labelStyle: TextStyle(color: Colors.black),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(15),
+                          borderSide: BorderSide(color: Colors.grey, width: 2),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          borderSide: BorderSide(
+                            color: Color(Constants.orangeColor),
+                            width: 2.5,
                           ),
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return "password is required !";
-                            }
-                            if (value.length < 8) {
-                              return "8 characters at least !";
-                            }
-                            // محارف كبيرة و صغيرة و أ{قام و رموز}
-                            String pattern =
-                                r'^(?=.*[a-z])(?=.*[0-9])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).+$';
-                            final regExp = RegExp(pattern);
-
-                            if (!regExp.hasMatch(value)) {
-                              return "Password must contain uppercase, lowercase, number & special character";
-                            }
-                            return null;
+                        ),
+                        errorBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          borderSide: BorderSide(color: Colors.red, width: 3),
+                        ),
+                        focusedErrorBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          borderSide: BorderSide(
+                            color: const Color(0xFFFF7A3D),
+                            width: 3,
+                          ),
+                        ),
+                        errorStyle: TextStyle(
+                          fontSize: 14,
+                          color: Colors.red,
+                          fontStyle: FontStyle.italic,
+                        ),
+                        errorMaxLines: 2,
+                        suffixIcon: IconButton(
+                          icon: _passwordVisible1
+                              ? Image.asset(
+                                  'assets/images/visibility.png',
+                                  width: 27,
+                                  color: Colors.grey,
+                                )
+                              : Image.asset(
+                                  'assets/images/eyebrow.png',
+                                  width: 27,
+                                  color: Colors.grey,
+                                ),
+                          onPressed: () {
+                            setState(() {
+                              _passwordVisible1 = !_passwordVisible1;
+                            });
                           },
                         ),
+                        prefixIcon: Icon(
+                          Icons.lock_outline,
+                          size: 27,
+                          color: Colors.grey,
+                        ),
+                      ),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return "password is required !";
+                        }
+                        if (value.length < 8) {
+                          return "8 characters at least !";
+                        }
+                        // محارف كبيرة و صغيرة و أ{قام و رموز}
+                        String pattern =
+                            r'^(?=.*[a-z])(?=.*[0-9])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).+$';
+                        final regExp = RegExp(pattern);
+
+                        if (!regExp.hasMatch(value)) {
+                          return "Password must contain uppercase, lowercase, number & special character";
+                        }
+                        return null;
+                      },
+                    ),
                     const SizedBox(height: 25),
                     //ConfirmPassword Field
                     TextFormField(
-                          controller: _confirmPasswordController,
-                          obscureText: !_passwordVisible2,
-                          autovalidateMode: AutovalidateMode.onUserInteraction,
-                          style: TextStyle(color: Colors.black, fontSize: 16),
-                          decoration: InputDecoration(
-                            labelText: 'Confirm password',
-                            filled: true,
-                            fillColor: Colors.white,
-                            labelStyle: TextStyle(color: Colors.black),
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(15),
-                              borderSide: BorderSide(
-                                color: Colors.grey,
-                                width: 2,
-                              ),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
-                              borderSide: BorderSide(
-                                color: Color(Constants.orangeColor),
-                                width: 2.5,
-                              ),
-                            ),
-                            errorBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
-                              borderSide: BorderSide(
-                                color: Colors.red,
-                                width: 3,
-                              ),
-                            ),
-                            focusedErrorBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
-                              borderSide: BorderSide(
-                                color: const Color(0xFFFF7A3D),
-                                width: 3,
-                              ),
-                            ),
-                            errorStyle: TextStyle(
-                              fontSize: 14,
-                              color: Colors.red,
-                              fontStyle: FontStyle.italic,
-                            ),
-                            errorMaxLines: 2,
-                            suffixIcon: IconButton(
-                              icon: _passwordVisible2
-                                  ? Image.asset(
-                                      'assets/images/visibility.png',
-                                      width: 27,
-                                      color: Colors.grey,
-                                    )
-                                  : Image.asset(
-                                      'assets/images/eyebrow.png',
-                                      width: 27,
-                                      color: Colors.grey,
-                                    ),
-                              onPressed: () {
-                                setState(() {
-                                  _passwordVisible2 = !_passwordVisible2;
-                                });
-                              },
-                            ),
-                            prefixIcon: Icon(
-                              Icons.lock_outline,
-                              size: 27,
-                              color: Colors.grey,
-                            ),
+                      controller: _confirmPasswordController,
+                      obscureText: !_passwordVisible2,
+                      autovalidateMode: AutovalidateMode.onUserInteraction,
+                      style: TextStyle(color: Colors.black, fontSize: 16),
+                      decoration: InputDecoration(
+                        labelText: 'Confirm password',
+                        filled: true,
+                        fillColor: Colors.white,
+                        labelStyle: TextStyle(color: Colors.black),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(15),
+                          borderSide: BorderSide(color: Colors.grey, width: 2),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          borderSide: BorderSide(
+                            color: Color(Constants.orangeColor),
+                            width: 2.5,
                           ),
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return "password is required !";
-                            }
-                            if (value.length < 8) {
-                              return "8 characters at least !";
-                            }
-                            // محارف كبيرة و صغيرة و أ{قام و رموز}
-                            String pattern =
-                                r'^(?=.*[a-z])(?=.*[0-9])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).+$';
-                            final regExp = RegExp(pattern);
-
-                            if (!regExp.hasMatch(value)) {
-                              return "Password must contain uppercase, lowercase, number & special character";
-                            }
-                            return null;
+                        ),
+                        errorBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          borderSide: BorderSide(color: Colors.red, width: 3),
+                        ),
+                        focusedErrorBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          borderSide: BorderSide(
+                            color: const Color(0xFFFF7A3D),
+                            width: 3,
+                          ),
+                        ),
+                        errorStyle: TextStyle(
+                          fontSize: 14,
+                          color: Colors.red,
+                          fontStyle: FontStyle.italic,
+                        ),
+                        errorMaxLines: 2,
+                        suffixIcon: IconButton(
+                          icon: _passwordVisible2
+                              ? Image.asset(
+                                  'assets/images/visibility.png',
+                                  width: 27,
+                                  color: Colors.grey,
+                                )
+                              : Image.asset(
+                                  'assets/images/eyebrow.png',
+                                  width: 27,
+                                  color: Colors.grey,
+                                ),
+                          onPressed: () {
+                            setState(() {
+                              _passwordVisible2 = !_passwordVisible2;
+                            });
                           },
                         ),
+                        prefixIcon: Icon(
+                          Icons.lock_outline,
+                          size: 27,
+                          color: Colors.grey,
+                        ),
+                      ),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return "password is required !";
+                        }
+                        if (value.length < 8) {
+                          return "8 characters at least !";
+                        }
+                        // محارف كبيرة و صغيرة و أ{قام و رموز}
+                        String pattern =
+                            r'^(?=.*[a-z])(?=.*[0-9])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).+$';
+                        final regExp = RegExp(pattern);
+
+                        if (!regExp.hasMatch(value)) {
+                          return "Password must contain uppercase, lowercase, number & special character";
+                        }
+                        return null;
+                      },
+                    ),
+
+                    const SizedBox(height: 25),
+                    // Phone Number field
+                    InternationalPhoneNumberInput(
+                      initialValue: _phoneNumber,
+                      textFieldController: _phoneNumberController,
+                      onInputChanged: (n) => _phoneNumber = n,
+                      selectorConfig: const SelectorConfig(
+                        selectorType: PhoneInputSelectorType.DROPDOWN,
+                        setSelectorButtonAsPrefixIcon: true,
+                        showFlags: false,
+                      ),
+                      countries: const ['SY'],
+                      keyboardType: TextInputType.phone,
+                      maxLength: 11,
+                      formatInput: true,
+                      validator: (v) => v!.isEmpty ? "Phone is required" : null,
+                      inputDecoration: InputDecoration(
+                        labelText: 'phone number',
+                        filled: true,
+                        fillColor: Colors.white,
+                        labelStyle: TextStyle(color: Colors.black),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(15),
+                          borderSide: BorderSide(color: Colors.grey, width: 2),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          borderSide: BorderSide(
+                            color: Color(Constants.orangeColor),
+                            width: 2.5,
+                          ),
+                        ),
+                        errorBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          borderSide: BorderSide(color: Colors.red, width: 3),
+                        ),
+                        focusedErrorBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          borderSide: BorderSide(
+                            color: const Color(0xFFFF7A3D),
+                            width: 3,
+                          ),
+                        ),
+                        errorStyle: TextStyle(
+                          fontSize: 14,
+                          color: Colors.red,
+                          fontStyle: FontStyle.italic,
+                        ),
+                        errorMaxLines: 2,
+                        suffixIcon: Icon(Icons.phone, color: Colors.grey,),
+                        
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -398,6 +443,7 @@ class _RegisterState extends ConsumerState<Register> {
                                   _emailController.text,
                                   _passwordController.text,
                                   _confirmPasswordController.text,
+                                  _phoneNumber.phoneNumber!
                                 );
                             final newState = ref.read(authProvider);
                             if (newState.message != null) {
@@ -449,7 +495,6 @@ class _RegisterState extends ConsumerState<Register> {
                           ),
                         ),
                 ),
-                
               ),
               const SizedBox(height: 25),
               Row(
@@ -457,10 +502,7 @@ class _RegisterState extends ConsumerState<Register> {
                 children: [
                   Text(
                     "Have an account?",
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.black,
-                    ),
+                    style: TextStyle(fontSize: 16, color: Colors.black),
                   ),
                   TextButton(
                     child: Text(
@@ -483,7 +525,9 @@ class _RegisterState extends ConsumerState<Register> {
                     onPressed: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (_) => Login(redirectTo: "",)),
+                        MaterialPageRoute(
+                          builder: (_) => Login(redirectTo: ""),
+                        ),
                       );
                     },
                   ),

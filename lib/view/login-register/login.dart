@@ -5,10 +5,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:restaurants_system/constants.dart';
 import 'package:restaurants_system/providers/auth_provider.dart';
 import 'package:restaurants_system/view/calorie_tracker/welcome.dart';
+import 'package:restaurants_system/view/main_screen.dart';
 import 'package:restaurants_system/view/restaurant-request/restaurant_request.dart';
 import 'forgot_password.dart';
 import 'register.dart';
-import '../home/home.dart';
 
 class Login extends ConsumerStatefulWidget {
   final String redirectTo;
@@ -313,35 +313,48 @@ class _LoginState extends ConsumerState<Login> {
                             if (myState.isLoggedIn) {
                               switch (widget.redirectTo) {
                                 case "home":
-                                  Navigator.pushReplacement(
+                                  Navigator.pushAndRemoveUntil(
                                     context,
                                     MaterialPageRoute(
-                                      builder: (context) => Home(),
+                                      builder: (context) => MainScreen(),
                                     ),
+                                    (route) => false
                                   );
                                   break;
                                 case "welcome":
-                                  Navigator.pushReplacement(
+                                  Navigator.pushAndRemoveUntil(
                                     context,
                                     MaterialPageRoute(
                                       builder: (context) => Welcome(),
                                     ),
+                                    (route) => false
                                   );
                                   break;
                                 case "restaurant_request":
-                                  Navigator.pushReplacement(
+                                  Navigator.pushAndRemoveUntil(
                                     context,
                                     MaterialPageRoute(
                                       builder: (context) => RestaurantRequest(),
                                     ),
+                                    (route) => false
+                                  );
+                                  break;
+                                case "cart":
+                                 Navigator.pushAndRemoveUntil(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => MainScreen(initialIndex:1),
+                                    ),
+                                    (route) => false
                                   );
                                   break;
                                 default:
-                                  Navigator.pushReplacement(
+                                  Navigator.pushAndRemoveUntil(
                                     context,
                                     MaterialPageRoute(
-                                      builder: (context) => Home(),
+                                      builder: (context) => MainScreen(),
                                     ),
+                                    (route) => false
                                   );
                               }
                             }

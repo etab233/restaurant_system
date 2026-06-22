@@ -92,44 +92,36 @@ class CoverPlaceholder extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // لو الصورة موجودة وشغالة بتظهر، لو لأ بيظهر الـ placeholder
-    if (coverUrl != null && coverUrl!.isNotEmpty) {
-      return Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Colors.transparent, Colors.black.withOpacity(0.3)],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-          ),
-        ),
+    final hasNetworkImage =
+        coverUrl != null &&
+        coverUrl!.isNotEmpty &&
+        coverUrl!.startsWith('http');
+
+    if (hasNetworkImage) {
+      return SizedBox(
+        height: 140,
+        width: double.infinity,
         child: CachedNetworkImage(
           imageUrl: coverUrl!,
-          height: 140,
-          width: double.infinity,
           fit: BoxFit.cover,
-          errorWidget: (context, url, error) => _buildPlaceholder(name),
-          placeholder: (context, url) => _buildPlaceholder(name),
+          placeholder: (context, url) => Image.asset(
+            "assets/images/no_restaurant_image.png",
+            fit: BoxFit.cover,
+          ),
+          errorWidget: (context, url, error) => Image.asset(
+            "assets/images/no_restaurant_image.png",
+            fit: BoxFit.cover,
+          ),
         ),
       );
     }
-    return _buildPlaceholder(name);
-  }
 
-  Widget _buildPlaceholder(String name) {
-    return SizedBox(
+    // fallback asset
+    return Image.asset(
+      "assets/images/no_restaurant_image.png",
       height: 140,
       width: double.infinity,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.store_mall_directory, size: 44, color: Colors.grey),
-          const SizedBox(height: 6),
-          Text(
-            name,
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
-          ),
-        ],
-      ),
+      fit: BoxFit.cover,
     );
   }
 }
@@ -198,16 +190,16 @@ class _LogoAvatar extends StatelessWidget {
       ),
       child: Hero(
         tag: "restaurant logo $id",
-        child:  logoUrl != null
-          ? ClipOval(
-              child: Image.network(
-                logoUrl!,
-                fit: BoxFit.cover,
-                errorBuilder: (_, __, ___) => _buildInitial(name),
-              ),
-            )
-          : _buildInitial(name),
-      )
+        child: logoUrl != null
+            ? ClipOval(
+                child: Image.network(
+                  logoUrl!,
+                  fit: BoxFit.cover,
+                  errorBuilder: (_, __, ___) => _buildInitial(name),
+                ),
+              )
+            : _buildInitial(name),
+      ),
     );
   }
 

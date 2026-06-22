@@ -61,6 +61,10 @@ class MealDetailsState extends ConsumerState<MealDetails> {
   int selectedVariantId = -1;
   int quantity = 1;
 
+  AnimationController? _cartController;
+  OverlayEntry? _cartOverlay;
+  final GlobalKey _addBtnKey = GlobalKey();
+
   final TextEditingController _noteController = TextEditingController();
   Map<int, bool> expandedGroup = {}; // لمعرفة أي مجموعة مفتوحة
   Map<int, List<int>> selectedModifier = {};
@@ -86,11 +90,36 @@ class MealDetailsState extends ConsumerState<MealDetails> {
   @override
   void dispose() {
     _noteController.dispose();
+    _cartController?.dispose();
+    _cartOverlay?.remove();
     super.dispose();
   }
 
   bool _isArabic(String text) {
     return RegExp(r'[\u0600-\u06FF]').hasMatch(text);
+  }
+
+  // تابع لإظهار الأنيميشن عندما يضغط المستخدم الزر على الشاشة
+  void _showCartAnimation() {
+    final renderBox =
+        _addBtnKey.currentContext?.findRenderObject() as RenderBox?;
+    if (renderBox == null) return;
+
+    final pos = renderBox.localToGlobal(Offset.zero);
+    final size = renderBox.size;
+    final center = Offset(pos.dx + size.width / 2, pos.dy - 160);
+
+    _cartOverlay = OverlayEntry(
+      builder: (_) => _CartDropAnimation(
+        position: center,
+        onDone: () {
+          _cartOverlay?.remove();
+          _cartOverlay = null;
+        },
+      ),
+    );
+
+    Overlay.of(context).insert(_cartOverlay!);
   }
 
   // ── Total price ─────────────────────────────────────────────────────────────
@@ -125,6 +154,7 @@ class MealDetailsState extends ConsumerState<MealDetails> {
   Widget build(BuildContext build) {
     final state = ref.watch(mealDetailsProvider);
     final favoritesState = ref.watch(favoritesProvider);
+    final cartState = ref.watch(cartProvider);
 
     String? token = Hive.box("user_data").get("token");
     final isLoggedIn = token != null && token.isNotEmpty;
@@ -135,13 +165,13 @@ class MealDetailsState extends ConsumerState<MealDetails> {
     );
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F6F2),
+      backgroundColor:  const Color(0xFFF5F5F5),
       bottomNavigationBar: SafeArea(
         child: Container(
           padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
           decoration: BoxDecoration(
             color: Colors.white,
-            border: const Border(top: BorderSide(color: Color(0xFFEDE9E2))),
+            border: const Border(top: BorderSide(color: Color(0xFFF5F5F5))),
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withOpacity(0.06),
@@ -236,6 +266,7 @@ class MealDetailsState extends ConsumerState<MealDetails> {
                       child: SizedBox(
                         height: 54,
                         child: ElevatedButton(
+                          key: _addBtnKey,
                           onPressed: !isLoggedIn
                               ? null
                               : () async {
@@ -271,23 +302,9 @@ class MealDetailsState extends ConsumerState<MealDetails> {
                                   if (!mounted) return;
 
                                   final newState = ref.read(cartProvider);
-
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      padding: EdgeInsets.all(13),
-                                      margin: EdgeInsets.all(9),
-                                      behavior: SnackBarBehavior.floating,
-                                      content: Text(
-                                        newState.message,
-                                        style: TextStyle(fontSize: 20),
-                                      ),
-                                      backgroundColor:
-                                          (newState.status == "success")
-                                          ? Colors.green
-                                          : Colors.red,
-                                      duration: Duration(seconds: 4),
-                                    ),
-                                  );
+                                  if (newState.status == "success") {
+                                    _showCartAnimation();
+                                  }
                                 },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: const Color(0xFFFF6B35),
@@ -296,25 +313,36 @@ class MealDetailsState extends ConsumerState<MealDetails> {
                               borderRadius: BorderRadius.circular(16),
                             ),
                           ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              const Icon(
-                                Icons.shopping_cart_outlined,
-                                color: Colors.white,
-                                size: 18,
-                              ),
-                              const SizedBox(width: 8),
-                              Text(
-                                isLoggedIn ? "Add to Cart" : "Log in to add",
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w800,
+                          child: (cartState.isAddingToCart)
+                              ? const SizedBox(
+                                  width: 22,
+                                  height: 22,
+                                  child: CircularProgressIndicator(
+                                    color: Colors.white,
+                                    strokeWidth: 2.5,
+                                  ),
+                                )
+                              : Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    const Icon(
+                                      Icons.shopping_cart_outlined,
+                                      color: Colors.white,
+                                      size: 20,
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Text(
+                                      isLoggedIn
+                                          ? "Add to Cart"
+                                          : "Log in to add",
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w800,
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                              ),
-                            ],
-                          ),
                         ),
                       ),
                     ),
@@ -976,6 +1004,133 @@ class MealDetailsState extends ConsumerState<MealDetails> {
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+}
+
+class _CartDropAnimation extends StatefulWidget {
+  final Offset position;
+  final VoidCallback onDone;
+  const _CartDropAnimation({required this.position, required this.onDone});
+
+  @override
+  State<_CartDropAnimation> createState() => _CartDropAnimationState();
+}
+
+class _CartDropAnimationState extends State<_CartDropAnimation>
+    with TickerProviderStateMixin {
+  late AnimationController _cartController;
+  late AnimationController _itemController;
+
+  late Animation<double> _itemY;
+  late Animation<double> _itemOpacity;
+  late Animation<double> _itemScale;
+  late Animation<double> _cartY;
+  late Animation<double> _cartOpacity;
+
+  @override
+  void initState() {
+    super.initState();
+    _itemController = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 1),
+    );
+
+    _itemY = Tween(
+      begin: 30.0,
+      end: 0.0,
+    ).animate(CurvedAnimation(parent: _itemController, curve: Curves.easeIn));
+
+    _itemOpacity = TweenSequence([
+      TweenSequenceItem(tween: ConstantTween(1.0), weight: 70),
+      TweenSequenceItem(tween: Tween(begin: 1.0, end: 0.0), weight: 30),
+    ]).animate(_itemController);
+
+    _itemScale = TweenSequence([
+      TweenSequenceItem(tween: Tween(begin: 1.0, end: 1.2), weight: 30),
+      TweenSequenceItem(tween: Tween(begin: 1.2, end: 0.3), weight: 70),
+    ]).animate(CurvedAnimation(parent: _itemController, curve: Curves.easeIn));
+
+    _cartController = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 1),
+    );
+    _cartOpacity = TweenSequence([
+      TweenSequenceItem(tween: Tween(begin: 0.0, end: 1.0), weight: 15),
+      TweenSequenceItem(tween: ConstantTween(1.0), weight: 65),
+      TweenSequenceItem(tween: Tween(begin: 1.0, end: 0.0), weight: 20),
+    ]).animate(_cartController);
+
+    _cartY = TweenSequence([
+      TweenSequenceItem(tween: ConstantTween(0.0), weight: 70),
+      TweenSequenceItem(tween: Tween(begin: 0.0, end: -3.0), weight: 15),
+      TweenSequenceItem(tween: Tween(begin: -3.0, end: 0.0), weight: 15),
+    ]).animate(CurvedAnimation(parent: _cartController, curve: Curves.easeOut));
+    
+    // start animation
+    _cartController.forward();
+    _itemController.forward();
+  }
+
+  @override
+  void dispose() {
+    _cartController.dispose();
+    _itemController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Positioned(
+      left: widget.position.dx - 10,
+      top: widget.position.dy,
+      child: IgnorePointer(
+        child: AnimatedBuilder(
+          animation: Listenable.merge([_cartController, _itemController]),
+          builder: (_, __) {
+            return SizedBox(
+              width: 64,
+              height: 160,
+              child: Stack(
+                alignment: Alignment.bottomCenter,
+                children: [
+                  // الغرض
+                  Positioned(
+                    bottom: 20 + _itemY.value,
+                    child: Opacity(
+                      opacity: _itemOpacity.value,
+                      child: Transform.scale(
+                        scale: _itemScale.value,
+                        child: const Icon(
+                          Icons.lunch_dining,
+                          color: Color(0xFFFF6B35),
+                          size: 25,
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  // السلة
+                  Positioned(
+                    bottom: 0,
+                    child: Opacity(
+                      opacity: _cartOpacity.value,
+                      child: Transform.translate(
+                        offset: Offset(0, _cartY.value),
+                        child: const Icon(
+                          Icons.shopping_cart_outlined,
+                          color: Color(0xFFFF6B35),
+                          size: 40,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
         ),
       ),
     );

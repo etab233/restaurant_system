@@ -217,10 +217,10 @@ class _RestaurantScreenState extends ConsumerState<RestaurantScreen>
       systemOverlayStyle: SystemUiOverlayStyle.light,
       surfaceTintColor: Colors.transparent,
       pinned: true,
-      expandedHeight: 410,
+      expandedHeight: 480,
       elevation: 0,
       collapsedHeight: 100,
-      toolbarHeight: 70,
+      toolbarHeight: 100,
       title: Builder(
         builder: (context) {
           final settings = context
@@ -242,11 +242,7 @@ class _RestaurantScreenState extends ConsumerState<RestaurantScreen>
                   children: [
                     Row(
                       children: [
-                        InkWell(
-                          onTap: () => Navigator.pop(context),
-                          child: const Icon(Icons.chevron_left_outlined),
-                        ),
-                        const SizedBox(width: 12),
+                       const SizedBox(width: 30),
                         Expanded(
                           child: Text(
                             restaurant?.name ?? "",
@@ -340,7 +336,16 @@ class _RestaurantScreenState extends ConsumerState<RestaurantScreen>
                   child: SizedBox(
                     height: 210,
                     width: double.infinity,
-                    child: Image.network(widget.coverImage!, fit: BoxFit.cover),
+                    child:
+                        (widget.coverImage != null &&
+                            widget.coverImage!.isNotEmpty &&
+                            widget.coverImage!.startsWith('http'))
+                        ? Image.network(widget.coverImage!, fit: BoxFit.cover)
+                        : Image.asset(
+                            "assets/images/no_restaurant_image.png",
+                            width: double.infinity,
+                            fit: BoxFit.cover,
+                          ),
                   ),
                 ),
               ),

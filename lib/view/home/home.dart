@@ -1,5 +1,4 @@
 // ignore_for_file: deprecated_member_use
-
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -183,7 +182,7 @@ class _HomeState extends ConsumerState<Home> with TickerProviderStateMixin {
 
               const SizedBox(width: 10),
               // Location
-                  /*Text(
+              /*Text(
                     "Deliver to",
                     style: TextStyle(
                       color: Colors.white.withOpacity(0.8),
@@ -191,59 +190,54 @@ class _HomeState extends ConsumerState<Home> with TickerProviderStateMixin {
                     ),
                   ),
                   const SizedBox(height: 4),*/
-                  InkWell(
-                    onTap: () async {
-                      final location = await Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => CustomerLocation(),
-                        ),
-                      );
+              InkWell(
+                onTap: () async {
+                  final location = await Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => CustomerLocation()),
+                  );
 
-                      if (location != null) {
-                        final lat = location["lat"];
-                        final lng = location["lng"];
-                        final address = location["address"];
+                  if (location != null) {
+                    final lat = location["lat"];
+                    final lng = location["lng"];
+                    final address = location["address"];
 
-                        setState(() {
-                          String locationString = address.toString();
-                          List<String> parts = locationString
-                              .split(',')
-                              .map((e) => e.trim())
-                              .toList();
+                    setState(() {
+                      String locationString = address.toString();
+                      List<String> parts = locationString
+                          .split(',')
+                          .map((e) => e.trim())
+                          .toList();
 
-                          userLocation = parts.first;
-                        });
+                      userLocation = parts.first;
+                    });
 
-                        ref
-                            .read(homeProvider.notifier)
-                            .getHomeData(
-                              lat: lat.toString(),
-                              lng: lng.toString(),
-                            );
-                      }
-                    },
-                    child: Row(
-                      children: [
-                        Icon(Icons.location_on, color: Colors.white, size: 18),
-                        SizedBox(width: 4),
-                        Text(
-                          userLocation == "Home" ? "Home" : userLocation,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        Icon(
-                          Icons.keyboard_arrow_down_rounded,
-                          color: Colors.white,
-                        ),
-                      ],
+                    ref
+                        .read(homeProvider.notifier)
+                        .getHomeData(lat: lat.toString(), lng: lng.toString());
+                  }
+                },
+                child: Row(
+                  children: [
+                    Icon(Icons.location_on, color: Colors.white, size: 18),
+                    SizedBox(width: 4),
+                    Text(
+                      userLocation == "Home" ? "Home" : userLocation,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
-                  ),
+                    Icon(
+                      Icons.keyboard_arrow_down_rounded,
+                      color: Colors.white,
+                    ),
+                  ],
+                ),
+              ),
               Spacer(),
               // Notification
               Icon(Icons.notifications_none, size: 30, color: Colors.white),
@@ -524,7 +518,7 @@ class _HomeState extends ConsumerState<Home> with TickerProviderStateMixin {
 }
 
 // ── Body ─────────────────────────────────────────────────────
-class _HomeBody extends StatelessWidget {
+class _HomeBody extends ConsumerStatefulWidget {
   final TextEditingController searchController;
   final ValueChanged<String> onSearchChanged;
   final dynamic homeState;
@@ -538,48 +532,59 @@ class _HomeBody extends StatelessWidget {
   });
 
   @override
+  ConsumerState<_HomeBody> createState() => _HomeBodyState();
+}
+
+class _HomeBodyState extends ConsumerState<_HomeBody> {
+  @override
   Widget build(BuildContext context) {
     return SafeArea(
-      child: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 18),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _CategoriesSection(homeState: homeState),
+      child: RefreshIndicator(
+        onRefresh: () async {
+          await ref.read(homeProvider.notifier).getHomeData();
+        },
+        child: SingleChildScrollView(
+          physics: AlwaysScrollableScrollPhysics(), // حتى لو كان المحتوى في الشاشة قليل يعمل ال refresh
+          padding: const EdgeInsets.symmetric(horizontal: 18),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _CategoriesSection(homeState: widget.homeState),
 
-            const SizedBox(height: 20),
-            Text(
-              userLocation != "Home"
-                  ? "Restaurants Near You:"
-                  : "Top Rated Restaurants:",
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 10),
-            ListView.builder(
-              shrinkWrap: true,
-              physics:
-                  const NeverScrollableScrollPhysics(), // لأنو داخل SingleChildScrollView
-              itemCount: homeState.restaurants.length,
-              itemBuilder: (context, index) {
-                return RestaurantCard(
-                  restaurant: homeState.restaurants[index],
-                  onTap: () {
-                    // انتقل لصفحة تفاصيل المطعم
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => RestaurantScreen(
-                          restaurantId: homeState.restaurants[index].id,
-                          coverImage: homeState.restaurants[index].coverImage ,
-                          logo: homeState.restaurants[index].logo,
+              const SizedBox(height: 20),
+              Text(
+                widget.userLocation != "Home"
+                    ? "Restaurants Near You:"
+                    : "Top Rated Restaurants:",
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 10),
+              ListView.builder(
+                shrinkWrap: true,
+                physics:
+                    const NeverScrollableScrollPhysics(), // لأنو داخل SingleChildScrollView
+                itemCount: widget.homeState.restaurants.length,
+                itemBuilder: (context, index) {
+                  return RestaurantCard(
+                    restaurant: widget.homeState.restaurants[index],
+                    onTap: () {
+                      // انتقل لصفحة تفاصيل المطعم
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => RestaurantScreen(
+                            restaurantId: widget.homeState.restaurants[index].id,
+                            coverImage: widget.homeState.restaurants[index].coverImage,
+                            logo: widget.homeState.restaurants[index].logo,
+                          ),
                         ),
-                      ),
-                    );
-                  },
-                );
-              },
-            ),
-          ],
+                      );
+                    },
+                  );
+                },
+              ),
+            ],
+          ),
         ),
       ),
     );
