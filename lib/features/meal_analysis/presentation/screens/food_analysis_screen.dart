@@ -299,7 +299,7 @@ class _FoodAnalysisScreenState extends ConsumerState<FoodAnalysisScreen>
                       ),
                       child: Row(
                         children: [
-                          Image.asset('assets/images/fire.png', width: 70, height: 70),
+                          Image.asset('assets/images/fire.webp', width: 70, height: 70),
                           const SizedBox(width: 14),
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,

@@ -18,8 +18,14 @@ class HealthProfileRepositoryImpl implements HealthProfileRepository {
     // تحقق من الكاش المحلي أولًا)
 
     if (token == null) {
-      await _local.setHasHealthAccount(false);
       return HealthAccountResult(hasAccount: false);
+    }
+
+    final cached = _local.getCachedHasHealthAccount();
+
+    // عندنا نتيجة محفوظة محليًا
+    if (cached == true) {
+      return HealthAccountResult(hasAccount: true);
     }
 
     try {

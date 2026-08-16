@@ -689,8 +689,8 @@ class OrderState extends ConsumerState<Order> {
                                           : const Color(0xFFFF6B35),
                                       borderRadius: BorderRadius.circular(14),
                                     ),
-                                    child: Image.network(
-                                      "https://upload.wikimedia.org/wikipedia/commons/6/6f/Image_of_the_Sham_Cash_app_in_Syria_2026.jpg",
+                                    child: Image.asset(
+                                      "assets/images/shamCash.webp",
                                       width: 45,
                                       height: 45,
                                     ),

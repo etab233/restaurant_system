@@ -18,6 +18,8 @@ class CategoryIconCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
+    final pixelRatio = MediaQuery.of(context).devicePixelRatio;
+    final cacheSize = (76 * pixelRatio).round();
 
     return InkWell(
       onTap: onTap,
@@ -43,6 +45,9 @@ class CategoryIconCard extends StatelessWidget {
                         : CachedNetworkImage(
                             imageUrl: imgUrl!,
                             fit: BoxFit.cover,
+                            memCacheWidth: cacheSize,
+                            memCacheHeight: cacheSize,
+                            fadeInDuration: const Duration(milliseconds: 200),
                             placeholder: (context, url) =>
                                 buildPlaceholder(name),
                             errorWidget: (context, url, error) =>

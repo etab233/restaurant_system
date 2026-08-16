@@ -1,7 +1,6 @@
 // ignore_for_file: deprecated_member_use
-
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:restaurants_system/core/widgets/app_network_image.dart';
 import 'package:restaurants_system/features/home/data/models/restaurant_model.dart';
 
 class RestaurantCard extends StatelessWidget {
@@ -92,36 +91,22 @@ class CoverPlaceholder extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final hasNetworkImage =
-        coverUrl != null &&
-        coverUrl!.isNotEmpty &&
-        coverUrl!.startsWith('http');
-
-    if (hasNetworkImage) {
-      return SizedBox(
+    return AppNetworkImage(
+      imageUrl: coverUrl,
+      width: double.infinity,
+      height: 140,
+      fallback: Image.asset(
+        "assets/images/no_restaurant_image.webp",
         height: 140,
         width: double.infinity,
-        child: CachedNetworkImage(
-          imageUrl: coverUrl!,
-          fit: BoxFit.cover,
-          placeholder: (context, url) => Image.asset(
-            "assets/images/no_restaurant_image.png",
-            fit: BoxFit.cover,
-          ),
-          errorWidget: (context, url, error) => Image.asset(
-            "assets/images/no_restaurant_image.png",
-            fit: BoxFit.cover,
-          ),
-        ),
-      );
-    }
-
-    // fallback asset
-    return Image.asset(
-      "assets/images/no_restaurant_image.png",
-      height: 140,
-      width: double.infinity,
-      fit: BoxFit.cover,
+        fit: BoxFit.cover,
+      ),
+      placeholder: Image.asset(
+        "assets/images/no_restaurant_image.webp",
+        height: 140,
+        width: double.infinity,
+        fit: BoxFit.cover,
+      ),
     );
   }
 }
@@ -194,15 +179,14 @@ class _LogoAvatar extends StatelessWidget {
       ),
       child: Hero(
         tag: "restaurant logo $id",
-        child: logoUrl != null
-            ? ClipOval(
-                child: Image.network(
-                  logoUrl!,
-                  fit: BoxFit.cover,
-                  errorBuilder: (_, __, ___) => _buildInitial(name),
-                ),
-              )
-            : _buildInitial(name),
+        child: AppNetworkImage(
+          imageUrl: logoUrl,
+          width: 58,
+          height: 58,
+          borderRadius: BorderRadius.circular(29),
+          fallback: _buildInitial(name),
+          placeholder: _buildInitial(name),
+        ),
       ),
     );
   }

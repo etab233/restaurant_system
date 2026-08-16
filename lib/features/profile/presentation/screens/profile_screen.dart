@@ -22,7 +22,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
   void initState() {
     super.initState();
     Future.microtask(() async {
-      ref.read(profileProvider.notifier).fetchProfile();
+      ref.read(profileProvider.notifier).refreshProfile();
     });
   }
 

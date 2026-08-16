@@ -31,11 +31,11 @@ class _MealDetailsSectionState extends ConsumerState<MealDetailsSection> {
     final notifier = ref.read(mealDetailsProvider.notifier);
     final selectedVariantId = state.selectedVariantId;
     final selectedModifier = state.selectedModifier;
-    final isLoading = state.status == "loading";
+    final isLoading = state.status == MealDetailsStatus.loading;
 
     ref.listen<MealState>(mealDetailsProvider, (previous, next) {
-      final wasLoading = previous == null || previous.status == "loading";
-      final justLoaded = wasLoading && next.status != "loading";
+      final wasLoading = previous == null || previous.status == MealDetailsStatus.loading;
+      final justLoaded = wasLoading && next.status != MealDetailsStatus.loading;
       if (justLoaded && _noteController.text != next.note) {
         _noteController.text = next.note;
       }

@@ -19,7 +19,7 @@ class EmptyCartView extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Image.asset(
-                'assets/images/empty_cart.png',
+                'assets/images/empty_cart.webp',
                 width: 220,
                 height: 220,
                 fit: BoxFit.contain,

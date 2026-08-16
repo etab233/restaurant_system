@@ -18,11 +18,11 @@ class AuthLocalDataSource {
     await _box.put("userData", userData);
   }
 
-  Future<void> saveToken(String token)async{
+  Future<void> saveToken(String token) async {
     await _secureStorage.write(key: "token", value: token);
   }
 
-  Future<void> clearSession()async{
+  Future<void> clearSession() async {
     await _secureStorage.delete(key: "token");
     await _box.delete("userData");
   }
@@ -31,8 +31,8 @@ class AuthLocalDataSource {
 
   Map<String, dynamic>? getUserData() {
     final raw = _box.get("userData");
-    if(raw == null) return null;
 
-    return Map<String,dynamic>.from(raw);
+    if (raw == null) return null;
+    return Map<String, dynamic>.from(raw);
   }
 }

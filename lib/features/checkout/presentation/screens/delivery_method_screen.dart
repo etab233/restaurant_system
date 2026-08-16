@@ -123,7 +123,7 @@ class _DeliveryMethodScreenState extends ConsumerState<DeliveryMethodScreen> {
                           SelectCard(
                             title: "توصيل للمنزل",
                             subtitle: "يصلك طلبك إلى باب منزلك",
-                            image: "assets/images/delivery.png",
+                            image: "assets/images/delivery.webp",
                             isSelected: checkout.deliveryType == "delivery",
                             isAvailable:
                                 cartState.cartContent?.hasDelivery ?? false,
@@ -139,7 +139,7 @@ class _DeliveryMethodScreenState extends ConsumerState<DeliveryMethodScreen> {
                           SelectCard(
                             title: "استلام من المطعم",
                             subtitle: "استلم طلبك بنفسك من المطعم",
-                            image: "assets/images/restaurant.png",
+                            image: "assets/images/restaurant.webp",
                             isSelected: checkout.deliveryType == 'pickup',
                             isAvailable: true,
                             onTap: () {

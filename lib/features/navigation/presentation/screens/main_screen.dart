@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:restaurants_system/core/navigation/main_tabs.dart';
-import 'package:restaurants_system/features/health_profile/presentation/screens/welcome_screen.dart';
 import 'package:restaurants_system/features/cart/presentation/providers/cart_provider.dart';
+import 'package:restaurants_system/features/health_profile/presentation/screens/welcome_screen.dart';
 import 'package:restaurants_system/features/cart/presentation/screens/restaurant_cart_screen.dart';
 import 'package:restaurants_system/features/favorites/presentation/screens/favorites_screen.dart';
 import 'package:restaurants_system/features/home/presentation/screens/home.dart';
@@ -34,19 +34,16 @@ class _MainScreenState extends ConsumerState<MainScreen> {
 
     Future.microtask(() async {
       ref.read(bottomNavbarProvider.notifier).setTab(widget.initialTab);
-
-      // تحميل السلة مباشرة عند فتح MainScreen
-      await ref.read(cartNotifierProvider.notifier).index();
     });
     _listenToTabChanges();
   }
 
   void _listenToTabChanges() {
     ref.listenManual<MainTab>(bottomNavbarProvider, (previous, next) async {
-      /*// Cart
+      // Cart
       if (previous != MainTab.cart && next == MainTab.cart) {
         await ref.read(cartNotifierProvider.notifier).index();
-      }*/
+      }
 
       // Orders
       if (previous != MainTab.order && next == MainTab.order) {

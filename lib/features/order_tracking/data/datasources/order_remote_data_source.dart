@@ -7,7 +7,7 @@ class OrderRemoteDataSource {
     required String tenantId,
     required String type,
     required String paymentMethode,
-    required String address,
+    String? address,
     double? latitude,
     double? longitude,
     required String token,
@@ -31,17 +31,21 @@ class OrderRemoteDataSource {
     required String token,
     required String referenceNumber,
   }) async {
-    final url = Uri.parse(
-      "${Constants.baseUrl}/orders/$referenceNumber/cancel",
+    final url = Uri.parse("${Constants.baseUrl}/orders/cancel");
+    return http.post(
+      url,
+      headers: _headers(token),
+      body: json.encode({"reference_number": referenceNumber}),
     );
-    return http.post(url, headers: _headers(token));
   }
 
   Future<http.Response> getOrderDetails({
     required String referenceNumber,
     required String token,
   }) async {
-    final url = Uri.parse("${Constants.baseUrl}/order/details/$referenceNumber");
+    final url = Uri.parse(
+      "${Constants.baseUrl}/order/details/$referenceNumber",
+    );
     return http.get(url, headers: _headers(token));
   }
 

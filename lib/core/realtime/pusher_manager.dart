@@ -162,14 +162,20 @@ class PusherManager {
   }
 
   Future<void> disconnect() async {
-    if (!isConnected && _connectingCompleter == null) return;
     try {
+      print(
+        "PUSHER DISCONNECT | "
+        "state=$_connectionState | "
+        "connecting=${_connectingCompleter != null}",
+      );
+
       await unsubscribeAll();
       await _pusher.disconnect();
     } catch (e) {
       print("DISCONNECT ERROR: $e");
     } finally {
       _connectionState = "DISCONNECTED";
+      _connectingCompleter = null;
     }
   }
 

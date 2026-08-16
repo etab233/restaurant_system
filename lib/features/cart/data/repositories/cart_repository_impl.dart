@@ -35,6 +35,8 @@ class CartRepositoryImpl implements CartRepository {
       final response = await _dataSource.addToCart(
         restaurantId: restaurantId,
         itemId: itemId,
+        variantId: variantId,
+        description: description,
         quantity: quantity,
         modifierSelections: modifierSelections,
         token: token,

@@ -21,7 +21,7 @@ class LoginRequiredScreen extends StatelessWidget {
             children: [
               Expanded(
                 child: Image.asset(
-                  'assets/images/error_screen.jpg',
+                  'assets/images/error_screen.webp',
                   fit: BoxFit.contain,
                 ),
               ),

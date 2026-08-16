@@ -34,7 +34,10 @@ class LocationRepositoryImpl implements LocationRepository {
       }
 
       final position = await _device.getCurrentPosition();
-      return LocationResult.success(lat: position.latitude, lng: position.longitude);
+      return LocationResult.success(
+        lat: position.latitude,
+        lng: position.longitude,
+      );
     } catch (e) {
       return LocationResult.failure("location error: $e");
     }

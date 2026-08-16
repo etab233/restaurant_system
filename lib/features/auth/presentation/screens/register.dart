@@ -44,7 +44,7 @@ class _RegisterState extends ConsumerState<Register> {
     return Scaffold(
       body: SafeArea(
         child: SingleChildScrollView(
-          padding:const  EdgeInsets.symmetric(horizontal: 25),
+          padding: const EdgeInsets.symmetric(horizontal: 25),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -60,7 +60,7 @@ class _RegisterState extends ConsumerState<Register> {
                   shadows: [
                     Shadow(
                       blurRadius: 5.0,
-                      color:  Color.fromARGB(79, 255, 255, 255),
+                      color: Color.fromARGB(79, 255, 255, 255),
                       offset: Offset(2.0, 2.0),
                     ),
                   ],
@@ -71,9 +71,9 @@ class _RegisterState extends ConsumerState<Register> {
               Align(
                 alignment: Alignment.centerRight,
                 child: Transform.translate(
-                  offset:const  Offset(0, 30),
+                  offset: const Offset(0, 30),
                   child: Image.asset(
-                    'assets/images/food.png',
+                    'assets/images/food.webp',
                     width: 115,
                     height: 115,
                   ),
@@ -117,8 +117,8 @@ class _RegisterState extends ConsumerState<Register> {
                       suffixIcon: IconButton(
                         icon: Image.asset(
                           _passwordVisible1
-                              ? 'assets/images/visibility.png'
-                              : 'assets/images/eyebrow.png',
+                              ? 'assets/images/visibility.webp'
+                              : 'assets/images/eyebrow.webp',
                           width: 27,
                           color: Colors.grey,
                         ),
@@ -139,8 +139,8 @@ class _RegisterState extends ConsumerState<Register> {
                       suffixIcon: IconButton(
                         icon: Image.asset(
                           _passwordVisible2
-                              ? 'assets/images/visibility.png'
-                              : 'assets/images/eyebrow.png',
+                              ? 'assets/images/visibility.webp'
+                              : 'assets/images/eyebrow.webp',
                           width: 27,
                           color: Colors.grey,
                         ),
@@ -198,19 +198,19 @@ class _RegisterState extends ConsumerState<Register> {
                         SnackBar(
                           content: Text(
                             newState.message!,
-                            style:const  TextStyle(fontSize: 20),
+                            style: const TextStyle(fontSize: 20),
                           ),
                           backgroundColor: newState.isRegistered
                               ? Colors.green
                               : Colors.red,
-                          duration:const  Duration(seconds: 1),
+                          duration: const Duration(seconds: 1),
                         ),
                       );
                     }
                     await Future.delayed(const Duration(seconds: 1));
                     if (!mounted) return;
                     if (newState.isRegistered) {
-                      Navigator.push(
+                      Navigator.pushAndRemoveUntil(
                         context,
                         MaterialPageRoute(
                           builder: (_) => Verification(
@@ -218,6 +218,7 @@ class _RegisterState extends ConsumerState<Register> {
                             email: _emailController.text.trim(),
                           ),
                         ),
+                        (route) => false,
                       );
                     }
                   }
@@ -232,7 +233,7 @@ class _RegisterState extends ConsumerState<Register> {
                     style: TextStyle(fontSize: 16, color: Colors.black),
                   ),
                   TextButton(
-                    child:const  Text(
+                    child: const Text(
                       "back to Login",
                       style: TextStyle(
                         fontSize: 16,
@@ -252,7 +253,7 @@ class _RegisterState extends ConsumerState<Register> {
                     onPressed: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (_) =>const  Login()),
+                        MaterialPageRoute(builder: (_) => const Login()),
                       );
                     },
                   ),

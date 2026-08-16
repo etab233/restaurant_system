@@ -93,7 +93,7 @@ class _LoginState extends ConsumerState<Login> {
               Align(
                 alignment: Alignment.bottomRight,
                 child: Image.asset(
-                  'assets/images/burger.png',
+                  'assets/images/burger.webp',
                   width: 130,
                   height: 130,
                 ),
@@ -121,8 +121,8 @@ class _LoginState extends ConsumerState<Login> {
                       suffixIcon: IconButton(
                         icon: Image.asset(
                           _passwordVisible
-                              ? 'assets/images/visibility.png'
-                              : 'assets/images/eyebrow.png',
+                              ? 'assets/images/visibility.webp'
+                              : 'assets/images/eyebrow.webp',
                           width: 27,
                           color: Colors.grey,
                         ),

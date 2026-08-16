@@ -58,7 +58,9 @@ class _ConfirmOrderState extends ConsumerState<ConfirmOrder> {
                           tenantId: checkout.tenantId ?? '',
                           type: checkout.deliveryType!,
                           paymentMethode: checkout.paymentMethod!,
-                          address: checkout.address!,
+                          address: (checkout.deliveryType == "pickup")
+                              ? null
+                              : checkout.address!,
                           latitude: checkout.latitude,
                           longitude: checkout.longitude,
                         );

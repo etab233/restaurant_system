@@ -33,7 +33,7 @@ class MealSearchDelegate extends SearchDelegate<MealItem> {
     if (query.isEmpty) {
       return Center(
         child: Image.asset(
-          "assets/images/search_meal.jpg",
+          "assets/images/search_meal.webp",
           fit: BoxFit.fitWidth,
           width: double.infinity,
         ),
@@ -51,7 +51,7 @@ class MealSearchDelegate extends SearchDelegate<MealItem> {
       return Center(
         child: SizedBox(
           child: Image.asset(
-            "assets/images/error_search.jpg",
+            "assets/images/error_search.webp",
             width: MediaQuery.of(context).size.width * 0.85,
             height: MediaQuery.of(context).size.height * 0.50,
             fit: BoxFit.cover,
@@ -77,7 +77,7 @@ class MealSearchDelegate extends SearchDelegate<MealItem> {
       return Center(
         child: SizedBox(
           child: Image.asset(
-            "assets/images/search_meal.jpg",
+            "assets/images/search_meal.webp",
             width: MediaQuery.of(context).size.width * 0.85,
             height: MediaQuery.of(context).size.height * 0.50,
             fit: BoxFit.cover,
@@ -95,7 +95,7 @@ class MealSearchDelegate extends SearchDelegate<MealItem> {
       return Center(
         child: SizedBox(
           child: Image.asset(
-            "assets/images/error_search.jpg",
+            "assets/images/error_search.webp",
             width: MediaQuery.of(context).size.width * 0.85,
             height: MediaQuery.of(context).size.height * 0.50,
             fit: BoxFit.cover,

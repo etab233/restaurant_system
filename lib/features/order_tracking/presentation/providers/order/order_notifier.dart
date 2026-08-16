@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:restaurants_system/features/auth/domain/repositories/auth_repository.dart';
 import 'package:restaurants_system/features/auth/presentation/providers/auth_provider.dart';
+import 'package:restaurants_system/features/cart/presentation/providers/cart_provider.dart';
 import 'package:restaurants_system/features/order_tracking/presentation/providers/order_track/order_track_provider.dart';
 import '../../../domain/repositories/order_repository.dart';
 import 'order_state.dart';
@@ -21,7 +22,7 @@ class OrderNotifier extends Notifier<OrderState> {
     required String tenantId,
     required String type,
     required String paymentMethode,
-    required String address,
+    String? address,
     double? latitude,
     double? longitude,
   }) async {
@@ -48,17 +49,22 @@ class OrderNotifier extends Notifier<OrderState> {
       longitude: longitude,
     );
 
-    state = result.isSuccess
-        ? state.copyWith(
-            status: result.data,
-            message: result.message,
-            isMakingOrder: false,
-          )
-        : state.copyWith(
-            status: 'error',
-            message: result.message,
-            isMakingOrder: false,
-          );
+    if (result.isSuccess) {
+      // تحديث السلة بعد نجاح إنشاء الطلب
+      await ref.read(cartNotifierProvider.notifier).index();
+
+      state = state.copyWith(
+        status: result.data,
+        message: result.message,
+        isMakingOrder: false,
+      );
+    } else {
+      state = state.copyWith(
+        status: 'error',
+        message: result.message,
+        isMakingOrder: false,
+      );
+    }
   }
 
   Future<void> cancelOrder({required String referenceNumber}) async {

@@ -56,10 +56,10 @@ class DashboardScreen extends ConsumerWidget {
                     const SizedBox(height: 14),
                     _buildStatsRow(dash, left, targets),
                     const SizedBox(height: 14),
-                    _buildMacrosCard(dash, targets),
+                    _buildNutritionInfoCard(dash, targets),
                     const SizedBox(height: 14),
                     _buildScanCard(
-                      img: "assets/images/pizza.png",
+                      img: "assets/images/pizza.webp",
                       title: "Scan your meal",
                       description:
                           "Snap your meal and get instant\ncalorie & macro analysis",
@@ -75,7 +75,7 @@ class DashboardScreen extends ConsumerWidget {
                     ),
                     const SizedBox(height: 14),
                     _buildScanCard(
-                      img: "assets/images/nutrition_table.jpg",
+                      img: "assets/images/nutrition_table.webp",
                       title: "Read Nutrition table",
                       description:
                           "AI reads nutrition facts and\ntracks macros automatically",
@@ -507,71 +507,194 @@ class DashboardScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildMacrosCard(DashboardModel dash, CalorieTargets targets) {
-    return Container(
-      padding: const EdgeInsets.all(18),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(22),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Column(
-        children: [
-          const Row(
-            children: [
-              Text(
-                "Macronutrients",
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w700,
-                  color: Colors.black87,
-                ),
+  Widget _buildNutritionInfoCard(
+  DashboardModel dash,
+  CalorieTargets targets,
+) {
+  return Container(
+    padding: const EdgeInsets.all(18),
+    decoration: BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(22),
+      boxShadow: [
+        BoxShadow(
+          color: Colors.black.withOpacity(0.05),
+          blurRadius: 12,
+          offset: const Offset(0, 4),
+        ),
+      ],
+    ),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Row(
+          children: [
+            Text(
+              "Nutrition Information",
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w700,
+                color: Colors.black87,
               ),
-              Spacer(),
-              Text(
-                "View details",
-                style: TextStyle(fontSize: 14, color: Colors.grey),
+            ),
+            Spacer(),
+            Icon(
+              Icons.chevron_right_rounded,
+              size: 20,
+              color: Colors.grey,
+            ),
+          ],
+        ),
+
+        const SizedBox(height: 18),
+
+        // ---------------- MACRONUTRIENTS ----------------
+
+        _macroRow(
+          icon: Icons.egg_rounded,
+          bg: const Color(0xFFE8F5E9),
+          label: "Protein",
+          current: dash.protein,
+          max: targets.protein,
+          color: _green,
+        ),
+
+        const Divider(
+          height: 20,
+          color: Color(0xFFF5F5F5),
+        ),
+
+        _macroRow(
+          icon: Icons.breakfast_dining_rounded,
+          bg: const Color(0xFFFFF8E1),
+          label: "Carbs",
+          current: dash.carbs,
+          max: targets.carbs,
+          color: const Color(0xFFF5A623),
+        ),
+
+        const Divider(
+          height: 20,
+          color: Color(0xFFF5F5F5),
+        ),
+
+        _macroRow(
+          icon: Icons.water_drop_rounded,
+          bg: const Color(0xFFFCE4EC),
+          label: "Fat",
+          current: dash.fat,
+          max: targets.fat,
+          color: const Color(0xFFE05C5C),
+        ),
+
+        const SizedBox(height: 22),
+
+        // ---------------- DIVIDER ----------------
+
+        Row(
+          children: [
+            Container(
+              width: 4,
+              height: 18,
+              decoration: BoxDecoration(
+                color: _green,
+                borderRadius: BorderRadius.circular(4),
               ),
-              Icon(Icons.chevron_right, size: 16, color: Colors.grey),
-            ],
-          ),
-          const SizedBox(height: 16),
-          _macroRow(
-            icon: Icons.egg,
-            bg: const Color(0xFFE8F5E9),
-            label: "Protein",
-            current: dash.protein,
-            max: targets.protein,
-            color: _green,
-          ),
-          const Divider(height: 20, color: Color(0xFFF5F5F5)),
-          _macroRow(
-            icon: Icons.breakfast_dining,
-            bg: const Color(0xFFFFFDE7),
-            label: "Carbs",
-            current: dash.carbs,
-            max: targets.carbs,
-            color: const Color(0xFFF5A623),
-          ),
-          const Divider(height: 20, color: Color(0xFFF5F5F5)),
-          _macroRow(
-            icon: Icons.water_drop,
-            bg: const Color(0xFFFCE4EC),
-            label: "Fat",
-            current: dash.fat,
-            max: targets.fat,
-            color: const Color(0xFFE05C5C),
-          ),
-        ],
-      ),
-    );
-  }
+            ),
+            const SizedBox(width: 8),
+            const Text(
+              "Micronutrients",
+              style: TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.w700,
+                color: Colors.black87,
+              ),
+            ),
+          ],
+        ),
+
+        const SizedBox(height: 14),
+
+        // ---------------- MICRONUTRIENTS ----------------
+
+        GridView.count(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          crossAxisCount: 2,
+          crossAxisSpacing: 10,
+          mainAxisSpacing: 10,
+          childAspectRatio: 1.65,
+          children: [
+            _microNutrientItem(
+              icon: Icons.grass_rounded,
+              label: "Fiber",
+              value: dash.fiber,
+              unit: "g",
+              iconColor: _green,
+              bgColor: const Color(0xFFEAF4E3),
+            ),
+            _microNutrientItem(
+              icon: Icons.water_drop_outlined,
+              label: "Sugars",
+              value: dash.sugars,
+              unit: "g",
+              iconColor: const Color(0xFFE0A11A),
+              bgColor: const Color(0xFFFFF6DC),
+            ),
+            _microNutrientItem(
+              icon: Icons.opacity_rounded,
+              label: "Sodium",
+              value: dash.sodium,
+              unit: "mg",
+              iconColor: const Color(0xFF7B61C9),
+              bgColor: const Color(0xFFF0ECFA),
+            ),
+            _microNutrientItem(
+              icon: Icons.flash_on_rounded,
+              label: "Potassium",
+              value: dash.potassium,
+              unit: "mg",
+              iconColor: const Color(0xFF4E8FCB),
+              bgColor: const Color(0xFFEAF4FB),
+            ),
+            _microNutrientItem(
+              icon: Icons.circle_outlined,
+              label: "Calcium",
+              value: dash.calcium,
+              unit: "mg",
+              iconColor: const Color(0xFF6D7A86),
+              bgColor: const Color(0xFFF0F2F4),
+            ),
+            _microNutrientItem(
+              icon: Icons.local_drink_outlined,
+              label: "Vitamin C",
+              value: dash.vitaminC,
+              unit: "mg",
+              iconColor: const Color(0xFFE68A2E),
+              bgColor: const Color(0xFFFFF0E2),
+            ),
+            _microNutrientItem(
+              icon: Icons.bloodtype_outlined,
+              label: "Iron",
+              value: dash.iron,
+              unit: "mg",
+              iconColor: const Color(0xFFB75D4C),
+              bgColor: const Color(0xFFF9E9E5),
+            ),
+            _microNutrientItem(
+              icon: Icons.visibility_outlined,
+              label: "Vitamin A",
+              value: dash.vitaminA,
+              unit: "µg",
+              iconColor: const Color(0xFFB28A2E),
+              bgColor: const Color(0xFFF9F3DF),
+            ),
+          ],
+        ),
+      ],
+    ),
+  );
+}
 
   Widget _macroRow({
     required IconData icon,
@@ -643,6 +766,88 @@ class DashboardScreen extends ConsumerWidget {
     );
   }
 
+  Widget _microNutrientItem({
+  required IconData icon,
+  required String label,
+  required double value,
+  required String unit,
+  required Color iconColor,
+  required Color bgColor,
+}) {
+  return Container(
+    padding: const EdgeInsets.symmetric(
+      horizontal: 10,
+      vertical: 10,
+    ),
+    decoration: BoxDecoration(
+      color: const Color(0xFFFAFAF8),
+      borderRadius: BorderRadius.circular(16),
+      border: Border.all(
+        color: Colors.grey.shade100,
+      ),
+    ),
+    child: Row(
+      children: [
+        Container(
+          width: 38,
+          height: 38,
+          decoration: BoxDecoration(
+            color: bgColor,
+            shape: BoxShape.circle,
+          ),
+          child: Icon(
+            icon,
+            size: 20,
+            color: iconColor,
+          ),
+        ),
+        const SizedBox(width: 9),
+        Expanded(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.black87,
+                ),
+              ),
+              const SizedBox(height: 3),
+              RichText(
+                text: TextSpan(
+                  children: [
+                    TextSpan(
+                      text: value.toStringAsFixed(1),
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w800,
+                        color: iconColor,
+                      ),
+                    ),
+                    TextSpan(
+                      text: " $unit",
+                      style: TextStyle(
+                        fontSize: 10,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.grey.shade500,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    ),
+  );
+}
+
   Widget _buildScanCard({
     required String img,
     required String title,
@@ -654,7 +859,7 @@ class DashboardScreen extends ConsumerWidget {
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
         image: DecorationImage(
-          image: const AssetImage("assets/images/leaves.jpg"),
+          image: const AssetImage("assets/images/leaves.webp"),
           fit: BoxFit.cover,
           colorFilter: ColorFilter.mode(
             Colors.grey.withOpacity(0.4),

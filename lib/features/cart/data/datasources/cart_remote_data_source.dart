@@ -22,7 +22,6 @@ class CartRemoteDataSource {
     required String token,
   }) async {
     final url = Uri.parse("${Constants.baseUrl}/cart");
-
     return http.post(
       url,
       headers:_headers(token),

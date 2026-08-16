@@ -30,7 +30,7 @@ class OrderNotFoundState extends ConsumerState<OrderNotFound> {
                 shape: BoxShape.circle,
               ),
               child: Image.asset(
-                "assets/images/order_not_found.jpg",
+                "assets/images/order_not_found.webp",
                 fit: BoxFit.cover,
               ),
             ),

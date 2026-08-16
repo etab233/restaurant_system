@@ -18,7 +18,7 @@ class LockScreen extends StatelessWidget {
                   width: double.infinity,
                   height: 200,
                   child: Image.asset(
-                    "assets/images/restaurant_logo.jpg",
+                    "assets/images/restaurant_logo.webp",
                     fit: BoxFit.contain,
                   ),
                 ),

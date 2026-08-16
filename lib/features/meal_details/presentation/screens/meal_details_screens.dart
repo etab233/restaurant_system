@@ -4,47 +4,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:restaurants_system/core/enums/meal_details_mode.dart';
 import 'package:restaurants_system/core/navigation/main_tabs.dart';
+import 'package:restaurants_system/core/widgets/app_network_image.dart';
 import 'package:restaurants_system/features/auth/presentation/providers/auth_provider.dart';
+import 'package:restaurants_system/features/calorie_dashboard/presentation/providers/dashboard_notifier.dart';
 import 'package:restaurants_system/features/favorites/data/models/favorite_meal_model.dart';
 import 'package:restaurants_system/features/favorites/presentation/providers/favorite_notifier.dart';
 import 'package:restaurants_system/features/cart/presentation/providers/cart_provider.dart';
 import 'package:restaurants_system/features/meal_details/presentation/providers/meal_details_notifier.dart';
 import 'package:restaurants_system/features/meal_details/presentation/providers/meal_details_state.dart';
+import 'package:restaurants_system/features/meal_details/presentation/providers/meal_nutrition_notifier.dart';
 import 'package:restaurants_system/features/meal_details/presentation/widgets/meal_details_section.dart';
 import 'package:restaurants_system/features/meal_details/presentation/widgets/nutrition_section.dart';
 import 'package:restaurants_system/features/navigation/presentation/providers/bottom_navigation_bar_provider.dart';
 import 'package:skeletonizer/skeletonizer.dart';
-
-class CurveClipper extends CustomClipper<Path> {
-  @override
-  Path getClip(Size size) {
-    Path path = Path();
-    path.lineTo(0, size.height - 22);
-
-    path.quadraticBezierTo(
-      size.width * 0.25,
-      size.height,
-      size.width * 0.50,
-      size.height - 12,
-    );
-
-    path.quadraticBezierTo(
-      size.width * 0.75,
-      size.height - 26,
-      size.width,
-      size.height - 6,
-    );
-
-    path.lineTo(size.width, 0);
-    path.close();
-    return path;
-  }
-
-  @override
-  bool shouldReclip(CustomClipper<Path> oldCliper) {
-    return false;
-  }
-}
 
 class MealDetails extends ConsumerStatefulWidget {
   final String? image;
@@ -236,11 +208,235 @@ class MealDetailsState extends ConsumerState<MealDetails> {
               duration: const Duration(milliseconds: 250),
               curve: Curves.easeOut,
               height: 3,
-              width: selected ? MediaQuery.of(context).size.width * 40 : 0,
+              width: selected ? MediaQuery.of(context).size.width * 0.4 : 0,
               decoration: BoxDecoration(
                 color: const Color(0xFFFF6B35),
                 borderRadius: BorderRadius.circular(10),
               ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildErrorScreen() {
+    return Scaffold(
+      backgroundColor: const Color(0xFFF7F7F5),
+      body: SafeArea(
+        child: Center(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 32),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  width: 110,
+                  height: 110,
+                  decoration: const BoxDecoration(
+                    color: Color(0xFFFFF0E9),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.cloud_off_rounded,
+                    size: 52,
+                    color: Color(0xFFFF6B35),
+                  ),
+                ),
+
+                const SizedBox(height: 28),
+
+                const Text(
+                  "Something went wrong",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 23,
+                    fontWeight: FontWeight.w800,
+                    color: Color(0xFF1A1A1A),
+                  ),
+                ),
+
+                const SizedBox(height: 12),
+
+                Text(
+                  "We couldn't load this meal right now.\n"
+                  "Please check your connection and try again.",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 14,
+                    height: 1.6,
+                    color: Colors.grey.shade600,
+                  ),
+                ),
+
+                const SizedBox(height: 28),
+
+                SizedBox(
+                  width: 170,
+                  height: 50,
+                  child: ElevatedButton.icon(
+                    onPressed: () {
+                      switch (widget.mode) {
+                        case MealDetailsMode.create:
+                          ref
+                              .read(mealDetailsProvider.notifier)
+                              .getMealDetails(
+                                restaurantId: widget.restaurantId,
+                                mealId: widget.itemId,
+                              );
+                          break;
+
+                        case MealDetailsMode.edit:
+                          ref
+                              .read(mealDetailsProvider.notifier)
+                              .getCartMealDetails(itemId: widget.itemId);
+                          break;
+                      }
+                    },
+                    icon: const Icon(Icons.refresh_rounded),
+                    label: const Text(
+                      "Try Again",
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFFFF6B35),
+                      foregroundColor: Colors.white,
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(15),
+                      ),
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: 16),
+
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: Text(
+                    "Go Back",
+                    style: TextStyle(
+                      color: Colors.grey.shade600,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  // رسالة لسؤال المستخدم إذا كان يريد إضافة الوجبة للداشبورد
+  void _maybeAskAddToDashboard(int qty) {
+    final mealState = ref.read(mealDetailsProvider);
+    if (!mealState.menuItem.isNutritionallyAnalyzed) return;
+
+    final nutrition = ref.read(nutritionProvider).nutrition;
+    if (nutrition == null) return;
+
+    if (!mounted) return;
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (dialogContext) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(
+                color: const Color(0xFF4A7A2E).withOpacity(0.12),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                Icons.local_fire_department_rounded,
+                color: Color(0xFF4A7A2E),
+                size: 36,
+              ),
+            ),
+            const SizedBox(height: 16),
+
+            const Text(
+              "Track this meal?",
+              style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
+            ),
+
+            const SizedBox(height: 8),
+
+            Text(
+              "Would you like to add "
+              "${(nutrition.energy.value * qty).toInt()} kcal "
+              "to today's dashboard?\n"
+              "If this meal is shared or is not for you, you can skip it.",
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                fontSize: 14,
+                color: Colors.black87,
+                height: 1.4,
+              ),
+            ),
+
+            const SizedBox(height: 24),
+
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: () => Navigator.pop(dialogContext),
+                    child: const Text("Shared Meal"),
+                  ),
+                ),
+
+                const SizedBox(width: 12),
+
+                Expanded(
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF4A7A2E),
+                      foregroundColor: Colors.white,
+                    ),
+                    onPressed: () async {
+                      await ref
+                          .read(dashboardProvider.notifier)
+                          .addMealAndPersist(
+                            calories: nutrition.energy.value * qty,
+                            protein: nutrition.protein.value * qty,
+                            carbs: nutrition.carbs.value * qty,
+                            fat: nutrition.fat.value * qty,
+                            fiber: nutrition.fiber.value * qty,
+                            sugars: nutrition.sugars.value * qty,
+                            sodium: nutrition.sodium.value * qty,
+                            potassium: nutrition.potassium.value * qty,
+                            calcium: nutrition.calcium.value * qty,
+                            vitaminC: nutrition.vitaminC.value * qty,
+                            iron: nutrition.iron.value * qty,
+                            vitaminA: nutrition.vitaminA.value * qty,
+                          );
+
+                      if (!mounted) return;
+
+                      Navigator.pop(dialogContext);
+
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          behavior: SnackBarBehavior.floating,
+                          margin: EdgeInsets.all(10),
+                          content: Text("Meal added to today's dashboard"),
+                        ),
+                      );
+                    },
+                    child: const Text("Yes, Track It"),
+                  ),
+                ),
+              ],
             ),
           ],
         ),
@@ -256,22 +452,43 @@ class MealDetailsState extends ConsumerState<MealDetails> {
     final cartState = ref.watch(cartNotifierProvider);
     final authState = ref.watch(authNotifierProvider);
 
+    final isError = state.status == MealDetailsStatus.error;
+
     final int selectedVariantId = state.selectedVariantId;
     final int quantity = state.quantity;
     final Map<int, List<int>> selectedModifier = state.selectedModifier;
 
     ref.listen<MealState>(mealDetailsProvider, (previous, next) {
-      final wasLoading = previous == null || previous.status == "loading";
-      final justLoaded = wasLoading && next.status != "loading";
-      if (justLoaded && _noteController.text != next.note) {
-        _noteController.text = next.note;
+      // هل الحالة السابقة كانت Loading
+      final wasLoading =
+          previous == null || previous.status == MealDetailsStatus.loading;
+      // هل انتهينا الآن من حالة التحميل
+      final justLoaded = wasLoading && next.status != MealDetailsStatus.loading;
+      if (justLoaded) {
+        if (_noteController.text != next.note) {
+          _noteController.text = next.note;
+        }
+
+        // حتى تكون جاهزة وقت الإضافة للسلة
+        if (next.menuItem.isNutritionallyAnalyzed) {
+          ref
+              .read(nutritionProvider.notifier)
+              .fetchNutrition(
+                menuItemId: widget.itemId,
+                restaurantId: widget.restaurantId,
+              );
+        }
       }
     });
 
-    final bool isLoading = state.status == "loading";
+    final bool isLoading = state.status == MealDetailsStatus.loading;
     final isFav = favoritesState.favoriteMeals.any(
       (m) => m.itemId == widget.itemId,
     );
+
+    if (isError) {
+      return _buildErrorScreen();
+    }
 
     return Scaffold(
       backgroundColor: const Color(0xFFF5F5F5),
@@ -304,7 +521,7 @@ class MealDetailsState extends ConsumerState<MealDetails> {
                 ),
               ),
               child: Padding(
-                padding:const EdgeInsets.symmetric(horizontal: 10),
+                padding: const EdgeInsets.symmetric(horizontal: 10),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -472,13 +689,14 @@ class MealDetailsState extends ConsumerState<MealDetails> {
                                   if (!_showMiniCartBar) {
                                     setState(() => _showMiniCartBar = true);
                                   }
+                                  _maybeAskAddToDashboard(quantity);
                                 } else if (newState.status == "error") {
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     SnackBar(
                                       margin: const EdgeInsets.all(10),
                                       behavior: SnackBarBehavior.floating,
                                       backgroundColor: Colors.red.shade600,
-                                      content:const Text(
+                                      content: const Text(
                                         "حدث خطأ، يرجى المحاولة مرة أخرى",
                                       ),
                                     ),
@@ -512,10 +730,13 @@ class MealDetailsState extends ConsumerState<MealDetails> {
                                         ),
                                         const SizedBox(width: 8),
                                         Text(
-                                          authState.isLoggedIn
+                                          !authState.isLoggedIn
+                                              ? "Log in to add"
+                                              : widget.mode ==
+                                                    MealDetailsMode.create
                                               ? "Add to Cart"
-                                              : "Log in to add",
-                                          style:const TextStyle(
+                                              : "Update Cart",
+                                          style: const TextStyle(
                                             color: Colors.white,
                                             fontSize: 16,
                                             fontWeight: FontWeight.w800,
@@ -543,24 +764,33 @@ class MealDetailsState extends ConsumerState<MealDetails> {
               children: [
                 Hero(
                   tag: "meal_${widget.itemId}",
-                  child: ClipPath(
-                    clipper: CurveClipper(),
-                    child: (widget.image != null)
-                        ? Image.network(
-                            widget.image!,
-                            width: double.infinity,
-                            height: MediaQuery.of(context).size.height * 0.28,
-                            fit: BoxFit.cover,
-                          )
-                        : Container(
-                            width: double.infinity,
-                            height: MediaQuery.of(context).size.height * 0.28,
-                            color: Colors.grey.shade200,
-                            child: Image.asset(
-                              "assets/images/meal.jpg",
-                              fit: BoxFit.cover,
-                            ),
-                          ),
+                  child: ClipRRect(
+                    borderRadius: const BorderRadius.vertical(
+                      bottom: Radius.circular(20),
+                    ),
+                    child: AppNetworkImage(
+                      imageUrl: widget.image,
+                      width: double.infinity,
+                      height: MediaQuery.of(context).size.height * 0.25,
+                      fallback: Container(
+                        width: double.infinity,
+                        height: MediaQuery.of(context).size.height * 0.25,
+                        color: Colors.grey.shade200,
+                        child: Image.asset(
+                          "assets/images/meal.webp",
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                      placeholder: Container(
+                        width: double.infinity,
+                        height: MediaQuery.of(context).size.height * 0.25,
+                        color: Colors.grey.shade200,
+                        child: Image.asset(
+                          "assets/images/meal.webp",
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                    ),
                   ),
                 ),
                 Positioned(
@@ -615,6 +845,8 @@ class MealDetailsState extends ConsumerState<MealDetails> {
               ],
             ),
 
+            const SizedBox(height: 10),
+
             // ═══ ثابت: اسم الوجبة + الوقت + الوصف ═══
             Skeletonizer(
               enabled: isLoading,
@@ -656,7 +888,7 @@ class MealDetailsState extends ConsumerState<MealDetails> {
                             textAlign: TextAlign.right,
                             textDirection: TextDirection.rtl,
                             style: const TextStyle(
-                              fontSize: 26,
+                              fontSize: 20,
                               fontWeight: FontWeight.w800,
                               color: Color(0xFF1A1A1A),
                               height: 1.2,

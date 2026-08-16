@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:restaurants_system/core/enums/meal_details_mode.dart';
+import 'package:restaurants_system/core/widgets/app_network_image.dart';
 import 'package:restaurants_system/features/home/data/models/restaurant_model.dart';
 import 'package:restaurants_system/features/meal_details/presentation/screens/meal_details_screens.dart';
 import 'package:restaurants_system/features/restaurant_menu/presentation/screens/restaurant_menu_screen.dart';
@@ -151,26 +152,29 @@ class _FavoritesScreenState extends ConsumerState<FavoritesScreen>
         ),
         child: Row(
           children: [
-            ClipRRect(
+            AppNetworkImage(
+              imageUrl: restaurant.coverImage,
+              width: 120,
+              height: 125,
               borderRadius: BorderRadius.circular(18),
-              child:
-                  (restaurant.coverImage != null &&
-                      restaurant.coverImage!.isNotEmpty)
-                  ? Image.network(
-                      restaurant.coverImage!,
-                      width: 120,
-                      height: 125,
-                      fit: BoxFit.cover,
-                    )
-                  : const SizedBox(
-                      width: 120,
-                      height: 125,
-                      child: Icon(
-                        Icons.store_mall_directory,
-                        size: 44,
-                        color: Colors.grey,
-                      ),
-                    ),
+              fallback: const SizedBox(
+                width: 120,
+                height: 125,
+                child: Icon(
+                  Icons.store_mall_directory,
+                  size: 44,
+                  color: Colors.grey,
+                ),
+              ),
+              placeholder: const SizedBox(
+                width: 120,
+                height: 125,
+                child: Icon(
+                  Icons.store_mall_directory,
+                  size: 44,
+                  color: Colors.grey,
+                ),
+              ),
             ),
             const SizedBox(width: 30),
             Expanded(
@@ -313,6 +317,7 @@ class _FavoritesScreenState extends ConsumerState<FavoritesScreen>
         ),
         child: Row(
           children: [
+            // الحالي
             ClipRRect(
               borderRadius: const BorderRadius.all(Radius.circular(18)),
               child: (meal.image != null && meal.image!.isNotEmpty)
@@ -327,7 +332,7 @@ class _FavoritesScreenState extends ConsumerState<FavoritesScreen>
                       height: 125,
                       color: Colors.grey.shade200,
                       child: Image.asset(
-                        "assets/images/meal.jpg",
+                        "assets/images/meal.webp",
                         fit: BoxFit.cover,
                       ),
                     ),

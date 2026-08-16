@@ -15,7 +15,6 @@ import 'package:restaurants_system/features/profile/presentation/screens/profile
 import 'package:restaurants_system/features/restaurant_by_category/presentation/screens/restaurant_by_category_screen.dart';
 import 'package:restaurants_system/features/restaurant_menu/presentation/screens/restaurant_menu_screen.dart';
 import 'package:restaurants_system/features/home/presentation/widgets/categories/categories_grid.dart';
-import 'package:restaurants_system/features/home/presentation/widgets/bubble_widget.dart';
 import 'package:restaurants_system/features/auth/presentation/screens/login.dart';
 import 'package:restaurants_system/features/auth/presentation/screens/register.dart';
 import 'package:restaurants_system/features/home/presentation/widgets/categories/category_card.dart';
@@ -37,61 +36,20 @@ class _HomeState extends ConsumerState<Home> with TickerProviderStateMixin {
   Timer? _debounce;
   String userLocation = "Home";
 
-  // bubble controller
-  late AnimationController _bubble1Ctrl;
-  late AnimationController _bubble2Ctrl;
-  late AnimationController _bubble3Ctrl;
-
-  Animation<double>? _bubble1Anim;
-  Animation<double>? _bubble2Anim;
-  Animation<double>? _bubble3Anim;
-
   @override
   void initState() {
     super.initState();
-    _initBubbles();
     Future.microtask(() async {
       await ref.read(authNotifierProvider.notifier).restoreSession();
       ref.read(homeNotifierProvider.notifier).getHomeData();
     });
   }
 
-  void _initBubbles() {
-    _bubble1Ctrl = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 2100),
-    )..repeat(reverse: true);
-
-    _bubble2Ctrl = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 2200),
-    )..repeat(reverse: true);
-
-    _bubble3Ctrl = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 2000),
-    )..repeat(reverse: true);
-
-    _bubble1Anim = Tween(begin: 0.0, end: -20.0).animate(
-      CurvedAnimation(parent: _bubble1Ctrl, curve: Curves.easeInOutCubic),
-    );
-
-    _bubble2Anim = Tween(begin: 0.0, end: -10.0).animate(
-      CurvedAnimation(parent: _bubble2Ctrl, curve: Curves.easeInOutCubic),
-    );
-
-    _bubble3Anim = Tween(begin: 0.0, end: -15.0).animate(
-      CurvedAnimation(parent: _bubble3Ctrl, curve: Curves.easeInOutCubic),
-    );
-  }
 
   @override
   void dispose() {
     _searchController.dispose();
     _debounce?.cancel();
-    _bubble1Ctrl.dispose();
-    _bubble2Ctrl.dispose();
-    _bubble3Ctrl.dispose();
     super.dispose();
   }
 
@@ -255,36 +213,6 @@ class _HomeState extends ConsumerState<Home> with TickerProviderStateMixin {
             ],
           ),
         ),
-
-        // bubbles
-        if (_bubble1Anim != null)
-          FloatingBubble(
-            animation: _bubble1Anim!,
-            size: 80,
-            color: const Color.fromARGB(255, 245, 242, 241).withOpacity(0.18),
-            top: 0,
-            left: 150,
-          ),
-
-        // bubbles
-        if (_bubble2Anim != null)
-          FloatingBubble(
-            animation: _bubble2Anim!,
-            size: 55,
-            color: const Color.fromARGB(255, 245, 242, 241).withOpacity(0.18),
-            top: 20,
-            left: 270,
-          ),
-
-        // bubbles
-        if (_bubble3Anim != null)
-          FloatingBubble(
-            animation: _bubble3Anim!,
-            size: 70,
-            color: const Color.fromARGB(255, 245, 242, 241).withOpacity(0.18),
-            top: -15,
-            left: 15,
-          ),
 
         // Search bar (floating)
         Positioned(

@@ -21,7 +21,7 @@ class MealDetailsNotifier extends Notifier<MealState> {
 
   MealState _initialState() {
     return MealState(
-      status: "",
+      status: MealDetailsStatus.initial,
       message: "",
       menuItem: MealItem.loading()
     );
@@ -41,7 +41,7 @@ class MealDetailsNotifier extends Notifier<MealState> {
   }) async {
     // تصفير البيانات القديمة قبل بدء الطلب
     state = _initialState().copyWith(
-      status: "loading",
+      status: MealDetailsStatus.loading,
       message: "loading data ..",
     );
 
@@ -52,22 +52,22 @@ class MealDetailsNotifier extends Notifier<MealState> {
 
     state = result.isSuccess
         ? state.copyWith(
-            status: result.status,
+            status: MealDetailsStatus.success,
             message: result.message,
             menuItem: result.meal,
           )
-        : state.copyWith(status: result.status, message: result.message);
+        : state.copyWith(status: MealDetailsStatus.error, message: result.message);
   }
 
   Future<void> getCartMealDetails({required int itemId}) async {
-    state = state.copyWith(status: "loading");
+    state = state.copyWith(status: MealDetailsStatus.loading);
 
     final token = await _authRepository.getCurrentToken();
 
     if (token == null) {
       state = state.copyWith(
         message: "Please login first",
-        status: "unauthenticated",
+        status: MealDetailsStatus.unauthenticated,
       );
       return;
     }
@@ -79,13 +79,13 @@ class MealDetailsNotifier extends Notifier<MealState> {
 
     if (result.isSuccess) {
       state = state.copyWith(
-        status: result.status,
+        status: MealDetailsStatus.success,
         message: result.message,
         menuItem: result.meal,
       );
       loadCartItemData(result.meal!);
     } else {
-      state = state.copyWith(status: result.status, message: result.message);
+      state = state.copyWith(status: MealDetailsStatus.error, message: result.message);
     }
   }
 

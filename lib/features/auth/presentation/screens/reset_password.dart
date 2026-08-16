@@ -68,7 +68,7 @@ class _ResetPasswordState extends ConsumerState<ResetPassword> {
                 child: Transform.translate(
                   offset: const Offset(0, 35),
                   child: Image.asset(
-                    'assets/images/set_password.png',
+                    'assets/images/set_password.webp',
                     width: 180,
                     height: 180,
                   ),
@@ -89,8 +89,8 @@ class _ResetPasswordState extends ConsumerState<ResetPassword> {
                       suffixIcon: IconButton(
                         icon: Image.asset(
                           _passwordVisible1
-                              ? 'assets/images/visibility.png'
-                              : 'assets/images/eyebrow.png',
+                              ? 'assets/images/visibility.webp'
+                              : 'assets/images/eyebrow.webp',
                           width: 27,
                           color: Colors.grey,
                         ),
@@ -112,8 +112,8 @@ class _ResetPasswordState extends ConsumerState<ResetPassword> {
                       suffixIcon: IconButton(
                         icon: Image.asset(
                           _passwordVisible2
-                              ? 'assets/images/visibility.png'
-                              : 'assets/images/eyebrow.png',
+                              ? 'assets/images/visibility.webp'
+                              : 'assets/images/eyebrow.webp',
                           width: 27,
                           color: Colors.grey,
                         ),

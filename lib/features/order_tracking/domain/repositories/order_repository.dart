@@ -7,7 +7,7 @@ abstract class OrderRepository {
     required String tenantId,
     required String type,
     required String paymentMethode,
-    required String address,
+    String? address,
     required String token,
     double? latitude,
     double? longitude,

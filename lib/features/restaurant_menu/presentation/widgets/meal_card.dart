@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:restaurants_system/core/enums/meal_details_mode.dart';
+import 'package:restaurants_system/core/widgets/app_network_image.dart';
 import 'package:restaurants_system/features/favorites/data/models/favorite_meal_model.dart';
 import 'package:restaurants_system/features/favorites/presentation/providers/favorite_notifier.dart';
 import 'package:restaurants_system/features/meal_details/data/models/meal_item_model.dart';
@@ -58,26 +59,28 @@ class _MealCardState extends ConsumerState<MealCard> {
           children: [
             Stack(
               children: [
-                ClipRRect(
-                  borderRadius: const BorderRadius.only(
-                    topLeft: Radius.circular(18),
-                    bottomLeft: Radius.circular(18),
-                  ),
-                  child: Hero(
-                    tag: "meal_${widget.meal.itemId}",
-                    child: (widget.meal.image != null && widget.meal.image!.isNotEmpty)
-                        ? Image.network(
-                            widget.meal.image!,
-                            width: 120,
-                            height: 125,
-                            fit: BoxFit.cover,
-                          )
-                        : Image.asset(
-                            "assets/images/meal.jpg",
-                            width: 120,
-                            height: 125,
-                            fit: BoxFit.cover,
-                          ),
+                Hero(
+                  tag: "meal_${widget.meal.itemId}",
+                  child: AppNetworkImage(
+                    imageUrl: widget.meal.image,
+                    width: 120,
+                    height: 125,
+                    borderRadius: const BorderRadius.only(
+                      topLeft: Radius.circular(18),
+                      bottomLeft: Radius.circular(18),
+                    ),
+                    fallback: Image.asset(
+                      "assets/images/meal.webp",
+                      width: 120,
+                      height: 125,
+                      fit: BoxFit.cover,
+                    ),
+                    placeholder: Image.asset(
+                      "assets/images/meal.webp",
+                      width: 120,
+                      height: 125,
+                      fit: BoxFit.cover,
+                    ),
                   ),
                 ),
                 if (widget.meal.preparationTime.isNotEmpty)
@@ -85,7 +88,10 @@ class _MealCardState extends ConsumerState<MealCard> {
                     bottom: 8,
                     left: 6,
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 6,
+                        vertical: 3,
+                      ),
                       decoration: BoxDecoration(
                         color: Colors.black.withOpacity(0.5),
                         borderRadius: BorderRadius.circular(20),
@@ -93,7 +99,11 @@ class _MealCardState extends ConsumerState<MealCard> {
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          const Icon(Icons.timer_outlined, color: Colors.white, size: 12),
+                          const Icon(
+                            Icons.timer_outlined,
+                            color: Colors.white,
+                            size: 12,
+                          ),
                           const SizedBox(width: 4),
                           Text(
                             widget.meal.preparationTime,
@@ -112,7 +122,10 @@ class _MealCardState extends ConsumerState<MealCard> {
                     top: 8,
                     left: 6,
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 6,
+                        vertical: 3,
+                      ),
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(20),
@@ -144,7 +157,10 @@ class _MealCardState extends ConsumerState<MealCard> {
             ),
             Expanded(
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 10,
+                ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -164,7 +180,9 @@ class _MealCardState extends ConsumerState<MealCard> {
                         ),
                         InkWell(
                           onTap: () {
-                            ref.read(favoritesProvider.notifier).toggleMeal(
+                            ref
+                                .read(favoritesProvider.notifier)
+                                .toggleMeal(
                                   FavoriteMeal(
                                     itemId: widget.meal.itemId,
                                     restaurantId: widget.meal.restaurantId,
@@ -175,7 +193,9 @@ class _MealCardState extends ConsumerState<MealCard> {
                                 );
                           },
                           child: Icon(
-                            isFav ? Icons.favorite : Icons.favorite_border_rounded,
+                            isFav
+                                ? Icons.favorite
+                                : Icons.favorite_border_rounded,
                             size: 24,
                             color: const Color(0xFFFF6B35),
                           ),
@@ -219,7 +239,11 @@ class _MealCardState extends ConsumerState<MealCard> {
                               ),
                             ],
                           ),
-                          child: const Icon(Icons.add_rounded, color: Colors.white, size: 24),
+                          child: const Icon(
+                            Icons.add_rounded,
+                            color: Colors.white,
+                            size: 24,
+                          ),
                         ),
                       ],
                     ),

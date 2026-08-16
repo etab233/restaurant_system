@@ -38,14 +38,8 @@ class MyOrdersState extends ConsumerState<MyOrders> {
       case 'ready':
         return Colors.purple;
 
-      case 'dispatched':
-        return Colors.indigo;
-
       case 'delivered':
         return Colors.green;
-
-      case 'cancelled':
-        return Colors.red;
 
       default:
         return Colors.grey;
@@ -63,14 +57,8 @@ class MyOrdersState extends ConsumerState<MyOrders> {
       case 'ready':
         return Icons.restaurant;
 
-      case 'dispatched':
-        return Icons.delivery_dining;
-
       case 'delivered':
         return Icons.task_alt;
-
-      case 'cancelled':
-        return Icons.cancel;
 
       default:
         return Icons.help_outline;
@@ -221,9 +209,6 @@ class MyOrdersState extends ConsumerState<MyOrders> {
         case "ready":
           return "Ready";
 
-        case "dispatched":
-          return "On the way";
-
         case "delivered":
           return "Delivered";
 
@@ -334,8 +319,7 @@ class MyOrdersState extends ConsumerState<MyOrders> {
                                 ),
 
                                 ///  CANCEL BUTTON (TOP RIGHT LINE)
-                                if (order?.status == "pending" ||
-                                    order?.status == "confirmed") ...[
+                                if (order?.status == "pending") ...[
                                   const SizedBox(width: 5),
                                   Align(
                                     alignment: Alignment.topRight,
@@ -344,9 +328,9 @@ class MyOrdersState extends ConsumerState<MyOrders> {
                                         final confirm = await showDialog<bool>(
                                           context: context,
                                           builder: (_) => AlertDialog(
-                                            title: const Text("Cancel Order"),
+                                            title: const Text("Delete Order"),
                                             content: const Text(
-                                              "Are you sure you want to cancel this order?",
+                                              "Do you sure you want to delete this order?",
                                             ),
                                             actions: [
                                               TextButton(
@@ -384,7 +368,7 @@ class MyOrdersState extends ConsumerState<MyOrders> {
                                           context,
                                         ).showSnackBar(
                                           const SnackBar(
-                                            content: Text("Order cancelled"),
+                                            content: Text("Order deleted"),
                                             backgroundColor: Colors.red,
                                           ),
                                         );
@@ -542,9 +526,7 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
     'pending',
     'confirmed',
     'ready',
-    'dispatched',
     'delivered',
-    'cancelled',
   ];
   final types = ['all', 'pickup', 'delivery'];
 

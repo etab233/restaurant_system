@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:restaurants_system/core/widgets/app_network_image.dart';
 import 'package:restaurants_system/features/cart/presentation/providers/cart_provider.dart';
 import 'package:restaurants_system/features/cart/presentation/screens/cart_content.dart';
 import 'package:restaurants_system/features/cart/presentation/screens/empty_cart.dart';
@@ -238,23 +239,25 @@ class RestaurantCartCardState extends ConsumerState<RestaurantCartCard> {
                         crossAxisAlignment: CrossAxisAlignment.center,
 
                         children: [
-                          ClipOval(
-                            child: widget.logo != null
-                                ? Image.network(
-                                    widget.logo!,
-                                    width: 56,
-                                    height: 56,
-                                    fit: BoxFit.cover,
-                                  )
-                                : Container(
-                                    width: 56,
-                                    height: 56,
-                                    color: Colors.grey.shade200,
-                                    child: const Icon(
-                                      Icons.restaurant,
-                                      size: 30,
-                                    ),
-                                  ),
+                          AppNetworkImage(
+                            imageUrl: widget.logo,
+                            width: 56,
+                            height: 56,
+                            borderRadius: BorderRadius.circular(
+                              28,
+                            ), // نص العرض = دائرة كاملة
+                            fallback: Container(
+                              width: 56,
+                              height: 56,
+                              color: Colors.grey.shade200,
+                              child: const Icon(Icons.restaurant, size: 30),
+                            ),
+                            placeholder: Container(
+                              width: 56,
+                              height: 56,
+                              color: Colors.grey.shade200,
+                              child: const Icon(Icons.restaurant, size: 30),
+                            ),
                           ),
 
                           const SizedBox(width: 20),

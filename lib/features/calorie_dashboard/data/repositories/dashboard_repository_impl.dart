@@ -18,12 +18,28 @@ class DashboardRepositoryImpl implements DashboardRepository {
     required double protein,
     required double carbs,
     required double fat,
+    required double fiber,
+    required double sugars,
+    required double sodium,
+    required double potassium,
+    required double calcium,
+    required double vitaminC,
+    required double iron,
+    required double vitaminA,
   }) {
     return _local.saveMacros(
       calories: calories,
       protein: protein,
       carbs: carbs,
       fat: fat,
+      fiber: fiber,
+      sugars: sugars,
+      sodium: sodium,
+      potassium: potassium,
+      calcium: calcium,
+      vitaminC: vitaminC,
+      iron: iron,
+      vitaminA: vitaminA,
     );
   }
 }

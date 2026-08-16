@@ -1,7 +1,15 @@
 import '../../data/models/meal_item_model.dart';
 
+enum MealDetailsStatus {
+  initial,
+  loading,
+  success,
+  error,
+  unauthenticated,
+}
+
 class MealState {
-  final String status;
+  final MealDetailsStatus status;
   final String message;
   final MealItem menuItem;
   final int quantity;
@@ -10,7 +18,7 @@ class MealState {
   final String note;
 
   MealState({
-    required this.status,
+    this.status= MealDetailsStatus.initial,
     required this.message,
     required this.menuItem,
     this.quantity = 1,
@@ -20,7 +28,7 @@ class MealState {
   });
 
   MealState copyWith({
-    String? status,
+    MealDetailsStatus? status,
     String? message,
     MealItem? menuItem,
     int? quantity,

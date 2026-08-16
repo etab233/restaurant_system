@@ -58,7 +58,7 @@ class CartNotifier extends Notifier<CartState> {
     );
 
     if (result.isSuccess) {
-      await index();
+      //await index();
 
       state = state.copyWith(
         status: 'success',
@@ -106,13 +106,22 @@ class CartNotifier extends Notifier<CartState> {
       modifierSelections: modifierSelections,
       token: token,
     );
+    if (!result.isSuccess) {
+      state = state.copyWith(
+        isAddingToCart: false,
+        message: result.message,
+        status: "error",
+      );
+      return;
+    }
+
+    await getRestaurantCart(restaurantId: int.tryParse(restaurantId) ?? 0);
+
     state = state.copyWith(
       isAddingToCart: false,
-      message: result.isSuccess ? result.data! : result.message,
+      message: result.data!,
+      status: "success",
     );
-    if (result.isSuccess) {
-      getRestaurantCart(restaurantId: int.tryParse(restaurantId) ?? 0);
-    }
   }
 
   Future<void> index() async {

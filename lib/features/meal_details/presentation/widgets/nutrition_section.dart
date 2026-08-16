@@ -21,18 +21,6 @@ class NutritionSection extends ConsumerStatefulWidget {
 }
 
 class _NutritionSectionState extends ConsumerState<NutritionSection> {
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref
-          .read(nutritionProvider.notifier)
-          .fetchNutrition(
-            menuItemId: widget.menuItemId,
-            restaurantId: widget.restaurantId,
-          );
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -387,9 +375,7 @@ class _NutritionSectionState extends ConsumerState<NutritionSection> {
       padding: const EdgeInsets.symmetric(vertical: 12),
       decoration: showDivider
           ? BoxDecoration(
-              border: Border(
-                bottom: BorderSide(color: Colors.grey.shade100),
-              ),
+              border: Border(bottom: BorderSide(color: Colors.grey.shade100)),
             )
           : null,
       child: Row(

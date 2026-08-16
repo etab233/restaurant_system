@@ -1,7 +1,7 @@
 class ProfileModel {
   final String name;
   final String email;
-  final String? phone;
+  final String phone;
 
   ProfileModel({
     required this.name,

@@ -32,7 +32,7 @@ class ScanFabButton extends StatelessWidget {
             ),
           ],
         ),
-        child: Image.asset("assets/images/powl.png", color: Colors.grey),
+        child: Image.asset("assets/images/powl.webp", color: Colors.grey),
         /*Icon(
           Icons.document_scanner_rounded,
           color: Colors.white,

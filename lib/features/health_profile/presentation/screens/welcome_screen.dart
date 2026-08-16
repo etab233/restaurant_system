@@ -98,7 +98,7 @@ class WelcomeState extends ConsumerState<Welcome>
                 child: Opacity(
                   opacity: 1 - val,
                   child: Image.asset(
-                    "assets/images/unhealthy.jpg",
+                    "assets/images/unhealthy.webp",
                     fit: BoxFit.cover,
                   ),
                 ),
@@ -107,7 +107,7 @@ class WelcomeState extends ConsumerState<Welcome>
                 child: Opacity(
                   opacity: val,
                   child: Image.asset(
-                    "assets/images/healthy.jpg",
+                    "assets/images/healthy.webp",
                     fit: BoxFit.cover,
                   ),
                 ),
@@ -352,7 +352,7 @@ class WelcomeState extends ConsumerState<Welcome>
                     ),
                     child: ClipOval(
                       child: Image.asset(
-                        "assets/images/fruit.png",
+                        "assets/images/fruit.webp",
                         fit: BoxFit.cover,
                       ),
                     ),

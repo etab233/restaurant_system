@@ -40,9 +40,13 @@ class MealItem {
       image: json["image"],
       isFeatured: json["is_featured"] ?? false,
       quantity: json["quantity"] ?? 1,
-      preparationTime: json["preparation_time"] ?? "",
+      preparationTime:
+          (json["preparation_time"] ?? json["item"]?["preparation_time"] ?? 0)
+              .toString(),
       price: json["price"] != null
           ? double.tryParse(json["price"].toString()) ?? 0
+          : json["item"]?["price"] != null
+          ? double.tryParse(json["item"]["price"].toString()) ?? 0
           : 0,
       variants: (json["variants"] as List? ?? [])
           .map((e) => Variant.fromJson(e))

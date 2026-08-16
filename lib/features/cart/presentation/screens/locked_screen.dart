@@ -32,7 +32,7 @@ class LoginRequiredCartViewState extends ConsumerState<LoginRequiredCartView> {
                 shape: BoxShape.circle,
               ),
               child: Image.asset(
-                "assets/images/locked_cart.jpg",
+                "assets/images/locked_cart.webp",
                 fit: BoxFit.cover,
               ),
             ),

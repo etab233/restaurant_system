@@ -43,23 +43,54 @@ class _ManageProfilePageState extends ConsumerState<ManageProfilePage> {
 
     final currentProfile = ref.read(profileProvider).profile;
 
+    final nameChanged = name != (currentProfile?.name ?? '');
+    final phoneChanged = phone != (currentProfile?.phone ?? '');
+
+    // لا يوجد أي تغيير
+    if (!nameChanged && !phoneChanged) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('No changes to save'),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      return;
+    }
+
     bool success = true;
+    String? errorMessage;
 
-    if (name != currentProfile?.name) {
-      success = await ref.read(profileProvider.notifier).updateName(name);
+    // تغيير الاسم فقط أو ضمن التغييرين
+    if (nameChanged) {
+      final result = await ref.read(profileProvider.notifier).updateName(name);
+
+      if (!result) {
+        success = false;
+        errorMessage = ref.read(profileProvider).message;
+      }
     }
 
-    if (success && phone != currentProfile?.phone) {
-      success = await ref.read(profileProvider.notifier).updatePhone(phone);
-    }
+    // تغيير الرقم فقط أو ضمن التغييرين
+    if (phoneChanged && success) {
+      final result = await ref
+          .read(profileProvider.notifier)
+          .updatePhone(phone);
 
-    final message = ref.read(profileProvider).message;
+      if (!result) {
+        success = false;
+        errorMessage = ref.read(profileProvider).message;
+      }
+    }
 
     if (!mounted) return;
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(message),
+        content: Text(
+          success
+              ? 'Profile updated successfully'
+              : (errorMessage ?? 'Failed to update profile'),
+        ),
         backgroundColor: success ? Colors.green : Colors.red,
         behavior: SnackBarBehavior.floating,
       ),
@@ -76,9 +107,10 @@ class _ManageProfilePageState extends ConsumerState<ManageProfilePage> {
 
   @override
   Widget build(BuildContext context) {
+    final profileState = ref.watch(profileProvider);
+
     final isUpdating =
-        ref.watch(profileProvider).isUpdatingName ||
-        ref.watch(profileProvider).isUpdatingPhone;
+        profileState.isUpdatingName || profileState.isUpdatingPhone;
 
     return Scaffold(
       backgroundColor: const Color(0xFFF5F6F8),

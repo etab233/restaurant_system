@@ -5,7 +5,9 @@ import '../../data/repositories/restaurant_menu_repository_impl.dart';
 import '../../domain/repositories/restaurant_menu_repository.dart';
 import 'restaurant_menu_state.dart';
 
-final restaurantMenuRepositoryProvider = Provider<RestaurantMenuRepository>((ref) {
+final restaurantMenuRepositoryProvider = Provider<RestaurantMenuRepository>((
+  ref,
+) {
   return RestaurantMenuRepositoryImpl(
     RestaurantMenuRemoteDataSource(),
     ref.read(locationRepositoryProvider),
@@ -13,11 +15,13 @@ final restaurantMenuRepositoryProvider = Provider<RestaurantMenuRepository>((ref
 });
 
 final restaurantMenuProvider =
-    NotifierProvider<RestaurantMenuNotifier, RestaurantMenuState>(
-  RestaurantMenuNotifier.new,
-);
+    NotifierProvider.family<RestaurantMenuNotifier, RestaurantMenuState, int>(
+      (restaurantId) => RestaurantMenuNotifier(restaurantId),
+    );
 
 class RestaurantMenuNotifier extends Notifier<RestaurantMenuState> {
+  RestaurantMenuNotifier(this.restaurantId);
+  final int restaurantId;
   late RestaurantMenuRepository _repository;
 
   @override
@@ -42,6 +46,10 @@ class RestaurantMenuNotifier extends Notifier<RestaurantMenuState> {
             isLoading: false,
             status: result.status,
           )
-        : state.copyWith(isLoading: false, message: result.message, status: result.status);
+        : state.copyWith(
+            isLoading: false,
+            message: result.message,
+            status: result.status,
+          );
   }
 }

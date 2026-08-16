@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:restaurants_system/core/widgets/app_network_image.dart';
 import 'package:restaurants_system/features/restaurant_by_category/presentation/widgets/empty_restaurant_view.dart';
 import 'package:restaurants_system/features/restaurant_by_category/presentation/widgets/restaurant_by_category_cart.dart';
 import 'package:skeletonizer/skeletonizer.dart';
@@ -76,21 +77,30 @@ class _RestaurantByCategoryScreenState
                 background: Stack(
                   fit: StackFit.expand,
                   children: [
-                    Image.network(
-                      widget.img,
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) {
-                        return Container(
-                          color: Colors.grey.shade300,
-                          child: const Center(
-                            child: Icon(
-                              Icons.fastfood,
-                              size: 60,
-                              color: Colors.grey,
-                            ),
+                    AppNetworkImage(
+                      imageUrl: widget.img,
+                      width: double.infinity,
+                      height: 300,
+                      fallback: Container(
+                        color: Colors.grey.shade300,
+                        child: const Center(
+                          child: Icon(
+                            Icons.fastfood,
+                            size: 60,
+                            color: Colors.grey,
                           ),
-                        );
-                      },
+                        ),
+                      ),
+                      placeholder: Container(
+                        color: Colors.grey.shade300,
+                        child: const Center(
+                          child: Icon(
+                            Icons.fastfood,
+                            size: 60,
+                            color: Colors.grey,
+                          ),
+                        ),
+                      ),
                     ),
                     Container(
                       decoration: BoxDecoration(

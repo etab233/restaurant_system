@@ -28,6 +28,28 @@ class _PaymentMethodScreenState extends ConsumerState<PaymentMethodScreen> {
   final MapController _mapController = MapController();
 
   @override
+  void initState() {
+    super.initState();
+    ref.listenManual(locationPickerNotifierProvider, (previous, next) {
+      if (!mounted) return;
+
+      if (_addressController.text != next.addressText) {
+        _addressController.value = TextEditingValue(
+          text: next.addressText,
+          selection: TextSelection.collapsed(offset: next.addressText.length),
+        );
+      }
+    });
+  }
+
+  @override
+void dispose() {
+  _addressController.dispose();
+  _mapController.dispose();
+  super.dispose();
+}
+
+  @override
   Widget build(BuildContext context) {
     final checkoutState = ref.watch(checkoutProvider);
     final cartState = ref.watch(cartNotifierProvider);
@@ -35,10 +57,6 @@ class _PaymentMethodScreenState extends ConsumerState<PaymentMethodScreen> {
     final locationState = ref.watch(locationPickerNotifierProvider);
 
     bool isShamAvailable = cartState.cartContent?.payByShamCach ?? false;
-
-    if (_addressController.text != locationState.addressText) {
-      _addressController.text = locationState.addressText;
-    }
 
     return Scaffold(
       backgroundColor: const Color(0xFFF5F5F5),
@@ -217,7 +235,7 @@ class _PaymentMethodScreenState extends ConsumerState<PaymentMethodScreen> {
                                           ),
                                           child: Center(
                                             child: Image.asset(
-                                              "assets/images/cash.png",
+                                              "assets/images/cash.webp",
                                               width: 45,
                                               height: 45,
                                             ),
@@ -301,7 +319,7 @@ class _PaymentMethodScreenState extends ConsumerState<PaymentMethodScreen> {
                                             ),
                                           ),
                                           child: Image.asset(
-                                            "assets/images/shamCash.png",
+                                            "assets/images/shamCash.webp",
                                             width: 45,
                                             height: 45,
                                           ),
@@ -422,18 +440,31 @@ class _PaymentMethodScreenState extends ConsumerState<PaymentMethodScreen> {
                                       Icons.location_on_rounded,
                                       suffix: GestureDetector(
                                         onTap: () async {
-                                          await ref
-                                              .read(
-                                                locationPickerNotifierProvider
-                                                    .notifier,
-                                              )
-                                              .useCurrentLocation();
-                                          final loc = ref
-                                              .read(
-                                                locationPickerNotifierProvider,
-                                              )
-                                              .pickedLocation;
-                                          _mapController.move(loc, 15);
+                                          final notifier = ref.read(
+                                            locationPickerNotifierProvider
+                                                .notifier,
+                                          );
+
+                                          await notifier.useCurrentLocation();
+
+                                          if (!mounted) return;
+
+                                          final state = ref.read(
+                                            locationPickerNotifierProvider,
+                                          );
+
+                                          _addressController
+                                              .value = TextEditingValue(
+                                            text: state.addressText,
+                                            selection: TextSelection.collapsed(
+                                              offset: state.addressText.length,
+                                            ),
+                                          );
+
+                                          _mapController.move(
+                                            state.pickedLocation,
+                                            15,
+                                          );
                                         },
                                         child: Container(
                                           margin: const EdgeInsets.all(8),

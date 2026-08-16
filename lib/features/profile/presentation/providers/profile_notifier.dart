@@ -23,28 +23,47 @@ final profileProvider = NotifierProvider<ProfileNotifier, ProfileState>(
 class ProfileNotifier extends Notifier<ProfileState> {
   late ProfileRepository _profileRepository;
 
+  bool _isRefreshing = false;
+
   @override
   ProfileState build() {
     _profileRepository = ref.read(profileRepositoryProvider);
-    // عرض الكاش فوراً
+
     final cachedProfile = _profileRepository.getCachedProfile();
+
+    Future.microtask(refreshProfile);
+
     return ProfileState(
       profile: cachedProfile,
-      status: cachedProfile != null ? 'success' : '',
+      status: cachedProfile != null ? 'success' : 'loading',
     );
   }
 
-  Future<void> fetchProfile() async {
-    state = state.copyWith(
-      status: state.profile == null ? 'loading' : state.status,
-    );
-    final result = await _profileRepository.fetchProfile();
-    state = result.isSuccess
-        ? state.copyWith(profile: result.profile, status: "success")
-        : state.copyWith(
-            status: state.profile != null ? 'success' : 'error',
-            message: result.message,
-          );
+  Future<void> refreshProfile() async {
+    if (_isRefreshing) return;
+
+    _isRefreshing = true;
+
+    try {
+      final result = await _profileRepository.fetchProfile();
+
+      if (result.isSuccess) {
+        state = state.copyWith(
+          profile: result.profile,
+          status: 'success',
+          message: null,
+        );
+      } else {
+        state = state.copyWith(
+          // إذا عندنا cache يبقى ظاهر
+          profile: state.profile,
+          status: state.profile != null ? 'success' : 'error',
+          message: result.message,
+        );
+      }
+    } finally {
+      _isRefreshing = false;
+    }
   }
 
   Future<bool> updateName(String name) async {
